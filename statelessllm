@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How AI Apps Manage State — The Alice Playbook</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Playfair+Display:wght@300;500;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0b0f;
+    --surface: #111318;
+    --surface2: #181b22;
+    --surface3: #1f222c;
+    --border: rgba(255,255,255,0.06);
+    --accent: #e8a034;
+    --blue: #4da6e8;
+    --green: #4dd88a;
+    --red: #e85454;
+    --purple: #a87ce8;
+    --text: #e4e0d8;
+    --muted: #706e64;
+    --mono: 'IBM Plex Mono', monospace;
+    --display: 'Playfair Display', Georgia, serif;
+    --body: 'Source Sans 3', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--body); line-height: 1.7; overflow-x: hidden; }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 85vh;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 4rem 2rem; position: relative;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 700px 500px at 40% 50%, rgba(232,160,52,0.04) 0%, transparent 70%),
+                radial-gradient(ellipse 500px 400px at 65% 45%, rgba(77,166,232,0.03) 0%, transparent 70%);
+  }
+  .hero-tag {
+    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.35em;
+    text-transform: uppercase; color: var(--accent);
+    border: 1px solid rgba(232,160,52,0.3); padding: 0.35rem 1.1rem; border-radius: 2px;
+    margin-bottom: 2rem; opacity: 0; animation: fadeUp 0.7s 0.2s forwards;
+  }
+  .hero h1 {
+    font-family: var(--display); font-weight: 300; font-size: clamp(2rem, 4.5vw, 3.6rem);
+    line-height: 1.15; max-width: 850px; opacity: 0; animation: fadeUp 0.7s 0.4s forwards;
+  }
+  .hero h1 em { font-style: normal; color: var(--accent); font-weight: 700; }
+  .hero-sub {
+    font-size: 1.1rem; color: var(--muted); max-width: 600px; margin-top: 1.5rem;
+    opacity: 0; animation: fadeUp 0.7s 0.6s forwards;
+  }
+
+  /* ─── LAYOUT ─── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 4rem 2rem; }
+  .section-num {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.35em;
+    text-transform: uppercase; color: var(--blue); margin-bottom: 0.8rem;
+  }
+  h2 {
+    font-family: var(--display); font-weight: 300; font-size: clamp(1.7rem, 3vw, 2.4rem);
+    margin-bottom: 1.2rem; line-height: 1.2;
+  }
+  h2 strong { font-weight: 700; color: var(--accent); }
+  .lead { font-size: 1.05rem; color: var(--muted); max-width: 680px; margin-bottom: 2rem; }
+
+  /* ─── CONTEXT WINDOW VISUALIZER ─── */
+  .cw-demo {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 2rem; margin: 2rem 0;
+  }
+  .cw-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
+  }
+  .cw-title {
+    font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em;
+    color: var(--accent);
+  }
+  .cw-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .cw-btn {
+    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em;
+    padding: 0.45rem 1rem; background: var(--surface2); color: var(--muted);
+    border: 1px solid var(--border); border-radius: 4px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .cw-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+  .cw-btn.active { color: var(--accent); border-color: var(--accent); background: rgba(232,160,52,0.08); }
+
+  .cw-window {
+    background: var(--surface2); border-radius: 6px; padding: 1.5rem;
+    position: relative; overflow: hidden; min-height: 300px;
+  }
+  .cw-ruler {
+    display: flex; justify-content: space-between; font-family: var(--mono);
+    font-size: 0.55rem; color: var(--muted); margin-bottom: 1rem;
+    padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+  }
+  .cw-bar-container { position: relative; height: 40px; margin-bottom: 1rem; border-radius: 4px; overflow: hidden; background: var(--surface3); }
+  .cw-bar-fill {
+    height: 100%; border-radius: 4px; transition: width 0.6s ease;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.6rem; color: rgba(255,255,255,0.8);
+  }
+  .cw-bar-fill.sys { background: linear-gradient(90deg, rgba(168,124,232,0.5), rgba(168,124,232,0.3)); }
+  .cw-bar-fill.hist { background: linear-gradient(90deg, rgba(77,166,232,0.5), rgba(77,166,232,0.3)); }
+  .cw-bar-fill.user { background: linear-gradient(90deg, rgba(77,216,138,0.5), rgba(77,216,138,0.3)); }
+  .cw-bar-fill.output { background: linear-gradient(90deg, rgba(232,160,52,0.5), rgba(232,160,52,0.3)); }
+  .cw-bar-fill.summary { background: repeating-linear-gradient(45deg, rgba(77,166,232,0.3), rgba(77,166,232,0.3) 4px, rgba(77,166,232,0.15) 4px, rgba(77,166,232,0.15) 8px); }
+
+  .cw-legend {
+    display: flex; gap: 1.2rem; flex-wrap: wrap; margin: 1rem 0;
+  }
+  .cw-legend-item {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-family: var(--mono); font-size: 0.6rem; color: var(--muted);
+  }
+  .cw-legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+  .cw-explanation {
+    background: var(--surface); border-radius: 6px; padding: 1.2rem;
+    margin-top: 1rem; font-size: 0.88rem; color: var(--muted); line-height: 1.7;
+  }
+  .cw-explanation strong { color: var(--text); }
+  .cw-explanation .highlight { color: var(--accent); }
+  .cw-explanation .blue { color: var(--blue); }
+
+  /* ─── STRATEGY CARDS ─── */
+  .strategy-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem; margin: 2.5rem 0;
+  }
+  .strategy-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 2rem; position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s;
+  }
+  .strategy-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.1); }
+  .strategy-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .strategy-card.s1::before { background: var(--blue); }
+  .strategy-card.s2::before { background: var(--green); }
+  .strategy-card.s3::before { background: var(--purple); }
+  .strategy-card.s4::before { background: var(--accent); }
+  .strategy-card.s5::before { background: var(--red); }
+
+  .strategy-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
+  .strategy-card h4 {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 0.3rem;
+  }
+  .strategy-card.s1 h4 { color: var(--blue); }
+  .strategy-card.s2 h4 { color: var(--green); }
+  .strategy-card.s3 h4 { color: var(--purple); }
+  .strategy-card.s4 h4 { color: var(--accent); }
+  .strategy-card.s5 h4 { color: var(--red); }
+  .strategy-card h3 { font-family: var(--display); font-size: 1.2rem; margin-bottom: 0.8rem; }
+  .strategy-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+  .strategy-analogy {
+    margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--border);
+    font-size: 0.82rem; font-style: italic; color: var(--text); opacity: 0.7;
+  }
+
+  /* ─── APP COMPARISON TABLE ─── */
+  .app-table-wrap {
+    overflow-x: auto; margin: 2.5rem 0; border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .app-table {
+    width: 100%; border-collapse: collapse; font-size: 0.85rem;
+    min-width: 700px;
+  }
+  .app-table th {
+    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 1rem 1.2rem; text-align: left;
+    background: var(--surface2); color: var(--muted); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+  }
+  .app-table td {
+    padding: 1rem 1.2rem; border-bottom: 1px solid var(--border);
+    background: var(--surface); vertical-align: top;
+  }
+  .app-table tr:hover td { background: var(--surface2); }
+  .app-name {
+    font-family: var(--mono); font-weight: 600; font-size: 0.8rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .app-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .tag {
+    display: inline-block; font-family: var(--mono); font-size: 0.6rem;
+    padding: 0.15rem 0.5rem; border-radius: 3px; margin: 0.15rem 0.1rem;
+  }
+  .tag-blue { background: rgba(77,166,232,0.12); color: var(--blue); }
+  .tag-green { background: rgba(77,216,138,0.12); color: var(--green); }
+  .tag-purple { background: rgba(168,124,232,0.12); color: var(--purple); }
+  .tag-accent { background: rgba(232,160,52,0.12); color: var(--accent); }
+  .tag-red { background: rgba(232,84,84,0.12); color: var(--red); }
+
+  /* ─── INTERACTIVE CONTEXT SIM ─── */
+  .sim-container {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 2rem; margin: 2.5rem 0;
+  }
+  .sim-top { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .sim-config {
+    flex: 1; min-width: 250px; background: var(--surface2); border-radius: 6px; padding: 1.2rem;
+  }
+  .sim-config label {
+    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.1em;
+    color: var(--muted); display: block; margin-bottom: 0.4rem;
+  }
+  .sim-slider {
+    width: 100%; accent-color: var(--accent); margin-bottom: 0.8rem;
+    background: transparent; cursor: pointer;
+  }
+  .sim-value {
+    font-family: var(--mono); font-size: 1.1rem; color: var(--accent); margin-bottom: 0.3rem;
+  }
+
+  .sim-visual {
+    background: var(--surface2); border-radius: 6px; padding: 1.5rem; margin-bottom: 1rem;
+  }
+  .sim-tokens-bar {
+    height: 50px; background: var(--surface3); border-radius: 4px; overflow: hidden;
+    display: flex; position: relative; margin-bottom: 0.8rem;
+  }
+  .sim-segment {
+    height: 100%; display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.55rem; color: rgba(255,255,255,0.7);
+    transition: width 0.5s ease; overflow: hidden; white-space: nowrap;
+  }
+  .sim-segment.sys-seg { background: rgba(168,124,232,0.35); }
+  .sim-segment.hist-seg { background: rgba(77,166,232,0.35); }
+  .sim-segment.sum-seg { background: repeating-linear-gradient(45deg, rgba(77,216,138,0.3), rgba(77,216,138,0.3) 3px, rgba(77,216,138,0.15) 3px, rgba(77,216,138,0.15) 6px); }
+  .sim-segment.cur-seg { background: rgba(232,160,52,0.4); }
+  .sim-segment.free-seg { background: transparent; }
+
+  .sim-status {
+    font-family: var(--mono); font-size: 0.7rem; color: var(--muted);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+  }
+  .sim-status .warn { color: var(--red); }
+  .sim-status .ok { color: var(--green); }
+
+  .sim-log {
+    background: var(--surface3); border-radius: 4px; padding: 1rem;
+    font-family: var(--mono); font-size: 0.7rem; line-height: 1.8;
+    max-height: 200px; overflow-y: auto; margin-top: 1rem;
+  }
+  .sim-log .log-alice { color: var(--accent); }
+  .sim-log .log-action { color: var(--green); }
+  .sim-log .log-warn { color: var(--red); }
+  .sim-log .log-info { color: var(--muted); }
+
+  .sim-btn-row { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+  .sim-btn {
+    font-family: var(--mono); font-size: 0.68rem; padding: 0.5rem 1.2rem;
+    border-radius: 4px; cursor: pointer; transition: all 0.2s; letter-spacing: 0.06em;
+  }
+  .sim-btn-send { background: rgba(77,166,232,0.12); color: var(--blue); border: 1px solid rgba(77,166,232,0.3); }
+  .sim-btn-send:hover { background: rgba(77,166,232,0.2); }
+  .sim-btn-compact { background: rgba(77,216,138,0.1); color: var(--green); border: 1px solid rgba(77,216,138,0.3); }
+  .sim-btn-compact:hover { background: rgba(77,216,138,0.18); }
+  .sim-btn-reset { background: rgba(232,84,84,0.08); color: var(--red); border: 1px solid rgba(232,84,84,0.3); }
+  .sim-btn-reset:hover { background: rgba(232,84,84,0.15); }
+  .sim-btn-rag { background: rgba(168,124,232,0.1); color: var(--purple); border: 1px solid rgba(168,124,232,0.3); }
+  .sim-btn-rag:hover { background: rgba(168,124,232,0.18); }
+
+  /* ─── QUOTE ─── */
+  .book-quote {
+    border-left: 3px solid var(--accent); padding: 1.2rem 1.8rem;
+    margin: 2.5rem 0; background: rgba(232,160,52,0.03); border-radius: 0 8px 8px 0;
+  }
+  .book-quote p {
+    font-family: var(--display); font-size: 1.15rem; font-weight: 300;
+    font-style: italic; line-height: 1.6;
+  }
+  .book-quote cite {
+    display: block; margin-top: 0.6rem; font-family: var(--mono);
+    font-size: 0.6rem; font-style: normal; letter-spacing: 0.15em; color: var(--accent);
+  }
+
+  /* ─── CONTEXT ROT WARNING ─── */
+  .rot-section {
+    background: linear-gradient(135deg, rgba(232,84,84,0.06), transparent);
+    border: 1px solid rgba(232,84,84,0.15); border-radius: 10px;
+    padding: 2rem; margin: 2.5rem 0;
+  }
+  .rot-section h3 {
+    font-family: var(--display); font-size: 1.4rem; color: var(--red); margin-bottom: 0.8rem;
+  }
+  .rot-visual {
+    display: flex; gap: 0.3rem; margin: 1.5rem 0; height: 30px; border-radius: 4px; overflow: hidden;
+  }
+  .rot-block {
+    flex: 1; border-radius: 2px; transition: opacity 0.3s;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.5rem; color: rgba(255,255,255,0.5);
+  }
+
+  /* ─── ARCHITECTURE ─── */
+  .arch-flow {
+    display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2.5rem 0;
+  }
+  .arch-box {
+    width: 100%; max-width: 650px; padding: 1.5rem 2rem; border-radius: 8px; text-align: center;
+  }
+  .arch-box h4 { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; }
+  .arch-box p { font-size: 0.85rem; color: var(--muted); margin-top: 0.3rem; }
+  .arch-box.ab { background: rgba(77,166,232,0.06); border: 1px solid rgba(77,166,232,0.15); }
+  .arch-box.ab h4 { color: var(--blue); }
+  .arch-box.aa { background: rgba(232,160,52,0.06); border: 1px solid rgba(232,160,52,0.15); max-width: 550px; }
+  .arch-box.aa h4 { color: var(--accent); }
+  .arch-box.al { background: rgba(232,84,84,0.05); border: 1px solid rgba(232,84,84,0.12); max-width: 450px; }
+  .arch-box.al h4 { color: var(--red); }
+  .arch-arrow { width: 1px; height: 28px; background: rgba(255,255,255,0.1); position: relative; }
+  .arch-arrow::after { content: '▾'; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); font-size: 0.5rem; color: var(--muted); }
+  .arch-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; margin-top: 0.5rem; }
+
+  footer {
+    text-align: center; padding: 3rem 2rem; font-family: var(--mono);
+    font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em;
+    border-top: 1px solid var(--border);
+  }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+  .fade-in { opacity: 0; transform: translateY(25px); transition: opacity 0.6s, transform 0.6s; }
+  .fade-in.vis { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-tag">From "Thinking in Analogies"</div>
+  <h1>How AI Apps Turn <em>Amnesia</em><br>Into <em>Continuity</em></h1>
+  <p class="hero-sub">Five strategies popular AI applications use to manage state around a stateless model — and why context engineering is the real product differentiator.</p>
+</div>
+
+<!-- ═══ THE CORE PROBLEM ═══ -->
+<div class="container fade-in">
+  <div class="section-num">01 — The Core Problem</div>
+  <h2>Every API Call Ships the <strong>Entire Conversation</strong></h2>
+  <p class="lead">Because the LLM remembers nothing, every single API call must include ALL previous context. As conversations grow, this creates a fundamental tension: the context window is finite, but conversations are not.</p>
+
+  <div class="book-quote">
+    <p>"The AI model (Dr. Neural) is stateless and remembers nothing. The application layer (Alice) maintains conversation history and feeds it back as context, creating the illusion of memory and continuity."</p>
+    <cite>— Thinking in Analogies, Ch. 1</cite>
+  </div>
+
+  <div class="arch-flow">
+    <div class="arch-box ab">
+      <h4>👤 User Message #47</h4>
+      <p>"Continue from where we left off on the database migration plan"</p>
+    </div>
+    <div class="arch-arrow"></div>
+    <div class="arch-box aa">
+      <h4>📋 Application Layer (Alice) — The Real Product</h4>
+      <p>Must decide: what to include, what to summarize, what to discard</p>
+      <div class="arch-tags">
+        <span class="tag tag-purple">System Prompt</span>
+        <span class="tag tag-blue">Conversation History</span>
+        <span class="tag tag-green">RAG Results</span>
+        <span class="tag tag-accent">Current Message</span>
+      </div>
+    </div>
+    <div class="arch-arrow"></div>
+    <div class="arch-box al">
+      <h4>🧠 LLM (Dr. Neural) — Sees Only This Call</h4>
+      <p>Processes everything as one flat prompt. No memory of call #46.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONTEXT WINDOW VISUALIZER ═══ -->
+<div class="container fade-in">
+  <div class="section-num">02 — Inside the Context Window</div>
+  <h2>See How <strong>Different Apps</strong> Pack the Window</h2>
+  <p class="lead">Each app makes different trade-offs about what goes into the finite context window. Click an app to see its strategy — this IS the product differentiation.</p>
+
+  <div class="cw-demo">
+    <div class="cw-header">
+      <div class="cw-title">Context Window Allocation</div>
+      <div class="cw-controls">
+        <button class="cw-btn active" onclick="showApp('chatgpt')">ChatGPT</button>
+        <button class="cw-btn" onclick="showApp('claude')">Claude</button>
+        <button class="cw-btn" onclick="showApp('perplexity')">Perplexity</button>
+        <button class="cw-btn" onclick="showApp('cursor')">Cursor</button>
+        <button class="cw-btn" onclick="showApp('notion')">Notion AI</button>
+      </div>
+    </div>
+
+    <div class="cw-window">
+      <div class="cw-ruler">
+        <span>0 tokens</span>
+        <span id="cwSize">128K tokens</span>
+      </div>
+
+      <div id="cwBars"></div>
+
+      <div class="cw-legend">
+        <div class="cw-legend-item"><div class="cw-legend-dot" style="background:rgba(168,124,232,0.5)"></div> System Prompt</div>
+        <div class="cw-legend-item"><div class="cw-legend-dot" style="background:rgba(77,166,232,0.5)"></div> History / Context</div>
+        <div class="cw-legend-item"><div class="cw-legend-dot" style="background:rgba(77,216,138,0.5)"></div> RAG / Retrieved Docs</div>
+        <div class="cw-legend-item"><div class="cw-legend-dot" style="background:rgba(232,160,52,0.5)"></div> Current Turn</div>
+        <div class="cw-legend-item"><div class="cw-legend-dot" style="background:var(--surface3)"></div> Free Space</div>
+      </div>
+
+      <div class="cw-explanation" id="cwExplanation"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 5 STRATEGIES ═══ -->
+<div class="container fade-in">
+  <div class="section-num">03 — The Five Alice Strategies</div>
+  <h2>How Apps Build <strong>Stateful Magic</strong> on Stateless APIs</h2>
+  <p class="lead">Just as HTTP needed cookies, sessions, and databases to create the modern web — LLMs need these strategies to create the illusion of intelligent, continuous conversation.</p>
+
+  <div class="strategy-grid">
+    <div class="strategy-card s1">
+      <div class="strategy-icon">📜</div>
+      <h4>Strategy 1</h4>
+      <h3>Full History Replay</h3>
+      <p>Every message ever exchanged is re-sent with each API call. Simple but expensive — costs grow with every turn. Works until you hit the window limit.</p>
+      <div class="strategy-analogy">📖 Book analogy: "Alice reads Dr. Neural the entire notebook before every visit."</div>
+    </div>
+
+    <div class="strategy-card s2">
+      <div class="strategy-icon">🗜️</div>
+      <h4>Strategy 2</h4>
+      <h3>Sliding Window + Summarization</h3>
+      <p>Keep recent messages verbatim, compress older ones into summaries. Like a news editor deciding what makes the front page vs. gets archived.</p>
+      <div class="strategy-analogy">📖 Book analogy: "Alice summarizes last week's notes but reads today's in full."</div>
+    </div>
+
+    <div class="strategy-card s3">
+      <div class="strategy-icon">🔍</div>
+      <h4>Strategy 3</h4>
+      <h3>RAG — Retrieve on Demand</h3>
+      <p>Don't pack everything in. Search for relevant documents only when needed and inject them. Like a smart librarian pulling the right books for your question.</p>
+      <div class="strategy-analogy">📖 Book analogy: "RAG is just: file processing + database operations + API calls. You know all three."</div>
+    </div>
+
+    <div class="strategy-card s4">
+      <div class="strategy-icon">🧠</div>
+      <h4>Strategy 4</h4>
+      <h3>Persistent Memory Layer</h3>
+      <p>Extract key facts (name, preferences, projects) into a separate database. Inject relevant memories per-conversation. The family doctor who remembers you.</p>
+      <div class="strategy-analogy">📖 Book analogy: "Advanced RAG maintains conversation context like a good family doctor."</div>
+    </div>
+
+    <div class="strategy-card s5">
+      <div class="strategy-icon">🔀</div>
+      <h4>Strategy 5</h4>
+      <h3>Server-Side Compaction</h3>
+      <p>The server automatically summarizes old parts of the conversation when approaching limits. The conversation continues indefinitely — early details may become lossy.</p>
+      <div class="strategy-analogy">📖 Book analogy: "The future of AI is getting better at managing state around stateless intelligence."</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ APP COMPARISON ═══ -->
+<div class="container fade-in">
+  <div class="section-num">04 — Real-World Implementations</div>
+  <h2>How <strong>Popular Apps</strong> Combine These Strategies</h2>
+  <p class="lead">Remember the 95/5 rule: 95% of what makes these products great is traditional software engineering. The context management layer IS the product — not the LLM.</p>
+
+  <div class="app-table-wrap">
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th>App</th>
+          <th>Window Size</th>
+          <th>Primary Strategy</th>
+          <th>Key Techniques</th>
+          <th>The "Alice" Layer</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="app-name"><div class="app-dot" style="background:var(--green)"></div> ChatGPT</div></td>
+          <td>128K tokens</td>
+          <td><span class="tag tag-blue">Sliding Window</span></td>
+          <td><span class="tag tag-green">Memory</span> <span class="tag tag-blue">Summarization</span> <span class="tag tag-purple">Custom Instructions</span></td>
+          <td style="color:var(--muted);font-size:0.82rem">Older messages gradually forgotten via sliding window. Persistent memory extracts key facts across chats.</td>
+        </tr>
+        <tr>
+          <td><div class="app-name"><div class="app-dot" style="background:var(--accent)"></div> Claude</div></td>
+          <td>200K–1M tokens</td>
+          <td><span class="tag tag-accent">Full History + Compaction</span></td>
+          <td><span class="tag tag-green">Auto-compaction</span> <span class="tag tag-accent">Projects/RAG</span> <span class="tag tag-purple">Memory</span></td>
+          <td style="color:var(--muted);font-size:0.82rem">Keeps full history in window. Auto-summarizes early messages when approaching limits. Projects use RAG for knowledge.</td>
+        </tr>
+        <tr>
+          <td><div class="app-name"><div class="app-dot" style="background:var(--blue)"></div> Perplexity</div></td>
+          <td>Varies by model</td>
+          <td><span class="tag tag-green">RAG-First</span></td>
+          <td><span class="tag tag-green">Web Search</span> <span class="tag tag-blue">Source Injection</span> <span class="tag tag-accent">Citation</span></td>
+          <td style="color:var(--muted);font-size:0.82rem">Minimal chat history. Most of context window is web scrape results + search results injected per-query.</td>
+        </tr>
+        <tr>
+          <td><div class="app-name"><div class="app-dot" style="background:var(--purple)"></div> Cursor</div></td>
+          <td>Up to 200K</td>
+          <td><span class="tag tag-purple">File-Aware RAG</span></td>
+          <td><span class="tag tag-purple">Codebase Indexing</span> <span class="tag tag-blue">File Context</span> <span class="tag tag-green">Dependency Graph</span></td>
+          <td style="color:var(--muted);font-size:0.82rem">Indexes entire codebase. Intelligently selects which files to include based on relevance to current task.</td>
+        </tr>
+        <tr>
+          <td><div class="app-name"><div class="app-dot" style="background:var(--red)"></div> Notion AI</div></td>
+          <td>Varies</td>
+          <td><span class="tag tag-red">Document-Context</span></td>
+          <td><span class="tag tag-red">Page Context</span> <span class="tag tag-blue">Workspace Search</span> <span class="tag tag-accent">Template Prompts</span></td>
+          <td style="color:var(--muted);font-size:0.82rem">Injects current document + relevant workspace pages as context. The core product is the editor — AI is a feature layer.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ INTERACTIVE SIM ═══ -->
+<div class="container fade-in">
+  <div class="section-num">05 — Interactive Simulation</div>
+  <h2>Watch <strong>Alice</strong> Manage the Context Window</h2>
+  <p class="lead">Send messages and watch how the application layer decides what to keep, what to summarize, and what to discard — just like Alice managing Dr. Neural's briefings.</p>
+
+  <div class="sim-container">
+    <div class="sim-top">
+      <div class="sim-config">
+        <label>Context Window Size</label>
+        <div class="sim-value" id="simWindowDisplay">32K tokens</div>
+        <input type="range" class="sim-slider" id="simWindowSlider" min="8" max="200" value="32" oninput="updateSimConfig()">
+      </div>
+      <div class="sim-config">
+        <label>Strategy</label>
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.5rem">
+          <button class="cw-btn active" id="strat-full" onclick="setStrategy('full')">Full Replay</button>
+          <button class="cw-btn" id="strat-sliding" onclick="setStrategy('sliding')">Sliding + Summary</button>
+          <button class="cw-btn" id="strat-compact" onclick="setStrategy('compact')">Auto-Compact</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sim-visual">
+      <div class="sim-tokens-bar" id="simBar"></div>
+      <div class="sim-status">
+        <span id="simUsed">Used: 2K / 32K tokens</span>
+        <span id="simHealth" class="ok">● Healthy</span>
+      </div>
+    </div>
+
+    <div class="sim-btn-row">
+      <button class="sim-btn sim-btn-send" onclick="simSendMessage()">💬 Send Message (~1.5K tokens)</button>
+      <button class="sim-btn sim-btn-rag" onclick="simRAGQuery()">🔍 RAG Query (+3K docs)</button>
+      <button class="sim-btn sim-btn-compact" onclick="simForceCompact()">🗜️ Force Compact</button>
+      <button class="sim-btn sim-btn-reset" onclick="simReset()">↺ Reset</button>
+    </div>
+
+    <div class="sim-log" id="simLog">
+      <div class="log-alice">📋 Alice: Context window initialized. System prompt loaded (2K tokens).</div>
+      <div class="log-info">Ready to manage state for Dr. Neural...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONTEXT ROT ═══ -->
+<div class="container fade-in">
+  <div class="section-num">06 — The Hidden Danger</div>
+  <h2>Context Rot: When <strong>More Is Less</strong></h2>
+
+  <div class="rot-section">
+    <h3>⚠ Performance Degrades as the Window Fills</h3>
+    <p class="lead" style="max-width:100%">Research shows that as context windows fill up, models lose accuracy. Below 50% full, they lose tokens in the middle. Above 50%, they lose the earliest tokens. This is why smart context management isn't optional — it's essential.</p>
+
+    <div class="rot-visual" id="rotVisual"></div>
+    <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.55rem;color:var(--muted);margin-top:0.3rem">
+      <span>← Strong recall</span>
+      <span>"Lost in the Middle" zone →</span>
+      <span>← Strong recall</span>
+    </div>
+
+    <p style="font-size:0.9rem;color:var(--muted);margin-top:1.5rem">This is exactly why your book's analogy of the <strong style="color:var(--text)">News Editor</strong> is so apt — limited space, unlimited information. The editor must choose wisely. <em>Statelessness isn't a limitation — it's a feature</em>, but only if the application layer manages context intelligently.</p>
+  </div>
+</div>
+
+<!-- ═══ KEY INSIGHT ═══ -->
+<div class="container fade-in">
+  <div class="section-num">07 — The Beautiful Realization</div>
+  <h2>Context Management <strong>IS</strong> the Product</h2>
+
+  <div class="book-quote">
+    <p>"AI applications like ChatGPT, Claude, or custom business chatbots are so much more than just the language model. They're sophisticated systems that manage state, context, and memory on behalf of the stateless core."</p>
+    <cite>— Thinking in Analogies, Ch. 1</cite>
+  </div>
+
+  <div class="strategy-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+    <div class="strategy-card s1">
+      <div class="strategy-icon">🗄️</div>
+      <h4>Skill Translation</h4>
+      <h3>Database → Context</h3>
+      <p>Instead of managing data in tables, you manage conversation context. Same concepts: indexing, querying, optimization.</p>
+    </div>
+    <div class="strategy-card s2">
+      <div class="strategy-icon">🔌</div>
+      <h4>Skill Translation</h4>
+      <h3>API → LLM Integration</h3>
+      <p>Instead of calling payment APIs, you call LLM APIs. Same patterns: auth, rate limiting, error handling.</p>
+    </div>
+    <div class="strategy-card s4">
+      <div class="strategy-icon">🏗️</div>
+      <h4>The 95/5 Rule</h4>
+      <h3>95% Engineering</h3>
+      <p>Context management, state handling, caching, optimization — these are all traditional software engineering skills. Only 5% is AI-specific.</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  From "Thinking in Analogies: A Generative AI Playbook for Tech Professionals"<br>
+  The future of AI is getting better at managing state around stateless intelligence.
+</footer>
+
+<script>
+// ═══ APP CONTEXT WINDOW DATA ═══
+const apps = {
+  chatgpt: {
+    size: '128K tokens',
+    bars: [
+      { label: 'System + Custom Instructions', pct: 5, cls: 'sys' },
+      { label: 'Sliding Window History', pct: 35, cls: 'hist' },
+      { label: 'Memory Facts', pct: 5, cls: 'summary' },
+      { label: 'Current Turn', pct: 15, cls: 'user' },
+      { label: 'Output Space', pct: 10, cls: 'output' },
+    ],
+    explanation: `<strong>ChatGPT's strategy:</strong> Uses a <span class="blue">sliding window</span> approach — older messages gradually fall off as the conversation grows. A separate <span class="highlight">Memory system</span> extracts key facts (your name, preferences, recurring topics) and persists them across conversations as compact injections. Custom Instructions act as a persistent system prompt. <br><br>The trade-off: Indefinitely long conversations are possible, but ChatGPT literally <em>forgets</em> what you said 20 messages ago. The shopkeeper with amnesia — but with a sticky note on the counter.`
+  },
+  claude: {
+    size: '200K–1M tokens',
+    bars: [
+      { label: 'System Prompt + Project Knowledge', pct: 10, cls: 'sys' },
+      { label: 'Full Conversation History', pct: 45, cls: 'hist' },
+      { label: 'Memory Layer', pct: 3, cls: 'summary' },
+      { label: 'Current Turn', pct: 12, cls: 'user' },
+      { label: 'Output + Thinking', pct: 10, cls: 'output' },
+    ],
+    explanation: `<strong>Claude's strategy:</strong> Keeps the <span class="blue">full conversation history</span> in the window as long as possible (up to 200K or 1M tokens). When approaching limits, <span class="highlight">server-side compaction</span> automatically summarizes earlier messages to free space. Projects use <span class="blue">RAG</span> to search knowledge bases without stuffing everything in. <br><br>The trade-off: More expensive per-call (bigger context = more compute), and usage limits hit sooner. But the model sees the full picture — like Dr. Neural getting Alice's complete notebook, not just the summary.`
+  },
+  perplexity: {
+    size: 'Varies by model',
+    bars: [
+      { label: 'System + Search Instructions', pct: 8, cls: 'sys' },
+      { label: 'Minimal Chat History', pct: 8, cls: 'hist' },
+      { label: 'Web Search Results / RAG', pct: 45, cls: 'summary' },
+      { label: 'Current Query', pct: 8, cls: 'user' },
+      { label: 'Output + Citations', pct: 12, cls: 'output' },
+    ],
+    explanation: `<strong>Perplexity's strategy:</strong> A <span class="highlight">RAG-first</span> approach. Most of the context window is filled with <span class="blue">web scrape results and search snippets</span> retrieved per-query. Chat history is minimal — it's a search engine, not a chat companion. <br><br>As your book notes: "Backend: Web scraping + search algorithms + API orchestration + Context Engineering. Result: <span class="highlight">95% traditional software engineering, 5% AI-specific.</span>" The Alice layer here is essentially Google + smart injection.`
+  },
+  cursor: {
+    size: 'Up to 200K',
+    bars: [
+      { label: 'System + Editor Context', pct: 8, cls: 'sys' },
+      { label: 'Open Files + Codebase Index', pct: 40, cls: 'summary' },
+      { label: 'Conversation History', pct: 12, cls: 'hist' },
+      { label: 'Current Request', pct: 10, cls: 'user' },
+      { label: 'Code Output', pct: 12, cls: 'output' },
+    ],
+    explanation: `<strong>Cursor's strategy:</strong> The context window is dominated by <span class="blue">codebase context</span> — indexed files, dependency graphs, and open editor tabs. The app intelligently selects <em>which</em> files to include based on the current task. <br><br>As your book notes: "Backend: VS Code extension architecture + file system management. Most complexity is in editor features, not AI." The Alice layer here is a sophisticated <span class="highlight">file-aware RAG system</span> that understands code relationships.`
+  },
+  notion: {
+    size: 'Varies',
+    bars: [
+      { label: 'System + Template Prompts', pct: 10, cls: 'sys' },
+      { label: 'Current Document Context', pct: 30, cls: 'summary' },
+      { label: 'Workspace Search Results', pct: 15, cls: 'hist' },
+      { label: 'User Request', pct: 8, cls: 'user' },
+      { label: 'Generated Content', pct: 12, cls: 'output' },
+    ],
+    explanation: `<strong>Notion AI's strategy:</strong> Injects the <span class="blue">current document</span> as primary context, plus relevant pages found via <span class="highlight">workspace search</span>. Minimal conversation history — each AI request is fairly independent, scoped to the document being edited. <br><br>Your book nails it: "Core product is document editor, AI is additional feature." The <span class="highlight">Alice layer is the document management system</span> itself — it already knows what you're working on.`
+  }
+};
+
+function showApp(name) {
+  document.querySelectorAll('.cw-controls .cw-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const app = apps[name];
+  document.getElementById('cwSize').textContent = app.size;
+
+  const barsEl = document.getElementById('cwBars');
+  barsEl.innerHTML = '';
+
+  const totalPct = app.bars.reduce((s,b) => s + b.pct, 0);
+  const freePct = Math.max(0, 100 - totalPct);
+
+  const container = document.createElement('div');
+  container.className = 'cw-bar-container';
+  container.style.display = 'flex';
+
+  app.bars.forEach(b => {
+    const seg = document.createElement('div');
+    seg.className = `cw-bar-fill ${b.cls}`;
+    seg.style.width = b.pct + '%';
+    seg.textContent = b.pct >= 8 ? b.label : '';
+    seg.title = `${b.label}: ~${b.pct}%`;
+    container.appendChild(seg);
+  });
+
+  if (freePct > 0) {
+    const free = document.createElement('div');
+    free.style.width = freePct + '%';
+    free.style.height = '100%';
+    free.style.display = 'flex';
+    free.style.alignItems = 'center';
+    free.style.justifyContent = 'center';
+    free.style.fontFamily = 'var(--mono)';
+    free.style.fontSize = '0.6rem';
+    free.style.color = 'var(--muted)';
+    free.textContent = freePct >= 10 ? `Free: ${freePct}%` : '';
+    container.appendChild(free);
+  }
+
+  barsEl.appendChild(container);
+  document.getElementById('cwExplanation').innerHTML = app.explanation;
+}
+
+showApp('chatgpt');
+
+// ═══ CONTEXT ROT VISUAL ═══
+(function() {
+  const rot = document.getElementById('rotVisual');
+  for (let i = 0; i < 40; i++) {
+    const b = document.createElement('div');
+    b.className = 'rot-block';
+    // U-shaped attention: strong start, weak middle, strong end
+    const pos = i / 39;
+    const attention = Math.min(1, Math.max(0.2,
+      pos < 0.15 ? 1 - pos * 2 :
+      pos > 0.85 ? (pos - 0.85) / 0.15 :
+      0.2 + Math.random() * 0.15
+    ));
+    const r = Math.round(77 + (232-77) * (1-attention));
+    const g = Math.round(216 + (84-216) * (1-attention));
+    const gb = Math.round(138 + (84-138) * (1-attention));
+    b.style.background = `rgba(${r},${g},${gb},${0.15 + attention * 0.45})`;
+    b.textContent = i + 1;
+    rot.appendChild(b);
+  }
+})();
+
+// ═══ INTERACTIVE SIM ═══
+let simState = {
+  windowSize: 32000,
+  strategy: 'full',
+  systemTokens: 2000,
+  turns: [],
+  totalHistory: 0,
+  summaryTokens: 0,
+  ragTokens: 0,
+  turnCount: 0
+};
+
+function updateSimConfig() {
+  const v = document.getElementById('simWindowSlider').value;
+  simState.windowSize = v * 1000;
+  document.getElementById('simWindowDisplay').textContent = v + 'K tokens';
+  renderSimBar();
+}
+
+function setStrategy(s) {
+  simState.strategy = s;
+  document.querySelectorAll('.sim-config .cw-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('strat-' + s).classList.add('active');
+  addLog('alice', `Strategy changed to: ${s === 'full' ? 'Full Replay' : s === 'sliding' ? 'Sliding Window + Summary' : 'Auto-Compact'}`);
+}
+
+function simSendMessage() {
+  simState.turnCount++;
+  const msgTokens = 1200 + Math.floor(Math.random() * 600);
+  const respTokens = 800 + Math.floor(Math.random() * 1000);
+  const turnTokens = msgTokens + respTokens;
+
+  simState.turns.push(turnTokens);
+  simState.totalHistory += turnTokens;
+
+  addLog('info', `Turn ${simState.turnCount}: User sent ~${msgTokens} tokens, model responded ~${respTokens} tokens`);
+
+  const totalUsed = simState.systemTokens + simState.totalHistory + simState.summaryTokens + simState.ragTokens;
+  const usage = totalUsed / simState.windowSize;
+
+  if (usage > 0.85) {
+    if (simState.strategy === 'full') {
+      addLog('warn', `⚠ Context window at ${Math.round(usage*100)}%! Full replay strategy — no room. Conversation will FAIL on next turn.`);
+    } else if (simState.strategy === 'sliding') {
+      autoSlide();
+    } else if (simState.strategy === 'compact') {
+      autoCompact();
+    }
+  } else if (usage > 0.65) {
+    addLog('alice', `Context at ${Math.round(usage*100)}%. ${simState.strategy === 'full' ? 'No action — full replay continues.' : 'Monitoring for compaction trigger.'}`);
+  }
+
+  renderSimBar();
+}
+
+function autoSlide() {
+  if (simState.turns.length > 3) {
+    const removed = simState.turns.splice(0, Math.floor(simState.turns.length * 0.4));
+    const removedTokens = removed.reduce((a,b) => a+b, 0);
+    const summarySize = Math.round(removedTokens * 0.15);
+    simState.totalHistory -= removedTokens;
+    simState.summaryTokens += summarySize;
+    addLog('alice', `📋 Sliding window: Dropped ${removed.length} old turns (${removedTokens} tokens) → Summarized to ${summarySize} tokens`);
+    addLog('action', `✓ Freed ~${removedTokens - summarySize} tokens. Alice whispers the summary to Dr. Neural.`);
+  }
+}
+
+function autoCompact() {
+  if (simState.turns.length > 2) {
+    const compactCount = Math.ceil(simState.turns.length * 0.5);
+    const compacted = simState.turns.splice(0, compactCount);
+    const compactedTokens = compacted.reduce((a,b) => a+b, 0);
+    const summarySize = Math.round(compactedTokens * 0.1);
+    simState.totalHistory -= compactedTokens;
+    simState.summaryTokens += summarySize;
+    addLog('alice', `🗜️ Auto-compaction: Server summarized ${compactCount} turns (${compactedTokens} tokens) → ${summarySize} tokens`);
+    addLog('action', `✓ Conversation continues seamlessly. Early details are now lossy summaries.`);
+  }
+}
+
+function simRAGQuery() {
+  const ragSize = 2500 + Math.floor(Math.random() * 1500);
+  simState.ragTokens += ragSize;
+  simState.turnCount++;
+  addLog('info', `🔍 RAG: Retrieved ${ragSize} tokens of relevant documents`);
+  addLog('alice', `Injected ${ragSize} tokens of document context. Like Alice pulling the right reference books.`);
+
+  const totalUsed = simState.systemTokens + simState.totalHistory + simState.summaryTokens + simState.ragTokens;
+  if (totalUsed / simState.windowSize > 0.85) {
+    simState.ragTokens -= Math.round(ragSize * 0.5);
+    addLog('warn', `Trimmed older RAG results to stay within window. Keeping most recent retrieval.`);
+  }
+  renderSimBar();
+}
+
+function simForceCompact() {
+  if (simState.turns.length < 2) { addLog('info', 'Nothing to compact yet.'); return; }
+  const allTokens = simState.totalHistory;
+  const summarySize = Math.round(allTokens * 0.12);
+  simState.turns = [];
+  simState.totalHistory = 0;
+  simState.summaryTokens += summarySize;
+  const freed = allTokens - summarySize;
+  addLog('alice', `🗜️ Force compact: All ${allTokens} history tokens → ${summarySize} token summary`);
+  addLog('action', `✓ Freed ${freed} tokens. Dr. Neural now gets a cliff-notes briefing instead of the full novel.`);
+  renderSimBar();
+}
+
+function simReset() {
+  simState.turns = [];
+  simState.totalHistory = 0;
+  simState.summaryTokens = 0;
+  simState.ragTokens = 0;
+  simState.turnCount = 0;
+  document.getElementById('simLog').innerHTML =
+    '<div class="log-alice">📋 Alice: Context window reset. System prompt loaded (2K tokens).</div>' +
+    '<div class="log-info">Ready to manage state for Dr. Neural...</div>';
+  renderSimBar();
+}
+
+function renderSimBar() {
+  const bar = document.getElementById('simBar');
+  const total = simState.windowSize;
+  const sys = simState.systemTokens;
+  const hist = simState.totalHistory;
+  const sum = simState.summaryTokens;
+  const rag = simState.ragTokens;
+  const used = sys + hist + sum + rag;
+  const free = Math.max(0, total - used);
+
+  bar.innerHTML = '';
+  const segments = [
+    { tokens: sys, cls: 'sys-seg', label: `System ${Math.round(sys/1000)}K` },
+    { tokens: sum, cls: 'sum-seg', label: `Summary ${Math.round(sum/1000)}K` },
+    { tokens: hist, cls: 'hist-seg', label: `History ${Math.round(hist/1000)}K` },
+    { tokens: rag, cls: 'cur-seg', label: `RAG ${Math.round(rag/1000)}K` },
+    { tokens: free, cls: 'free-seg', label: `Free ${Math.round(free/1000)}K` },
+  ];
+
+  segments.forEach(s => {
+    if (s.tokens <= 0) return;
+    const seg = document.createElement('div');
+    seg.className = `sim-segment ${s.cls}`;
+    seg.style.width = Math.max(0, (s.tokens / total) * 100) + '%';
+    if ((s.tokens / total) > 0.08) seg.textContent = s.label;
+    bar.appendChild(seg);
+  });
+
+  const pct = Math.round((used / total) * 100);
+  document.getElementById('simUsed').textContent = `Used: ${Math.round(used/1000)}K / ${Math.round(total/1000)}K tokens (${pct}%)`;
+  const health = document.getElementById('simHealth');
+  if (pct > 90) { health.textContent = '● Critical'; health.className = 'warn'; }
+  else if (pct > 70) { health.textContent = '● Warning'; health.style.color = 'var(--accent)'; }
+  else { health.textContent = '● Healthy'; health.className = 'ok'; }
+}
+
+function addLog(type, text) {
+  const log = document.getElementById('simLog');
+  const entry = document.createElement('div');
+  entry.className = `log-${type}`;
+  entry.textContent = text;
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
+}
+
+renderSimBar();
+
+// ═══ SCROLL ANIMATIONS ═══
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>
