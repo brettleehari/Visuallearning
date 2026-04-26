@@ -25,80 +25,76 @@
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
   body { background: var(--bg); color: var(--text); font-family: var(--body); line-height: 1.7; overflow-x: hidden; }
 
-  /* ─── TABS ─── */
-  .tab-bar {
-    position: sticky; top: 0; z-index: 100;
+  /* ─── TOP NAV ─── */
+  .top-nav {
     background: var(--surface); border-bottom: 1px solid var(--border);
     display: flex; align-items: center; padding: 0 2rem;
-    backdrop-filter: blur(12px);
   }
-  .tab-brand {
+  .top-brand {
     font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.15em;
-    color: var(--accent); margin-right: 2rem; padding: 0.8rem 0;
+    color: var(--accent); margin-right: 2rem; padding: 0.7rem 0;
     white-space: nowrap;
   }
-  .tab-links { display: flex; gap: 0; overflow-x: auto; }
-  .tab-link {
+  .top-links { display: flex; gap: 0; overflow-x: auto; }
+  .top-link {
     font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em;
-    padding: 0.8rem 1.2rem; color: var(--muted); cursor: pointer;
-    border-bottom: 2px solid transparent; transition: all 0.2s;
-    white-space: nowrap; background: none; border-top: none; border-left: none; border-right: none;
+    padding: 0.7rem 1.2rem; color: var(--muted); cursor: pointer;
+    border: none; border-bottom: 2px solid transparent; transition: all 0.2s;
+    white-space: nowrap; background: none;
   }
-  .tab-link:hover { color: var(--text); }
-  .tab-link.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
+  .top-link:hover { color: var(--text); }
+  .top-link.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .top-content { display: none; }
+  .top-content.active { display: flex; flex-direction: column; height: calc(100vh - 40px); }
 
-  /* ─── HERO ─── */
-  .hero {
-    min-height: 85vh;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    text-align: center; padding: 4rem 2rem; position: relative;
+  /* ─── SUB-TAB BAR ─── */
+  .sub-bar {
+    background: var(--surface2); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 2rem; flex-shrink: 0;
   }
-  .hero::before {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(ellipse 700px 500px at 40% 50%, rgba(232,160,52,0.04) 0%, transparent 70%),
-                radial-gradient(ellipse 500px 400px at 65% 45%, rgba(77,166,232,0.03) 0%, transparent 70%);
+  .sub-bar-title {
+    font-family: var(--display); font-weight: 300; font-size: 1rem;
+    color: var(--text); margin-right: 1.5rem; padding: 0.6rem 0;
+    white-space: nowrap;
   }
-  .hero-tag {
-    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.35em;
-    text-transform: uppercase; color: var(--accent);
-    border: 1px solid rgba(232,160,52,0.3); padding: 0.35rem 1.1rem; border-radius: 2px;
-    margin-bottom: 2rem; opacity: 0; animation: fadeUp 0.7s 0.2s forwards;
+  .sub-bar-title em { font-style: normal; color: var(--accent); font-weight: 700; }
+  .sub-links { display: flex; gap: 0; overflow-x: auto; }
+  .sub-link {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.06em;
+    padding: 0.6rem 1rem; color: var(--muted); cursor: pointer;
+    border: none; border-bottom: 2px solid transparent; transition: all 0.2s;
+    white-space: nowrap; background: none;
   }
-  .hero h1 {
-    font-family: var(--display); font-weight: 300; font-size: clamp(2rem, 4.5vw, 3.6rem);
-    line-height: 1.15; max-width: 850px; opacity: 0; animation: fadeUp 0.7s 0.4s forwards;
-  }
-  .hero h1 em { font-style: normal; color: var(--accent); font-weight: 700; }
-  .hero-sub {
-    font-size: 1.1rem; color: var(--muted); max-width: 600px; margin-top: 1.5rem;
-    opacity: 0; animation: fadeUp 0.7s 0.6s forwards;
-  }
+  .sub-link:hover { color: var(--text); }
+  .sub-link.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .sub-content { display: none; flex: 1; overflow-y: auto; }
+  .sub-content.active { display: block; }
 
   /* ─── LAYOUT ─── */
-  .container { max-width: 1100px; margin: 0 auto; padding: 4rem 2rem; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; }
+  .container-compact { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem; }
   .section-num {
     font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.35em;
-    text-transform: uppercase; color: var(--blue); margin-bottom: 0.8rem;
+    text-transform: uppercase; color: var(--blue); margin-bottom: 0.6rem;
   }
   h2 {
-    font-family: var(--display); font-weight: 300; font-size: clamp(1.7rem, 3vw, 2.4rem);
-    margin-bottom: 1.2rem; line-height: 1.2;
+    font-family: var(--display); font-weight: 300; font-size: clamp(1.5rem, 2.5vw, 2rem);
+    margin-bottom: 0.8rem; line-height: 1.2;
   }
   h2 strong { font-weight: 700; color: var(--accent); }
-  .lead { font-size: 1.05rem; color: var(--muted); max-width: 680px; margin-bottom: 2rem; }
+  .lead { font-size: 0.95rem; color: var(--muted); max-width: 680px; margin-bottom: 1.5rem; }
 
   /* ─── CONTEXT WINDOW VISUALIZER ─── */
   .cw-demo {
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 2rem; margin: 2rem 0;
+    padding: 1.5rem; margin: 1rem 0;
   }
   .cw-header {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
+    margin-bottom: 1rem; flex-wrap: wrap; gap: 0.8rem;
   }
   .cw-title {
     font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em;
@@ -107,7 +103,7 @@
   .cw-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
   .cw-btn {
     font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em;
-    padding: 0.45rem 1rem; background: var(--surface2); color: var(--muted);
+    padding: 0.4rem 0.9rem; background: var(--surface2); color: var(--muted);
     border: 1px solid var(--border); border-radius: 4px; cursor: pointer;
     transition: all 0.2s;
   }
@@ -115,19 +111,19 @@
   .cw-btn.active { color: var(--accent); border-color: var(--accent); background: rgba(232,160,52,0.08); }
 
   .cw-window {
-    background: var(--surface2); border-radius: 6px; padding: 1.5rem;
-    position: relative; overflow: hidden; min-height: 300px;
+    background: var(--surface2); border-radius: 6px; padding: 1.2rem;
+    position: relative; overflow: hidden;
   }
   .cw-ruler {
     display: flex; justify-content: space-between; font-family: var(--mono);
-    font-size: 0.55rem; color: var(--muted); margin-bottom: 1rem;
-    padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+    font-size: 0.55rem; color: var(--muted); margin-bottom: 0.8rem;
+    padding-bottom: 0.4rem; border-bottom: 1px solid var(--border);
   }
-  .cw-bar-container { position: relative; height: 40px; margin-bottom: 1rem; border-radius: 4px; overflow: hidden; background: var(--surface3); }
+  .cw-bar-container { position: relative; height: 36px; margin-bottom: 0.8rem; border-radius: 4px; overflow: hidden; background: var(--surface3); }
   .cw-bar-fill {
     height: 100%; border-radius: 4px; transition: width 0.6s ease;
     display: flex; align-items: center; justify-content: center;
-    font-family: var(--mono); font-size: 0.6rem; color: rgba(255,255,255,0.8);
+    font-family: var(--mono); font-size: 0.55rem; color: rgba(255,255,255,0.8);
   }
   .cw-bar-fill.sys { background: linear-gradient(90deg, rgba(168,124,232,0.5), rgba(168,124,232,0.3)); }
   .cw-bar-fill.hist { background: linear-gradient(90deg, rgba(77,166,232,0.5), rgba(77,166,232,0.3)); }
@@ -136,102 +132,91 @@
   .cw-bar-fill.summary { background: repeating-linear-gradient(45deg, rgba(77,166,232,0.3), rgba(77,166,232,0.3) 4px, rgba(77,166,232,0.15) 4px, rgba(77,166,232,0.15) 8px); }
 
   .cw-legend {
-    display: flex; gap: 1.2rem; flex-wrap: wrap; margin: 1rem 0;
+    display: flex; gap: 1rem; flex-wrap: wrap; margin: 0.8rem 0;
   }
   .cw-legend-item {
     display: flex; align-items: center; gap: 0.4rem;
-    font-family: var(--mono); font-size: 0.6rem; color: var(--muted);
+    font-family: var(--mono); font-size: 0.55rem; color: var(--muted);
   }
-  .cw-legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+  .cw-legend-dot { width: 8px; height: 8px; border-radius: 2px; }
 
   .cw-explanation {
-    background: var(--surface); border-radius: 6px; padding: 1.2rem;
-    margin-top: 1rem; font-size: 0.88rem; color: var(--muted); line-height: 1.7;
+    background: var(--surface); border-radius: 6px; padding: 1rem;
+    margin-top: 0.8rem; font-size: 0.85rem; color: var(--muted); line-height: 1.6;
   }
   .cw-explanation strong { color: var(--text); }
   .cw-explanation .highlight { color: var(--accent); }
   .cw-explanation .blue { color: var(--blue); }
 
-  /* ─── ACCORDION TABLE (Strategies) ─── */
+  /* ─── ACCORDION TABLE ─── */
   .accordion-table {
-    width: 100%; border-collapse: collapse; margin: 2.5rem 0;
+    width: 100%; border-collapse: collapse; margin: 1.5rem 0;
     border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
   }
   .accordion-table th {
-    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em;
-    text-transform: uppercase; padding: 1rem 1.2rem; text-align: left;
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.8rem 1rem; text-align: left;
     background: var(--surface2); color: var(--muted); border-bottom: 1px solid var(--border);
   }
-  .accordion-row {
-    cursor: pointer; transition: background 0.2s;
-  }
+  .accordion-row { cursor: pointer; transition: background 0.2s; }
   .accordion-row:hover { background: var(--surface2); }
   .accordion-row td {
-    padding: 1rem 1.2rem; border-bottom: 1px solid var(--border);
-    background: var(--surface); font-size: 0.85rem; vertical-align: middle;
+    padding: 0.8rem 1rem; border-bottom: 1px solid var(--border);
+    background: var(--surface); font-size: 0.82rem; vertical-align: middle;
   }
   .accordion-row td:first-child {
-    font-family: var(--mono); font-weight: 600; font-size: 0.8rem;
-    white-space: nowrap;
+    font-family: var(--mono); font-weight: 600; font-size: 0.78rem; white-space: nowrap;
   }
   .accordion-arrow {
     display: inline-block; transition: transform 0.3s; margin-right: 0.5rem;
-    font-size: 0.7rem; color: var(--muted);
+    font-size: 0.65rem; color: var(--muted);
   }
   .accordion-row.open .accordion-arrow { transform: rotate(90deg); }
-  .accordion-detail {
-    display: none;
-  }
-  .accordion-detail.open {
-    display: table-row;
-  }
+  .accordion-detail { display: none; }
+  .accordion-detail.open { display: table-row; }
   .accordion-detail td {
-    padding: 1.5rem 1.5rem 1.5rem 3rem; background: var(--surface2);
-    border-bottom: 1px solid var(--border); font-size: 0.88rem; line-height: 1.7;
+    padding: 1.2rem 1.2rem 1.2rem 2.5rem; background: var(--surface2);
+    border-bottom: 1px solid var(--border); font-size: 0.85rem; line-height: 1.6;
   }
   .accordion-detail .detail-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
   }
   @media (max-width: 600px) {
     .accordion-detail .detail-grid { grid-template-columns: 1fr; }
   }
   .detail-label {
-    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem;
+    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem;
   }
-  .detail-value { color: var(--text); font-size: 0.88rem; }
-  .strategy-color {
-    display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 0.5rem;
-  }
+  .detail-value { color: var(--text); font-size: 0.85rem; }
+  .strategy-color { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 0.5rem; }
 
   /* ─── APP COMPARISON TABLE ─── */
   .app-table-wrap {
-    overflow-x: auto; margin: 2.5rem 0; border-radius: 8px;
+    overflow-x: auto; margin: 1.5rem 0; border-radius: 8px;
     border: 1px solid var(--border);
   }
   .app-table {
-    width: 100%; border-collapse: collapse; font-size: 0.85rem;
-    min-width: 700px;
+    width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 700px;
   }
   .app-table th {
-    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em;
-    text-transform: uppercase; padding: 1rem 1.2rem; text-align: left;
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.8rem 1rem; text-align: left;
     background: var(--surface2); color: var(--muted); border-bottom: 1px solid var(--border);
-    position: sticky; top: 0;
   }
   .app-table td {
-    padding: 1rem 1.2rem; border-bottom: 1px solid var(--border);
+    padding: 0.8rem 1rem; border-bottom: 1px solid var(--border);
     background: var(--surface); vertical-align: top;
   }
   .app-table tr:hover td { background: var(--surface2); }
   .app-name {
-    font-family: var(--mono); font-weight: 600; font-size: 0.8rem;
+    font-family: var(--mono); font-weight: 600; font-size: 0.78rem;
     display: flex; align-items: center; gap: 0.5rem;
   }
   .app-dot { width: 8px; height: 8px; border-radius: 50%; }
   .tag {
-    display: inline-block; font-family: var(--mono); font-size: 0.6rem;
-    padding: 0.15rem 0.5rem; border-radius: 3px; margin: 0.15rem 0.1rem;
+    display: inline-block; font-family: var(--mono); font-size: 0.58rem;
+    padding: 0.12rem 0.45rem; border-radius: 3px; margin: 0.1rem 0.05rem;
   }
   .tag-blue { background: rgba(77,166,232,0.12); color: var(--blue); }
   .tag-green { background: rgba(77,216,138,0.12); color: var(--green); }
@@ -242,34 +227,30 @@
   /* ─── INTERACTIVE CONTEXT SIM ─── */
   .sim-container {
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 2rem; margin: 2.5rem 0;
+    padding: 1.5rem; margin: 1rem 0;
   }
-  .sim-top { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .sim-top { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
   .sim-config {
-    flex: 1; min-width: 250px; background: var(--surface2); border-radius: 6px; padding: 1.2rem;
+    flex: 1; min-width: 220px; background: var(--surface2); border-radius: 6px; padding: 1rem;
   }
   .sim-config label {
-    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.1em;
-    color: var(--muted); display: block; margin-bottom: 0.4rem;
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.1em;
+    color: var(--muted); display: block; margin-bottom: 0.3rem;
   }
-  .sim-slider {
-    width: 100%; accent-color: var(--accent); margin-bottom: 0.8rem;
-    background: transparent; cursor: pointer;
-  }
+  .sim-slider { width: 100%; accent-color: var(--accent); cursor: pointer; }
   .sim-value {
-    font-family: var(--mono); font-size: 1.1rem; color: var(--accent); margin-bottom: 0.3rem;
+    font-family: var(--mono); font-size: 1rem; color: var(--accent); margin-bottom: 0.2rem;
   }
-
   .sim-visual {
-    background: var(--surface2); border-radius: 6px; padding: 1.5rem; margin-bottom: 1rem;
+    background: var(--surface2); border-radius: 6px; padding: 1rem; margin-bottom: 0.8rem;
   }
   .sim-tokens-bar {
-    height: 50px; background: var(--surface3); border-radius: 4px; overflow: hidden;
-    display: flex; position: relative; margin-bottom: 0.8rem;
+    height: 44px; background: var(--surface3); border-radius: 4px; overflow: hidden;
+    display: flex; position: relative; margin-bottom: 0.6rem;
   }
   .sim-segment {
     height: 100%; display: flex; align-items: center; justify-content: center;
-    font-family: var(--mono); font-size: 0.55rem; color: rgba(255,255,255,0.7);
+    font-family: var(--mono); font-size: 0.5rem; color: rgba(255,255,255,0.7);
     transition: width 0.5s ease; overflow: hidden; white-space: nowrap;
   }
   .sim-segment.sys-seg { background: rgba(168,124,232,0.35); }
@@ -277,27 +258,24 @@
   .sim-segment.sum-seg { background: repeating-linear-gradient(45deg, rgba(77,216,138,0.3), rgba(77,216,138,0.3) 3px, rgba(77,216,138,0.15) 3px, rgba(77,216,138,0.15) 6px); }
   .sim-segment.cur-seg { background: rgba(232,160,52,0.4); }
   .sim-segment.free-seg { background: transparent; }
-
   .sim-status {
-    font-family: var(--mono); font-size: 0.7rem; color: var(--muted);
+    font-family: var(--mono); font-size: 0.65rem; color: var(--muted);
     display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
   }
   .sim-status .warn { color: var(--red); }
   .sim-status .ok { color: var(--green); }
-
   .sim-log {
-    background: var(--surface3); border-radius: 4px; padding: 1rem;
-    font-family: var(--mono); font-size: 0.7rem; line-height: 1.8;
-    max-height: 200px; overflow-y: auto; margin-top: 1rem;
+    background: var(--surface3); border-radius: 4px; padding: 0.8rem;
+    font-family: var(--mono); font-size: 0.65rem; line-height: 1.7;
+    max-height: 160px; overflow-y: auto; margin-top: 0.8rem;
   }
   .sim-log .log-alice { color: var(--accent); }
   .sim-log .log-action { color: var(--green); }
   .sim-log .log-warn { color: var(--red); }
   .sim-log .log-info { color: var(--muted); }
-
-  .sim-btn-row { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+  .sim-btn-row { display: flex; gap: 0.4rem; margin-top: 0.8rem; flex-wrap: wrap; }
   .sim-btn {
-    font-family: var(--mono); font-size: 0.68rem; padding: 0.5rem 1.2rem;
+    font-family: var(--mono); font-size: 0.63rem; padding: 0.4rem 1rem;
     border-radius: 4px; cursor: pointer; transition: all 0.2s; letter-spacing: 0.06em;
     border: none;
   }
@@ -312,635 +290,551 @@
 
   /* ─── QUOTE ─── */
   .book-quote {
-    border-left: 3px solid var(--accent); padding: 1.2rem 1.8rem;
-    margin: 2.5rem 0; background: rgba(232,160,52,0.03); border-radius: 0 8px 8px 0;
+    border-left: 3px solid var(--accent); padding: 1rem 1.5rem;
+    margin: 1.5rem 0; background: rgba(232,160,52,0.03); border-radius: 0 8px 8px 0;
   }
   .book-quote p {
-    font-family: var(--display); font-size: 1.15rem; font-weight: 300;
-    font-style: italic; line-height: 1.6;
+    font-family: var(--display); font-size: 1.05rem; font-weight: 300;
+    font-style: italic; line-height: 1.5;
   }
   .book-quote cite {
-    display: block; margin-top: 0.6rem; font-family: var(--mono);
-    font-size: 0.6rem; font-style: normal; letter-spacing: 0.15em; color: var(--accent);
+    display: block; margin-top: 0.5rem; font-family: var(--mono);
+    font-size: 0.55rem; font-style: normal; letter-spacing: 0.15em; color: var(--accent);
   }
 
-  /* ─── CONTEXT ROT WARNING ─── */
+  /* ─── CONTEXT ROT ─── */
   .rot-section {
     background: linear-gradient(135deg, rgba(232,84,84,0.06), transparent);
     border: 1px solid rgba(232,84,84,0.15); border-radius: 10px;
-    padding: 2rem; margin: 2.5rem 0;
+    padding: 1.5rem; margin: 1.5rem 0;
   }
   .rot-section h3 {
-    font-family: var(--display); font-size: 1.4rem; color: var(--red); margin-bottom: 0.8rem;
+    font-family: var(--display); font-size: 1.2rem; color: var(--red); margin-bottom: 0.6rem;
   }
   .rot-visual {
-    display: flex; gap: 0.3rem; margin: 1.5rem 0; height: 30px; border-radius: 4px; overflow: hidden;
+    display: flex; gap: 0.25rem; margin: 1rem 0; height: 28px; border-radius: 4px; overflow: hidden;
   }
   .rot-block {
-    flex: 1; border-radius: 2px; transition: opacity 0.3s;
+    flex: 1; border-radius: 2px;
     display: flex; align-items: center; justify-content: center;
-    font-family: var(--mono); font-size: 0.5rem; color: rgba(255,255,255,0.5);
+    font-family: var(--mono); font-size: 0.45rem; color: rgba(255,255,255,0.5);
   }
 
   /* ─── ARCHITECTURE ─── */
   .arch-flow {
-    display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2.5rem 0;
+    display: flex; flex-direction: column; align-items: center; gap: 0; margin: 1.5rem 0;
   }
   .arch-box {
-    width: 100%; max-width: 650px; padding: 1.5rem 2rem; border-radius: 8px; text-align: center;
+    width: 100%; max-width: 600px; padding: 1rem 1.5rem; border-radius: 8px; text-align: center;
   }
-  .arch-box h4 { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; }
-  .arch-box p { font-size: 0.85rem; color: var(--muted); margin-top: 0.3rem; }
+  .arch-box h4 { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; }
+  .arch-box p { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; }
   .arch-box.ab { background: rgba(77,166,232,0.06); border: 1px solid rgba(77,166,232,0.15); }
   .arch-box.ab h4 { color: var(--blue); }
-  .arch-box.aa { background: rgba(232,160,52,0.06); border: 1px solid rgba(232,160,52,0.15); max-width: 550px; }
+  .arch-box.aa { background: rgba(232,160,52,0.06); border: 1px solid rgba(232,160,52,0.15); max-width: 520px; }
   .arch-box.aa h4 { color: var(--accent); }
-  .arch-box.al { background: rgba(232,84,84,0.05); border: 1px solid rgba(232,84,84,0.12); max-width: 450px; }
+  .arch-box.al { background: rgba(232,84,84,0.05); border: 1px solid rgba(232,84,84,0.12); max-width: 420px; }
   .arch-box.al h4 { color: var(--red); }
-  .arch-arrow { width: 1px; height: 28px; background: rgba(255,255,255,0.1); position: relative; }
+  .arch-arrow { width: 1px; height: 20px; background: rgba(255,255,255,0.1); position: relative; }
   .arch-arrow::after { content: '\25BE'; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); font-size: 0.5rem; color: var(--muted); }
-  .arch-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; margin-top: 0.5rem; }
+  .arch-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; margin-top: 0.4rem; }
 
-  /* ─── STRATEGY CARDS (for section 07) ─── */
+  /* ─── STRATEGY CARDS (section 07) ─── */
   .strategy-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem; margin: 2.5rem 0;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1rem; margin: 1.5rem 0;
   }
   .strategy-card {
     background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-    padding: 2rem; position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s;
+    padding: 1.5rem; position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s;
   }
   .strategy-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.1); }
-  .strategy-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  }
+  .strategy-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
   .strategy-card.s1::before { background: var(--blue); }
   .strategy-card.s2::before { background: var(--green); }
   .strategy-card.s4::before { background: var(--accent); }
-  .strategy-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
+  .strategy-icon { font-size: 1.5rem; margin-bottom: 0.6rem; }
   .strategy-card h4 {
-    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em;
-    text-transform: uppercase; margin-bottom: 0.3rem; color: var(--muted);
+    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 0.2rem; color: var(--muted);
   }
-  .strategy-card h3 { font-family: var(--display); font-size: 1.2rem; margin-bottom: 0.8rem; }
-  .strategy-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+  .strategy-card h3 { font-family: var(--display); font-size: 1.1rem; margin-bottom: 0.6rem; }
+  .strategy-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
 
   /* ─── AIDER DEEP DIVE ─── */
   .aider-section {
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 2rem; margin: 2.5rem 0;
+    padding: 1.5rem; margin: 1rem 0;
   }
   .aider-title {
-    font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em;
-    color: var(--green); margin-bottom: 1.5rem;
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em;
+    color: var(--green); margin-bottom: 1rem;
   }
-  .aider-flow {
-    display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0;
-  }
+  .aider-flow { display: flex; flex-direction: column; gap: 0.8rem; margin: 1rem 0; }
   .aider-step {
-    background: var(--surface2); border-radius: 6px; padding: 1.2rem 1.5rem;
-    border-left: 3px solid var(--green); position: relative;
+    background: var(--surface2); border-radius: 6px; padding: 1rem 1.2rem;
+    border-left: 3px solid var(--green);
   }
   .aider-step-num {
-    font-family: var(--mono); font-size: 0.6rem; color: var(--green);
-    letter-spacing: 0.1em; margin-bottom: 0.3rem;
+    font-family: var(--mono); font-size: 0.55rem; color: var(--green);
+    letter-spacing: 0.1em; margin-bottom: 0.2rem;
   }
-  .aider-step h4 {
-    font-family: var(--display); font-size: 1rem; margin-bottom: 0.4rem;
-  }
-  .aider-step p { font-size: 0.85rem; color: var(--muted); }
-
+  .aider-step h4 { font-family: var(--display); font-size: 0.95rem; margin-bottom: 0.3rem; }
+  .aider-step p { font-size: 0.82rem; color: var(--muted); }
   .aider-budget-bar {
-    display: flex; height: 40px; border-radius: 4px; overflow: hidden;
-    background: var(--surface3); margin: 1rem 0;
+    display: flex; height: 36px; border-radius: 4px; overflow: hidden;
+    background: var(--surface3); margin: 0.8rem 0;
   }
   .aider-budget-seg {
     height: 100%; display: flex; align-items: center; justify-content: center;
-    font-family: var(--mono); font-size: 0.55rem; color: rgba(255,255,255,0.7);
+    font-family: var(--mono); font-size: 0.5rem; color: rgba(255,255,255,0.7);
   }
 
   footer {
-    text-align: center; padding: 3rem 2rem; font-family: var(--mono);
-    font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em;
+    text-align: center; padding: 2rem; font-family: var(--mono);
+    font-size: 0.55rem; color: var(--muted); letter-spacing: 0.1em;
     border-top: 1px solid var(--border);
   }
 
-  @keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
 </style>
 </head>
 <body>
 
-<!-- ═══ TAB BAR ═══ -->
-<nav class="tab-bar">
-  <div class="tab-brand">VISUAL LEARNING</div>
-  <div class="tab-links">
-    <button class="tab-link active" onclick="switchTab('context-mgmt')">Context Management</button>
-    <button class="tab-link" onclick="switchTab('coming-soon')" style="opacity:0.4;cursor:default" disabled>More Coming Soon</button>
+<!-- ═══ TOP NAV ═══ -->
+<nav class="top-nav">
+  <div class="top-brand">VISUAL LEARNING</div>
+  <div class="top-links">
+    <button class="top-link active" onclick="switchTop('context-mgmt', this)">Context Management</button>
+    <button class="top-link" style="opacity:0.35;cursor:default" disabled>More Coming Soon</button>
   </div>
 </nav>
 
-<!-- ═══ TAB: CONTEXT MANAGEMENT ═══ -->
-<div class="tab-content active" id="tab-context-mgmt">
+<!-- ═══ TOP CONTENT: CONTEXT MANAGEMENT ═══ -->
+<div class="top-content active" id="top-context-mgmt">
 
-<!-- ═══ HERO ═══ -->
-<div class="hero">
-  <div class="hero-tag">From "Thinking in Analogies"</div>
-  <h1>How AI Apps Turn <em>Amnesia</em><br>Into <em>Continuity</em></h1>
-  <p class="hero-sub">Five strategies popular AI applications use to manage state around a stateless model — and why context engineering is the real product differentiator.</p>
-</div>
-
-<!-- ═══ THE CORE PROBLEM ═══ -->
-<div class="container">
-  <div class="section-num">01 — The Core Problem</div>
-  <h2>Every API Call Ships the <strong>Entire Conversation</strong></h2>
-  <p class="lead">Because the LLM remembers nothing, every single API call must include ALL previous context. As conversations grow, this creates a fundamental tension: the context window is finite, but conversations are not.</p>
-
-  <div class="book-quote">
-    <p>"The AI model (Dr. Neural) is stateless and remembers nothing. The application layer (Alice) maintains conversation history and feeds it back as context, creating the illusion of memory and continuity."</p>
-    <cite>— Thinking in Analogies, Ch. 1</cite>
-  </div>
-
-  <div class="arch-flow">
-    <div class="arch-box ab">
-      <h4>User Message #47</h4>
-      <p>"Continue from where we left off on the database migration plan"</p>
-    </div>
-    <div class="arch-arrow"></div>
-    <div class="arch-box aa">
-      <h4>Application Layer (Alice) — The Real Product</h4>
-      <p>Must decide: what to include, what to summarize, what to discard</p>
-      <div class="arch-tags">
-        <span class="tag tag-purple">System Prompt</span>
-        <span class="tag tag-blue">Conversation History</span>
-        <span class="tag tag-green">RAG Results</span>
-        <span class="tag tag-accent">Current Message</span>
-      </div>
-    </div>
-    <div class="arch-arrow"></div>
-    <div class="arch-box al">
-      <h4>LLM (Dr. Neural) — Sees Only This Call</h4>
-      <p>Processes everything as one flat prompt. No memory of call #46.</p>
+  <!-- SUB-TAB BAR -->
+  <div class="sub-bar">
+    <div class="sub-bar-title">How AI Apps Turn <em>Amnesia</em> Into <em>Continuity</em></div>
+    <div class="sub-links">
+      <button class="sub-link active" onclick="switchSub('problem', this)">The Problem</button>
+      <button class="sub-link" onclick="switchSub('window', this)">Context Window</button>
+      <button class="sub-link" onclick="switchSub('strategies', this)">5 Strategies</button>
+      <button class="sub-link" onclick="switchSub('aider', this)">Aider Deep Dive</button>
+      <button class="sub-link" onclick="switchSub('simulate', this)">Simulate</button>
     </div>
   </div>
-</div>
 
-<!-- ═══ CONTEXT WINDOW VISUALIZER ═══ -->
-<div class="container">
-  <div class="section-num">02 — Inside the Context Window</div>
-  <h2>See How <strong>Different Apps</strong> Pack the Window</h2>
-  <p class="lead">Each app makes different trade-offs about what goes into the finite context window. Click an app to see its strategy — this IS the product differentiation.</p>
+  <!-- ═══ SUB 1: THE PROBLEM ═══ -->
+  <div class="sub-content active" id="sub-problem">
+    <div class="container">
+      <div class="section-num">01 — The Core Problem</div>
+      <h2>Every API Call Ships the <strong>Entire Conversation</strong></h2>
+      <p class="lead">The LLM remembers nothing. Every API call must include ALL previous context. The context window is finite, but conversations are not.</p>
 
-  <div class="cw-demo">
-    <div class="cw-header">
-      <div class="cw-title">Context Window Allocation</div>
-      <div class="cw-controls">
-        <button class="cw-btn active" onclick="showApp('chatgpt', this)">ChatGPT</button>
-        <button class="cw-btn" onclick="showApp('claude', this)">Claude</button>
-        <button class="cw-btn" onclick="showApp('perplexity', this)">Perplexity</button>
-        <button class="cw-btn" onclick="showApp('cursor', this)">Cursor</button>
-        <button class="cw-btn" onclick="showApp('aider', this)">Aider</button>
-      </div>
-    </div>
-
-    <div class="cw-window">
-      <div class="cw-ruler">
-        <span>0 tokens</span>
-        <span id="cwSize">128K tokens</span>
+      <div class="book-quote">
+        <p>"The AI model (Dr. Neural) is stateless and remembers nothing. The application layer (Alice) maintains conversation history and feeds it back as context, creating the illusion of memory and continuity."</p>
+        <cite>— Thinking in Analogies, Ch. 1</cite>
       </div>
 
-      <div id="cwBars"></div>
-
-      <div class="cw-legend">
-        <div class="cw-legend-item"><div class="cw-legend-dot" style="background:rgba(168,124,232,0.5)"></div> System Prompt</div>
-        <div class="cw-legend-item"><div class="cw-legend-dot" style="background:rgba(77,166,232,0.5)"></div> History / Context</div>
-        <div class="cw-legend-item"><div class="cw-legend-dot" style="background:rgba(77,216,138,0.5)"></div> RAG / Retrieved Docs</div>
-        <div class="cw-legend-item"><div class="cw-legend-dot" style="background:rgba(232,160,52,0.5)"></div> Current Turn</div>
-        <div class="cw-legend-item"><div class="cw-legend-dot" style="background:var(--surface3)"></div> Free Space</div>
-      </div>
-
-      <div class="cw-explanation" id="cwExplanation"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ 5 STRATEGIES (ACCORDION TABLE) ═══ -->
-<div class="container">
-  <div class="section-num">03 — The Five Alice Strategies</div>
-  <h2>How Apps Build <strong>Stateful Magic</strong> on Stateless APIs</h2>
-  <p class="lead">Just as HTTP needed cookies, sessions, and databases to create the modern web — LLMs need these strategies to create the illusion of intelligent, continuous conversation. Click each row to expand.</p>
-
-  <table class="accordion-table">
-    <thead>
-      <tr>
-        <th>Strategy</th>
-        <th>Approach</th>
-        <th>Trade-off</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="accordion-row" onclick="toggleAccordion(this)">
-        <td><span class="accordion-arrow">&#9654;</span><span class="strategy-color" style="background:var(--blue)"></span>Full History Replay</td>
-        <td>Re-send every message with each API call</td>
-        <td>Simple but expensive — costs grow per turn</td>
-      </tr>
-      <tr class="accordion-detail">
-        <td colspan="3">
-          <div class="detail-grid">
-            <div>
-              <div class="detail-label">How it works</div>
-              <div class="detail-value">Every message ever exchanged is re-sent with each API call. The model sees the complete conversation verbatim, from message #1 to the latest.</div>
-            </div>
-            <div>
-              <div class="detail-label">When it breaks</div>
-              <div class="detail-value">When the conversation exceeds the context window limit. At that point, the API call simply fails — there's no graceful degradation built in.</div>
-            </div>
-            <div>
-              <div class="detail-label">Who uses it</div>
-              <div class="detail-value">Simple chatbot wrappers, early-stage apps, short-lived task conversations. Good for <strong style="color:var(--text)">prototyping</strong>.</div>
-            </div>
-            <div>
-              <div class="detail-label">Book analogy</div>
-              <div class="detail-value" style="font-style:italic">"Alice reads Dr. Neural the entire notebook before every visit."</div>
-            </div>
+      <div class="arch-flow">
+        <div class="arch-box ab">
+          <h4>User Message #47</h4>
+          <p>"Continue from where we left off on the database migration plan"</p>
+        </div>
+        <div class="arch-arrow"></div>
+        <div class="arch-box aa">
+          <h4>Application Layer (Alice) — The Real Product</h4>
+          <p>Must decide: what to include, what to summarize, what to discard</p>
+          <div class="arch-tags">
+            <span class="tag tag-purple">System Prompt</span>
+            <span class="tag tag-blue">Conversation History</span>
+            <span class="tag tag-green">RAG Results</span>
+            <span class="tag tag-accent">Current Message</span>
           </div>
-        </td>
-      </tr>
-
-      <tr class="accordion-row" onclick="toggleAccordion(this)">
-        <td><span class="accordion-arrow">&#9654;</span><span class="strategy-color" style="background:var(--green)"></span>Sliding Window + Summarization</td>
-        <td>Keep recent messages, compress older ones</td>
-        <td>Balanced — but early details become lossy</td>
-      </tr>
-      <tr class="accordion-detail">
-        <td colspan="3">
-          <div class="detail-grid">
-            <div>
-              <div class="detail-label">How it works</div>
-              <div class="detail-value">Keep the last N messages verbatim. Older messages get compressed into a summary by the LLM itself. The summary replaces the original messages in context.</div>
-            </div>
-            <div>
-              <div class="detail-label">When it breaks</div>
-              <div class="detail-value">When the user references specific details from early in the conversation that were lost during summarization. "What was that exact error message from earlier?"</div>
-            </div>
-            <div>
-              <div class="detail-label">Who uses it</div>
-              <div class="detail-value"><strong style="color:var(--text)">ChatGPT</strong> uses this as its primary strategy. <strong style="color:var(--text)">Aider</strong> uses it for chat history management with configurable token budgets.</div>
-            </div>
-            <div>
-              <div class="detail-label">Book analogy</div>
-              <div class="detail-value" style="font-style:italic">"Alice summarizes last week's notes but reads today's in full."</div>
-            </div>
-          </div>
-        </td>
-      </tr>
-
-      <tr class="accordion-row" onclick="toggleAccordion(this)">
-        <td><span class="accordion-arrow">&#9654;</span><span class="strategy-color" style="background:var(--purple)"></span>RAG — Retrieve on Demand</td>
-        <td>Search for relevant docs and inject them</td>
-        <td>Efficient — but retrieval quality is the bottleneck</td>
-      </tr>
-      <tr class="accordion-detail">
-        <td colspan="3">
-          <div class="detail-grid">
-            <div>
-              <div class="detail-label">How it works</div>
-              <div class="detail-value">Don't pack everything in. Index your knowledge base, search for relevant chunks per-query, and inject only the most relevant documents into the context window.</div>
-            </div>
-            <div>
-              <div class="detail-label">When it breaks</div>
-              <div class="detail-value">When the retrieval system returns irrelevant or incomplete chunks. Bad embeddings = bad context = bad answers. "Garbage in, garbage out" — but for context.</div>
-            </div>
-            <div>
-              <div class="detail-label">Who uses it</div>
-              <div class="detail-value"><strong style="color:var(--text)">Perplexity</strong> (web search as RAG), <strong style="color:var(--text)">Cursor</strong> (codebase indexing), <strong style="color:var(--text)">Claude Projects</strong> (knowledge base search).</div>
-            </div>
-            <div>
-              <div class="detail-label">Book analogy</div>
-              <div class="detail-value" style="font-style:italic">"RAG is just: file processing + database operations + API calls. You know all three."</div>
-            </div>
-          </div>
-        </td>
-      </tr>
-
-      <tr class="accordion-row" onclick="toggleAccordion(this)">
-        <td><span class="accordion-arrow">&#9654;</span><span class="strategy-color" style="background:var(--accent)"></span>Persistent Memory Layer</td>
-        <td>Extract key facts into a separate database</td>
-        <td>Cross-session continuity — but what to remember?</td>
-      </tr>
-      <tr class="accordion-detail">
-        <td colspan="3">
-          <div class="detail-grid">
-            <div>
-              <div class="detail-label">How it works</div>
-              <div class="detail-value">Extract key facts (name, preferences, projects) into a separate database. Inject relevant memories per-conversation. The context window stays lean while the app "remembers" you.</div>
-            </div>
-            <div>
-              <div class="detail-label">When it breaks</div>
-              <div class="detail-value">When the memory extraction gets it wrong — saving irrelevant facts, missing important ones, or injecting stale information. Memory curation is an unsolved UX problem.</div>
-            </div>
-            <div>
-              <div class="detail-label">Who uses it</div>
-              <div class="detail-value"><strong style="color:var(--text)">ChatGPT Memory</strong>, <strong style="color:var(--text)">Claude Memory</strong>. These persist across conversations — a layer above the context window itself.</div>
-            </div>
-            <div>
-              <div class="detail-label">Book analogy</div>
-              <div class="detail-value" style="font-style:italic">"Advanced RAG maintains conversation context like a good family doctor who remembers you between visits."</div>
-            </div>
-          </div>
-        </td>
-      </tr>
-
-      <tr class="accordion-row" onclick="toggleAccordion(this)">
-        <td><span class="accordion-arrow">&#9654;</span><span class="strategy-color" style="background:var(--red)"></span>Server-Side Compaction</td>
-        <td>Auto-summarize old messages at the server</td>
-        <td>Seamless — but early details become lossy</td>
-      </tr>
-      <tr class="accordion-detail">
-        <td colspan="3">
-          <div class="detail-grid">
-            <div>
-              <div class="detail-label">How it works</div>
-              <div class="detail-value">The server automatically detects when the context window is approaching limits and triggers a summarization pass on older messages. The user doesn't even know it happened.</div>
-            </div>
-            <div>
-              <div class="detail-label">When it breaks</div>
-              <div class="detail-value">Same as summarization — early details become lossy. The difference is the user has no control. It's a trade-off between UX simplicity and user agency.</div>
-            </div>
-            <div>
-              <div class="detail-label">Who uses it</div>
-              <div class="detail-value"><strong style="color:var(--text)">Claude</strong> uses server-side compaction when approaching the 200K+ window limit. The conversation continues indefinitely — seamlessly.</div>
-            </div>
-            <div>
-              <div class="detail-label">Book analogy</div>
-              <div class="detail-value" style="font-style:italic">"The future of AI is getting better at managing state around stateless intelligence."</div>
-            </div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- ═══ APP COMPARISON ═══ -->
-<div class="container">
-  <div class="section-num">04 — Real-World Implementations</div>
-  <h2>How <strong>Popular Apps</strong> Combine These Strategies</h2>
-  <p class="lead">Remember the 95/5 rule: 95% of what makes these products great is traditional software engineering. The context management layer IS the product — not the LLM.</p>
-
-  <div class="app-table-wrap">
-    <table class="app-table">
-      <thead>
-        <tr>
-          <th>App</th>
-          <th>Window Size</th>
-          <th>Primary Strategy</th>
-          <th>Key Techniques</th>
-          <th>The "Alice" Layer</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><div class="app-name"><div class="app-dot" style="background:var(--green)"></div> ChatGPT</div></td>
-          <td>128K tokens</td>
-          <td><span class="tag tag-blue">Sliding Window</span></td>
-          <td><span class="tag tag-green">Memory</span> <span class="tag tag-blue">Summarization</span> <span class="tag tag-purple">Custom Instructions</span></td>
-          <td style="color:var(--muted);font-size:0.82rem">Older messages gradually forgotten via sliding window. Persistent memory extracts key facts across chats.</td>
-        </tr>
-        <tr>
-          <td><div class="app-name"><div class="app-dot" style="background:var(--accent)"></div> Claude</div></td>
-          <td>200K-1M tokens</td>
-          <td><span class="tag tag-accent">Full History + Compaction</span></td>
-          <td><span class="tag tag-green">Auto-compaction</span> <span class="tag tag-accent">Projects/RAG</span> <span class="tag tag-purple">Memory</span></td>
-          <td style="color:var(--muted);font-size:0.82rem">Keeps full history in window. Auto-summarizes early messages when approaching limits. Projects use RAG for knowledge.</td>
-        </tr>
-        <tr>
-          <td><div class="app-name"><div class="app-dot" style="background:var(--blue)"></div> Perplexity</div></td>
-          <td>Varies by model</td>
-          <td><span class="tag tag-green">RAG-First</span></td>
-          <td><span class="tag tag-green">Web Search</span> <span class="tag tag-blue">Source Injection</span> <span class="tag tag-accent">Citation</span></td>
-          <td style="color:var(--muted);font-size:0.82rem">Minimal chat history. Most of context window is web scrape results + search results injected per-query.</td>
-        </tr>
-        <tr>
-          <td><div class="app-name"><div class="app-dot" style="background:var(--purple)"></div> Cursor</div></td>
-          <td>Up to 200K</td>
-          <td><span class="tag tag-purple">File-Aware RAG</span></td>
-          <td><span class="tag tag-purple">Codebase Indexing</span> <span class="tag tag-blue">File Context</span> <span class="tag tag-green">Dependency Graph</span></td>
-          <td style="color:var(--muted);font-size:0.82rem">Indexes entire codebase. Intelligently selects which files to include based on relevance to current task.</td>
-        </tr>
-        <tr>
-          <td><div class="app-name"><div class="app-dot" style="background:var(--green)"></div> Aider <span class="tag tag-green" style="margin-left:0.3rem">Open Source</span></div></td>
-          <td>Model-dependent</td>
-          <td><span class="tag tag-green">Repo Map + PageRank</span></td>
-          <td><span class="tag tag-green">Tree-sitter AST</span> <span class="tag tag-blue">PageRank</span> <span class="tag tag-accent">Auto-summarize</span></td>
-          <td style="color:var(--muted);font-size:0.82rem">Uses tree-sitter to parse ASTs and PageRank to rank file importance. Repo map provides structural overview within ~1K token budget. See deep dive below.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ═══ AIDER DEEP DIVE ═══ -->
-<div class="container">
-  <div class="section-num">04b — Deep Dive: Aider (Open Source)</div>
-  <h2>How <strong>Aider</strong> Actually Manages Context</h2>
-  <p class="lead">Unlike the other apps where we're making educated assumptions, Aider is open source — we can see exactly how it works. Here's the real architecture.</p>
-
-  <div class="aider-section">
-    <div class="aider-title">AIDER CONTEXT PIPELINE — VERIFIED FROM SOURCE CODE</div>
-
-    <div class="aider-flow">
-      <div class="aider-step">
-        <div class="aider-step-num">STEP 1</div>
-        <h4>Tree-sitter AST Parsing</h4>
-        <p>Aider uses <strong style="color:var(--text)">tree-sitter</strong> to parse every file in the git repo into Abstract Syntax Trees. It extracts <strong style="color:var(--green)">definitions</strong> (where functions/classes are defined) and <strong style="color:var(--blue)">references</strong> (where they're used) using language-specific <code style="color:var(--accent)">tags.scm</code> query files. Supports ~60 languages with full repo map support.</p>
+        </div>
+        <div class="arch-arrow"></div>
+        <div class="arch-box al">
+          <h4>LLM (Dr. Neural) — Sees Only This Call</h4>
+          <p>Processes everything as one flat prompt. No memory of call #46.</p>
+        </div>
       </div>
 
-      <div class="aider-step">
-        <div class="aider-step-num">STEP 2</div>
-        <h4>PageRank Graph Analysis</h4>
-        <p>Each source file becomes a <strong style="color:var(--text)">node</strong> in a directed graph with edges based on dependencies. Aider runs <strong style="color:var(--green)">NetworkX's personalized PageRank</strong> with a <strong style="color:var(--accent)">50x multiplier</strong> for files referenced in the active chat. Files referenced by many important files rank high — even if not directly mentioned.</p>
+      <div class="rot-section">
+        <h3>Context Rot: When More Is Less</h3>
+        <p style="font-size:0.88rem;color:var(--muted);margin-bottom:0.8rem">Research shows models lose accuracy as context fills up. Strong recall at the start and end, weak in the middle.</p>
+        <div class="rot-visual" id="rotVisual"></div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.5rem;color:var(--muted);margin-top:0.2rem">
+          <span>Strong recall</span>
+          <span>"Lost in the Middle" zone</span>
+          <span>Strong recall</span>
+        </div>
       </div>
 
-      <div class="aider-step">
-        <div class="aider-step-num">STEP 3</div>
-        <h4>Repo Map Generation (~1K tokens default)</h4>
-        <p>The highest-ranked files get included in a concise <strong style="color:var(--text)">structural map</strong> — class names, function signatures, type definitions. Not the full code, just the skeleton. Configurable via <code style="color:var(--accent)">--map-tokens</code> (default: 1,000 tokens). This gives the LLM a bird's-eye view of the entire codebase.</p>
+      <div class="book-quote">
+        <p>"AI applications like ChatGPT, Claude, or custom business chatbots are so much more than just the language model. They're sophisticated systems that manage state, context, and memory on behalf of the stateless core."</p>
+        <cite>— Thinking in Analogies, Ch. 1</cite>
       </div>
 
-      <div class="aider-step">
-        <div class="aider-step-num">STEP 4</div>
-        <h4>Context Assembly</h4>
-        <p>The final prompt is assembled in priority order: <strong style="color:var(--purple)">System prompt</strong> + <strong style="color:var(--green)">Repo map</strong> + <strong style="color:var(--blue)">Added files</strong> (full content of files you <code style="color:var(--accent)">/add</code>) + <strong style="color:var(--text)">Chat history</strong> (with auto-summarization when exceeding <code style="color:var(--accent)">--max-chat-history-tokens</code>).</p>
-      </div>
-
-      <div class="aider-step">
-        <div class="aider-step-num">STEP 5</div>
-        <h4>Chat History Summarization</h4>
-        <p>When chat history exceeds the configured token limit, Aider's <strong style="color:var(--text)">ChatSummary class</strong> uses the LLM to create a concise summary of older conversation chunks in a <strong style="color:var(--green)">background thread</strong>. The summary replaces the original messages — the conversation continues without blocking.</p>
-      </div>
-    </div>
-
-    <div style="margin-top:1.5rem">
-      <div class="detail-label">Token Budget Allocation (typical session)</div>
-      <div class="aider-budget-bar">
-        <div class="aider-budget-seg" style="width:5%;background:rgba(168,124,232,0.4)">Sys</div>
-        <div class="aider-budget-seg" style="width:8%;background:rgba(77,216,138,0.35)">Map</div>
-        <div class="aider-budget-seg" style="width:45%;background:rgba(77,166,232,0.35)">Added Files</div>
-        <div class="aider-budget-seg" style="width:15%;background:rgba(232,160,52,0.35)">History</div>
-        <div class="aider-budget-seg" style="width:12%;background:rgba(232,84,84,0.25)">Output</div>
-        <div class="aider-budget-seg" style="width:15%;color:var(--muted)">Free</div>
-      </div>
-      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;font-family:var(--mono);font-size:0.55rem;color:var(--muted);margin-top:0.3rem">
-        <span>System ~5%</span>
-        <span>Repo Map ~8%</span>
-        <span>Added Files ~45%</span>
-        <span>Chat History ~15%</span>
-        <span>Output ~12%</span>
-        <span>Free ~15%</span>
-      </div>
-    </div>
-
-    <div class="book-quote" style="margin-top:2rem;border-color:var(--green)">
-      <p>"Only add the files that need to be edited for your task. Don't add a bunch of extra files — let Aider's repo map provide the structural context automatically."</p>
-      <cite>— Aider Documentation (aider.chat)</cite>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ INTERACTIVE SIM ═══ -->
-<div class="container">
-  <div class="section-num">05 — Interactive Simulation</div>
-  <h2>Watch <strong>Alice</strong> Manage the Context Window</h2>
-  <p class="lead">Send messages and watch how the application layer decides what to keep, what to summarize, and what to discard — just like Alice managing Dr. Neural's briefings.</p>
-
-  <div class="sim-container">
-    <div class="sim-top">
-      <div class="sim-config">
-        <label>Context Window Size</label>
-        <div class="sim-value" id="simWindowDisplay">32K tokens</div>
-        <input type="range" class="sim-slider" id="simWindowSlider" min="8" max="200" value="32" oninput="updateSimConfig()">
-      </div>
-      <div class="sim-config">
-        <label>Strategy</label>
-        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.5rem">
-          <button class="cw-btn active" id="strat-full" onclick="setStrategy('full')">Full Replay</button>
-          <button class="cw-btn" id="strat-sliding" onclick="setStrategy('sliding')">Sliding + Summary</button>
-          <button class="cw-btn" id="strat-compact" onclick="setStrategy('compact')">Auto-Compact</button>
+      <div class="strategy-grid">
+        <div class="strategy-card s1">
+          <div class="strategy-icon">&#128451;</div>
+          <h4>Skill Translation</h4>
+          <h3>Database &#8594; Context</h3>
+          <p>Instead of managing data in tables, you manage conversation context. Same concepts: indexing, querying, optimization.</p>
+        </div>
+        <div class="strategy-card s2">
+          <div class="strategy-icon">&#128268;</div>
+          <h4>Skill Translation</h4>
+          <h3>API &#8594; LLM Integration</h3>
+          <p>Instead of calling payment APIs, you call LLM APIs. Same patterns: auth, rate limiting, error handling.</p>
+        </div>
+        <div class="strategy-card s4">
+          <div class="strategy-icon">&#127959;</div>
+          <h4>The 95/5 Rule</h4>
+          <h3>95% Engineering</h3>
+          <p>Context management, state handling, caching, optimization — these are all traditional software engineering skills. Only 5% is AI-specific.</p>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="sim-visual">
-      <div class="sim-tokens-bar" id="simBar"></div>
-      <div class="sim-status">
-        <span id="simUsed">Used: 2K / 32K tokens (6%)</span>
-        <span id="simHealth" class="ok">&#9679; Healthy</span>
+  <!-- ═══ SUB 2: CONTEXT WINDOW ═══ -->
+  <div class="sub-content" id="sub-window">
+    <div class="container">
+      <div class="section-num">02 — Inside the Context Window</div>
+      <h2>See How <strong>Different Apps</strong> Pack the Window</h2>
+      <p class="lead">Each app makes different trade-offs. Click an app to see its allocation — this IS the product differentiation.</p>
+
+      <div class="cw-demo">
+        <div class="cw-header">
+          <div class="cw-title">Context Window Allocation</div>
+          <div class="cw-controls">
+            <button class="cw-btn active" onclick="showApp('chatgpt', this)">ChatGPT</button>
+            <button class="cw-btn" onclick="showApp('claude', this)">Claude</button>
+            <button class="cw-btn" onclick="showApp('perplexity', this)">Perplexity</button>
+            <button class="cw-btn" onclick="showApp('cursor', this)">Cursor</button>
+            <button class="cw-btn" onclick="showApp('aider', this)">Aider</button>
+          </div>
+        </div>
+
+        <div class="cw-window">
+          <div class="cw-ruler">
+            <span>0 tokens</span>
+            <span id="cwSize">128K tokens</span>
+          </div>
+          <div id="cwBars"></div>
+          <div class="cw-legend">
+            <div class="cw-legend-item"><div class="cw-legend-dot" style="background:rgba(168,124,232,0.5)"></div> System Prompt</div>
+            <div class="cw-legend-item"><div class="cw-legend-dot" style="background:rgba(77,166,232,0.5)"></div> History / Context</div>
+            <div class="cw-legend-item"><div class="cw-legend-dot" style="background:rgba(77,216,138,0.5)"></div> RAG / Retrieved</div>
+            <div class="cw-legend-item"><div class="cw-legend-dot" style="background:rgba(232,160,52,0.5)"></div> Current Turn</div>
+            <div class="cw-legend-item"><div class="cw-legend-dot" style="background:var(--surface3)"></div> Free Space</div>
+          </div>
+          <div class="cw-explanation" id="cwExplanation"></div>
+        </div>
+      </div>
+
+      <div class="app-table-wrap">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>App</th>
+              <th>Window Size</th>
+              <th>Primary Strategy</th>
+              <th>Key Techniques</th>
+              <th>The "Alice" Layer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="app-name"><div class="app-dot" style="background:var(--green)"></div> ChatGPT</div></td>
+              <td>128K tokens</td>
+              <td><span class="tag tag-blue">Sliding Window</span></td>
+              <td><span class="tag tag-green">Memory</span> <span class="tag tag-blue">Summarization</span> <span class="tag tag-purple">Custom Instructions</span></td>
+              <td style="color:var(--muted);font-size:0.78rem">Older messages gradually forgotten. Persistent memory extracts key facts across chats.</td>
+            </tr>
+            <tr>
+              <td><div class="app-name"><div class="app-dot" style="background:var(--accent)"></div> Claude</div></td>
+              <td>200K-1M</td>
+              <td><span class="tag tag-accent">Full History + Compaction</span></td>
+              <td><span class="tag tag-green">Auto-compaction</span> <span class="tag tag-accent">Projects/RAG</span> <span class="tag tag-purple">Memory</span></td>
+              <td style="color:var(--muted);font-size:0.78rem">Full history in window. Auto-summarizes when approaching limits.</td>
+            </tr>
+            <tr>
+              <td><div class="app-name"><div class="app-dot" style="background:var(--blue)"></div> Perplexity</div></td>
+              <td>Varies</td>
+              <td><span class="tag tag-green">RAG-First</span></td>
+              <td><span class="tag tag-green">Web Search</span> <span class="tag tag-blue">Source Injection</span> <span class="tag tag-accent">Citation</span></td>
+              <td style="color:var(--muted);font-size:0.78rem">Minimal history. Context filled with web search results per-query.</td>
+            </tr>
+            <tr>
+              <td><div class="app-name"><div class="app-dot" style="background:var(--purple)"></div> Cursor</div></td>
+              <td>Up to 200K</td>
+              <td><span class="tag tag-purple">File-Aware RAG</span></td>
+              <td><span class="tag tag-purple">Codebase Index</span> <span class="tag tag-blue">File Context</span> <span class="tag tag-green">Dep Graph</span></td>
+              <td style="color:var(--muted);font-size:0.78rem">Indexes codebase. Selects files by relevance to current task.</td>
+            </tr>
+            <tr>
+              <td><div class="app-name"><div class="app-dot" style="background:var(--green)"></div> Aider <span class="tag tag-green" style="margin-left:0.3rem">OSS</span></div></td>
+              <td>Model-dep.</td>
+              <td><span class="tag tag-green">Repo Map + PageRank</span></td>
+              <td><span class="tag tag-green">Tree-sitter</span> <span class="tag tag-blue">PageRank</span> <span class="tag tag-accent">Auto-summarize</span></td>
+              <td style="color:var(--muted);font-size:0.78rem">Tree-sitter ASTs + PageRank for file ranking. ~1K token repo map.</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-
-    <div class="sim-btn-row">
-      <button class="sim-btn sim-btn-send" onclick="simSendMessage()">Send Message (~1.5K tokens)</button>
-      <button class="sim-btn sim-btn-rag" onclick="simRAGQuery()">RAG Query (+3K docs)</button>
-      <button class="sim-btn sim-btn-compact" onclick="simForceCompact()">Force Compact</button>
-      <button class="sim-btn sim-btn-reset" onclick="simReset()">Reset</button>
-    </div>
-
-    <div class="sim-log" id="simLog">
-      <div class="log-alice">Alice: Context window initialized. System prompt loaded (2K tokens).</div>
-      <div class="log-info">Ready to manage state for Dr. Neural...</div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ CONTEXT ROT ═══ -->
-<div class="container">
-  <div class="section-num">06 — The Hidden Danger</div>
-  <h2>Context Rot: When <strong>More Is Less</strong></h2>
-
-  <div class="rot-section">
-    <h3>Performance Degrades as the Window Fills</h3>
-    <p class="lead" style="max-width:100%">Research shows that as context windows fill up, models lose accuracy. Below 50% full, they lose tokens in the middle. Above 50%, they lose the earliest tokens. This is why smart context management isn't optional — it's essential.</p>
-
-    <div class="rot-visual" id="rotVisual"></div>
-    <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.55rem;color:var(--muted);margin-top:0.3rem">
-      <span>Strong recall</span>
-      <span>"Lost in the Middle" zone</span>
-      <span>Strong recall</span>
-    </div>
-
-    <p style="font-size:0.9rem;color:var(--muted);margin-top:1.5rem">This is exactly why your book's analogy of the <strong style="color:var(--text)">News Editor</strong> is so apt — limited space, unlimited information. The editor must choose wisely. <em>Statelessness isn't a limitation — it's a feature</em>, but only if the application layer manages context intelligently.</p>
-  </div>
-</div>
-
-<!-- ═══ KEY INSIGHT ═══ -->
-<div class="container">
-  <div class="section-num">07 — The Beautiful Realization</div>
-  <h2>Context Management <strong>IS</strong> the Product</h2>
-
-  <div class="book-quote">
-    <p>"AI applications like ChatGPT, Claude, or custom business chatbots are so much more than just the language model. They're sophisticated systems that manage state, context, and memory on behalf of the stateless core."</p>
-    <cite>— Thinking in Analogies, Ch. 1</cite>
   </div>
 
-  <div class="strategy-grid">
-    <div class="strategy-card s1">
-      <div class="strategy-icon">&#128451;</div>
-      <h4>Skill Translation</h4>
-      <h3>Database &#8594; Context</h3>
-      <p>Instead of managing data in tables, you manage conversation context. Same concepts: indexing, querying, optimization.</p>
-    </div>
-    <div class="strategy-card s2">
-      <div class="strategy-icon">&#128268;</div>
-      <h4>Skill Translation</h4>
-      <h3>API &#8594; LLM Integration</h3>
-      <p>Instead of calling payment APIs, you call LLM APIs. Same patterns: auth, rate limiting, error handling.</p>
-    </div>
-    <div class="strategy-card s4">
-      <div class="strategy-icon">&#127959;</div>
-      <h4>The 95/5 Rule</h4>
-      <h3>95% Engineering</h3>
-      <p>Context management, state handling, caching, optimization — these are all traditional software engineering skills. Only 5% is AI-specific.</p>
+  <!-- ═══ SUB 3: 5 STRATEGIES ═══ -->
+  <div class="sub-content" id="sub-strategies">
+    <div class="container">
+      <div class="section-num">03 — The Five Alice Strategies</div>
+      <h2>How Apps Build <strong>Stateful Magic</strong> on Stateless APIs</h2>
+      <p class="lead">Just as HTTP needed cookies, sessions, and databases — LLMs need these strategies. Click each row to expand.</p>
+
+      <table class="accordion-table">
+        <thead>
+          <tr>
+            <th>Strategy</th>
+            <th>Approach</th>
+            <th>Trade-off</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="accordion-row" onclick="toggleAccordion(this)">
+            <td><span class="accordion-arrow">&#9654;</span><span class="strategy-color" style="background:var(--blue)"></span>Full History Replay</td>
+            <td>Re-send every message with each API call</td>
+            <td>Simple but expensive — costs grow per turn</td>
+          </tr>
+          <tr class="accordion-detail">
+            <td colspan="3">
+              <div class="detail-grid">
+                <div><div class="detail-label">How it works</div><div class="detail-value">Every message ever exchanged is re-sent with each API call. The model sees the complete conversation verbatim.</div></div>
+                <div><div class="detail-label">When it breaks</div><div class="detail-value">When the conversation exceeds the context window limit. The API call simply fails — no graceful degradation.</div></div>
+                <div><div class="detail-label">Who uses it</div><div class="detail-value">Simple chatbot wrappers, early-stage apps, short-lived task conversations. Good for <strong style="color:var(--text)">prototyping</strong>.</div></div>
+                <div><div class="detail-label">Book analogy</div><div class="detail-value" style="font-style:italic">"Alice reads Dr. Neural the entire notebook before every visit."</div></div>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="accordion-row" onclick="toggleAccordion(this)">
+            <td><span class="accordion-arrow">&#9654;</span><span class="strategy-color" style="background:var(--green)"></span>Sliding Window + Summarization</td>
+            <td>Keep recent messages, compress older ones</td>
+            <td>Balanced — but early details become lossy</td>
+          </tr>
+          <tr class="accordion-detail">
+            <td colspan="3">
+              <div class="detail-grid">
+                <div><div class="detail-label">How it works</div><div class="detail-value">Keep the last N messages verbatim. Older messages get compressed into a summary by the LLM itself.</div></div>
+                <div><div class="detail-label">When it breaks</div><div class="detail-value">When the user references specific details from early in the conversation that were lost during summarization.</div></div>
+                <div><div class="detail-label">Who uses it</div><div class="detail-value"><strong style="color:var(--text)">ChatGPT</strong> (primary strategy), <strong style="color:var(--text)">Aider</strong> (for chat history management).</div></div>
+                <div><div class="detail-label">Book analogy</div><div class="detail-value" style="font-style:italic">"Alice summarizes last week's notes but reads today's in full."</div></div>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="accordion-row" onclick="toggleAccordion(this)">
+            <td><span class="accordion-arrow">&#9654;</span><span class="strategy-color" style="background:var(--purple)"></span>RAG — Retrieve on Demand</td>
+            <td>Search for relevant docs and inject them</td>
+            <td>Efficient — but retrieval quality is the bottleneck</td>
+          </tr>
+          <tr class="accordion-detail">
+            <td colspan="3">
+              <div class="detail-grid">
+                <div><div class="detail-label">How it works</div><div class="detail-value">Index your knowledge base, search for relevant chunks per-query, inject only the most relevant documents.</div></div>
+                <div><div class="detail-label">When it breaks</div><div class="detail-value">When retrieval returns irrelevant or incomplete chunks. Bad embeddings = bad context = bad answers.</div></div>
+                <div><div class="detail-label">Who uses it</div><div class="detail-value"><strong style="color:var(--text)">Perplexity</strong> (web search), <strong style="color:var(--text)">Cursor</strong> (codebase indexing), <strong style="color:var(--text)">Claude Projects</strong>.</div></div>
+                <div><div class="detail-label">Book analogy</div><div class="detail-value" style="font-style:italic">"RAG is just: file processing + database operations + API calls. You know all three."</div></div>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="accordion-row" onclick="toggleAccordion(this)">
+            <td><span class="accordion-arrow">&#9654;</span><span class="strategy-color" style="background:var(--accent)"></span>Persistent Memory Layer</td>
+            <td>Extract key facts into a separate database</td>
+            <td>Cross-session continuity — but what to remember?</td>
+          </tr>
+          <tr class="accordion-detail">
+            <td colspan="3">
+              <div class="detail-grid">
+                <div><div class="detail-label">How it works</div><div class="detail-value">Extract key facts (name, preferences, projects) into a separate database. Inject relevant memories per-conversation.</div></div>
+                <div><div class="detail-label">When it breaks</div><div class="detail-value">When memory extraction gets it wrong — saving irrelevant facts, missing important ones, or injecting stale info.</div></div>
+                <div><div class="detail-label">Who uses it</div><div class="detail-value"><strong style="color:var(--text)">ChatGPT Memory</strong>, <strong style="color:var(--text)">Claude Memory</strong>. Persists across conversations.</div></div>
+                <div><div class="detail-label">Book analogy</div><div class="detail-value" style="font-style:italic">"Like a good family doctor who remembers you between visits."</div></div>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="accordion-row" onclick="toggleAccordion(this)">
+            <td><span class="accordion-arrow">&#9654;</span><span class="strategy-color" style="background:var(--red)"></span>Server-Side Compaction</td>
+            <td>Auto-summarize old messages at the server</td>
+            <td>Seamless — but early details become lossy</td>
+          </tr>
+          <tr class="accordion-detail">
+            <td colspan="3">
+              <div class="detail-grid">
+                <div><div class="detail-label">How it works</div><div class="detail-value">The server detects when context is approaching limits and triggers a summarization pass on older messages automatically.</div></div>
+                <div><div class="detail-label">When it breaks</div><div class="detail-value">Same as summarization — early details become lossy. The user has no control over what gets compressed.</div></div>
+                <div><div class="detail-label">Who uses it</div><div class="detail-value"><strong style="color:var(--text)">Claude</strong> uses server-side compaction at the 200K+ window limit. Conversation continues indefinitely.</div></div>
+                <div><div class="detail-label">Book analogy</div><div class="detail-value" style="font-style:italic">"The future of AI is getting better at managing state around stateless intelligence."</div></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
-</div>
 
-<footer>
-  From "Thinking in Analogies: A Generative AI Playbook for Tech Professionals"<br>
-  The future of AI is getting better at managing state around stateless intelligence.
-</footer>
+  <!-- ═══ SUB 4: AIDER DEEP DIVE ═══ -->
+  <div class="sub-content" id="sub-aider">
+    <div class="container">
+      <div class="section-num">04 — Deep Dive: Aider (Open Source)</div>
+      <h2>How <strong>Aider</strong> Actually Manages Context</h2>
+      <p class="lead">Unlike other apps where we make educated assumptions, Aider is open source — we can see exactly how it works.</p>
 
-</div><!-- end tab-context-mgmt -->
+      <div class="aider-section">
+        <div class="aider-title">AIDER CONTEXT PIPELINE — VERIFIED FROM SOURCE CODE</div>
+
+        <div class="aider-flow">
+          <div class="aider-step">
+            <div class="aider-step-num">STEP 1</div>
+            <h4>Tree-sitter AST Parsing</h4>
+            <p>Uses <strong style="color:var(--text)">tree-sitter</strong> to parse every file in the git repo into ASTs. Extracts <strong style="color:var(--green)">definitions</strong> and <strong style="color:var(--blue)">references</strong> using language-specific <code style="color:var(--accent)">tags.scm</code> query files. ~60 languages supported.</p>
+          </div>
+          <div class="aider-step">
+            <div class="aider-step-num">STEP 2</div>
+            <h4>PageRank Graph Analysis</h4>
+            <p>Each file becomes a <strong style="color:var(--text)">node</strong> in a directed graph. Runs <strong style="color:var(--green)">NetworkX personalized PageRank</strong> with a <strong style="color:var(--accent)">50x multiplier</strong> for files in the active chat. Transitive importance is captured.</p>
+          </div>
+          <div class="aider-step">
+            <div class="aider-step-num">STEP 3</div>
+            <h4>Repo Map Generation (~1K tokens)</h4>
+            <p>Top-ranked files become a concise <strong style="color:var(--text)">structural map</strong> — class names, function signatures, types. Not full code, just the skeleton. Configurable via <code style="color:var(--accent)">--map-tokens</code>.</p>
+          </div>
+          <div class="aider-step">
+            <div class="aider-step-num">STEP 4</div>
+            <h4>Context Assembly</h4>
+            <p>Priority order: <strong style="color:var(--purple)">System prompt</strong> + <strong style="color:var(--green)">Repo map</strong> + <strong style="color:var(--blue)">Added files</strong> (full content via <code style="color:var(--accent)">/add</code>) + <strong style="color:var(--text)">Chat history</strong> (auto-summarized when over limit).</p>
+          </div>
+          <div class="aider-step">
+            <div class="aider-step-num">STEP 5</div>
+            <h4>Chat History Summarization</h4>
+            <p><strong style="color:var(--text)">ChatSummary class</strong> uses the LLM in a <strong style="color:var(--green)">background thread</strong> to summarize older conversation chunks when exceeding <code style="color:var(--accent)">--max-chat-history-tokens</code>.</p>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem">
+          <div class="detail-label">Token Budget Allocation (typical session)</div>
+          <div class="aider-budget-bar">
+            <div class="aider-budget-seg" style="width:5%;background:rgba(168,124,232,0.4)">Sys</div>
+            <div class="aider-budget-seg" style="width:8%;background:rgba(77,216,138,0.35)">Map</div>
+            <div class="aider-budget-seg" style="width:45%;background:rgba(77,166,232,0.35)">Added Files</div>
+            <div class="aider-budget-seg" style="width:15%;background:rgba(232,160,52,0.35)">History</div>
+            <div class="aider-budget-seg" style="width:12%;background:rgba(232,84,84,0.25)">Output</div>
+            <div class="aider-budget-seg" style="width:15%;color:var(--muted)">Free</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.3rem;font-family:var(--mono);font-size:0.5rem;color:var(--muted);margin-top:0.2rem">
+            <span>System ~5%</span><span>Repo Map ~8%</span><span>Added Files ~45%</span><span>History ~15%</span><span>Output ~12%</span><span>Free ~15%</span>
+          </div>
+        </div>
+
+        <div class="book-quote" style="margin-top:1.5rem;border-color:var(--green)">
+          <p>"Only add the files that need to be edited for your task. Don't add a bunch of extra files — let Aider's repo map provide the structural context automatically."</p>
+          <cite>— Aider Documentation (aider.chat)</cite>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SUB 5: SIMULATE ═══ -->
+  <div class="sub-content" id="sub-simulate">
+    <div class="container">
+      <div class="section-num">05 — Interactive Simulation</div>
+      <h2>Watch <strong>Alice</strong> Manage the Context Window</h2>
+      <p class="lead">Send messages and watch how the application layer decides what to keep, summarize, and discard.</p>
+
+      <div class="sim-container">
+        <div class="sim-top">
+          <div class="sim-config">
+            <label>Context Window Size</label>
+            <div class="sim-value" id="simWindowDisplay">32K tokens</div>
+            <input type="range" class="sim-slider" id="simWindowSlider" min="8" max="200" value="32" oninput="updateSimConfig()">
+          </div>
+          <div class="sim-config">
+            <label>Strategy</label>
+            <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.4rem">
+              <button class="cw-btn active" id="strat-full" onclick="setStrategy('full')">Full Replay</button>
+              <button class="cw-btn" id="strat-sliding" onclick="setStrategy('sliding')">Sliding + Summary</button>
+              <button class="cw-btn" id="strat-compact" onclick="setStrategy('compact')">Auto-Compact</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sim-visual">
+          <div class="sim-tokens-bar" id="simBar"></div>
+          <div class="sim-status">
+            <span id="simUsed">Used: 2K / 32K tokens (6%)</span>
+            <span id="simHealth" class="ok">&#9679; Healthy</span>
+          </div>
+        </div>
+
+        <div class="sim-btn-row">
+          <button class="sim-btn sim-btn-send" onclick="simSendMessage()">Send Message (~1.5K tokens)</button>
+          <button class="sim-btn sim-btn-rag" onclick="simRAGQuery()">RAG Query (+3K docs)</button>
+          <button class="sim-btn sim-btn-compact" onclick="simForceCompact()">Force Compact</button>
+          <button class="sim-btn sim-btn-reset" onclick="simReset()">Reset</button>
+        </div>
+
+        <div class="sim-log" id="simLog">
+          <div class="log-alice">Alice: Context window initialized. System prompt loaded (2K tokens).</div>
+          <div class="log-info">Ready to manage state for Dr. Neural...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    From "Thinking in Analogies: A Generative AI Playbook for Tech Professionals"<br>
+    The future of AI is getting better at managing state around stateless intelligence.
+  </footer>
+
+</div><!-- end top-context-mgmt -->
 
 <script>
-// ═══ TAB SWITCHING ═══
-function switchTab(name) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
-  const tab = document.getElementById('tab-' + name);
-  if (tab) {
-    tab.classList.add('active');
-    event.target.classList.add('active');
-  }
+// ═══ TOP TAB SWITCHING ═══
+function switchTop(name, btn) {
+  document.querySelectorAll('.top-content').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.top-link').forEach(function(t) { t.classList.remove('active'); });
+  var tab = document.getElementById('top-' + name);
+  if (tab) { tab.classList.add('active'); btn.classList.add('active'); }
+}
+
+// ═══ SUB TAB SWITCHING ═══
+function switchSub(name, btn) {
+  document.querySelectorAll('.sub-content').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.sub-link').forEach(function(t) { t.classList.remove('active'); });
+  var tab = document.getElementById('sub-' + name);
+  if (tab) { tab.classList.add('active'); btn.classList.add('active'); }
+  // Re-render sim bar when switching to simulate tab
+  if (name === 'simulate') { renderSimBar(); }
+  // Re-render context window visualizer
+  if (name === 'window') { showApp('chatgpt', document.querySelector('.cw-controls .cw-btn')); }
 }
 
 // ═══ ACCORDION ═══
 function toggleAccordion(row) {
-  const detail = row.nextElementSibling;
-  const wasOpen = row.classList.contains('open');
-
-  // Close all
-  document.querySelectorAll('.accordion-row').forEach(r => r.classList.remove('open'));
-  document.querySelectorAll('.accordion-detail').forEach(d => d.classList.remove('open'));
-
-  // Toggle clicked
-  if (!wasOpen) {
-    row.classList.add('open');
-    detail.classList.add('open');
-  }
+  var detail = row.nextElementSibling;
+  var wasOpen = row.classList.contains('open');
+  document.querySelectorAll('.accordion-row').forEach(function(r) { r.classList.remove('open'); });
+  document.querySelectorAll('.accordion-detail').forEach(function(d) { d.classList.remove('open'); });
+  if (!wasOpen) { row.classList.add('open'); detail.classList.add('open'); }
 }
 
 // ═══ APP CONTEXT WINDOW DATA ═══
-const apps = {
+var apps = {
   chatgpt: {
     size: '128K tokens',
     bars: [
@@ -948,20 +842,20 @@ const apps = {
       { label: 'Sliding Window History', pct: 35, cls: 'hist' },
       { label: 'Memory Facts', pct: 5, cls: 'summary' },
       { label: 'Current Turn', pct: 15, cls: 'user' },
-      { label: 'Output Space', pct: 10, cls: 'output' },
+      { label: 'Output Space', pct: 10, cls: 'output' }
     ],
-    explanation: '<strong>ChatGPT\'s strategy:</strong> Uses a <span class="blue">sliding window</span> approach \u2014 older messages gradually fall off as the conversation grows. A separate <span class="highlight">Memory system</span> extracts key facts (your name, preferences, recurring topics) and persists them across conversations as compact injections. Custom Instructions act as a persistent system prompt. <br><br>The trade-off: Indefinitely long conversations are possible, but ChatGPT literally <em>forgets</em> what you said 20 messages ago. The shopkeeper with amnesia \u2014 but with a sticky note on the counter.'
+    explanation: '<strong>ChatGPT:</strong> <span class="blue">Sliding window</span> \u2014 older messages fall off. <span class="highlight">Memory system</span> extracts key facts across chats. Custom Instructions as persistent system prompt. Trade-off: forgets what you said 20 messages ago.'
   },
   claude: {
     size: '200K\u20131M tokens',
     bars: [
-      { label: 'System Prompt + Project Knowledge', pct: 10, cls: 'sys' },
+      { label: 'System + Project Knowledge', pct: 10, cls: 'sys' },
       { label: 'Full Conversation History', pct: 45, cls: 'hist' },
       { label: 'Memory Layer', pct: 3, cls: 'summary' },
       { label: 'Current Turn', pct: 12, cls: 'user' },
-      { label: 'Output + Thinking', pct: 10, cls: 'output' },
+      { label: 'Output + Thinking', pct: 10, cls: 'output' }
     ],
-    explanation: '<strong>Claude\'s strategy:</strong> Keeps the <span class="blue">full conversation history</span> in the window as long as possible (up to 200K or 1M tokens). When approaching limits, <span class="highlight">server-side compaction</span> automatically summarizes earlier messages to free space. Projects use <span class="blue">RAG</span> to search knowledge bases without stuffing everything in. <br><br>The trade-off: More expensive per-call (bigger context = more compute), and usage limits hit sooner. But the model sees the full picture \u2014 like Dr. Neural getting Alice\'s complete notebook, not just the summary.'
+    explanation: '<strong>Claude:</strong> Keeps <span class="blue">full conversation history</span> (up to 1M tokens). <span class="highlight">Server-side compaction</span> auto-summarizes when approaching limits. Projects use RAG for knowledge bases. Trade-off: more expensive per-call.'
   },
   perplexity: {
     size: 'Varies by model',
@@ -970,9 +864,9 @@ const apps = {
       { label: 'Minimal Chat History', pct: 8, cls: 'hist' },
       { label: 'Web Search Results / RAG', pct: 45, cls: 'summary' },
       { label: 'Current Query', pct: 8, cls: 'user' },
-      { label: 'Output + Citations', pct: 12, cls: 'output' },
+      { label: 'Output + Citations', pct: 12, cls: 'output' }
     ],
-    explanation: '<strong>Perplexity\'s strategy:</strong> A <span class="highlight">RAG-first</span> approach. Most of the context window is filled with <span class="blue">web scrape results and search snippets</span> retrieved per-query. Chat history is minimal \u2014 it\'s a search engine, not a chat companion. <br><br>As your book notes: "Backend: Web scraping + search algorithms + API orchestration + Context Engineering. Result: <span class="highlight">95% traditional software engineering, 5% AI-specific.</span>" The Alice layer here is essentially Google + smart injection.'
+    explanation: '<strong>Perplexity:</strong> <span class="highlight">RAG-first</span>. Context filled with <span class="blue">web search results</span> per-query. Minimal chat history \u2014 it\'s a search engine, not a chat companion. <span class="highlight">95% traditional software engineering, 5% AI-specific.</span>'
   },
   cursor: {
     size: 'Up to 200K',
@@ -981,9 +875,9 @@ const apps = {
       { label: 'Open Files + Codebase Index', pct: 40, cls: 'summary' },
       { label: 'Conversation History', pct: 12, cls: 'hist' },
       { label: 'Current Request', pct: 10, cls: 'user' },
-      { label: 'Code Output', pct: 12, cls: 'output' },
+      { label: 'Code Output', pct: 12, cls: 'output' }
     ],
-    explanation: '<strong>Cursor\'s strategy:</strong> The context window is dominated by <span class="blue">codebase context</span> \u2014 indexed files, dependency graphs, and open editor tabs. The app intelligently selects <em>which</em> files to include based on the current task. <br><br>As your book notes: "Backend: VS Code extension architecture + file system management. Most complexity is in editor features, not AI." The Alice layer here is a sophisticated <span class="highlight">file-aware RAG system</span> that understands code relationships.'
+    explanation: '<strong>Cursor:</strong> Dominated by <span class="blue">codebase context</span> \u2014 indexed files, dependency graphs, open tabs. Intelligently selects files based on current task. A sophisticated <span class="highlight">file-aware RAG system</span> that understands code relationships.'
   },
   aider: {
     size: 'Model-dependent (up to 200K)',
@@ -992,29 +886,24 @@ const apps = {
       { label: 'Repo Map (Tree-sitter + PageRank)', pct: 8, cls: 'summary' },
       { label: 'Added Files (full content)', pct: 45, cls: 'hist' },
       { label: 'Chat History (auto-summarized)', pct: 15, cls: 'user' },
-      { label: 'Output Space', pct: 12, cls: 'output' },
+      { label: 'Output Space', pct: 12, cls: 'output' }
     ],
-    explanation: '<strong>Aider\'s strategy (verified from source):</strong> Uses <span class="blue">tree-sitter</span> to parse the entire git repo into ASTs, extracting function/class definitions and references. Runs <span class="highlight">personalized PageRank</span> (via NetworkX) to rank files by importance \u2014 files referenced in the active chat get a <strong>50x weight multiplier</strong>. <br><br>The top-ranked files form a compact <span class="highlight">repo map</span> (~1K tokens by default) showing class signatures and function definitions. Files explicitly <code>/add</code>ed are included in full. Chat history auto-summarizes in a background thread when exceeding limits. <br><br>Key insight: Aider achieves ~<span class="highlight">98% token reduction</span> vs. sending the full codebase, while maintaining ~85% success rate on multi-file edits.'
+    explanation: '<strong>Aider (verified from source):</strong> <span class="blue">Tree-sitter</span> parses ASTs, <span class="highlight">personalized PageRank</span> ranks files (50x weight for active chat files). Compact <span class="highlight">repo map</span> (~1K tokens) shows signatures. <code>/add</code>ed files included in full. ~<span class="highlight">98% token reduction</span> vs. full codebase.'
   }
 };
 
 function showApp(name, btn) {
   document.querySelectorAll('.cw-controls .cw-btn').forEach(function(b) { b.classList.remove('active'); });
   if (btn) btn.classList.add('active');
-
   var app = apps[name];
   document.getElementById('cwSize').textContent = app.size;
-
   var barsEl = document.getElementById('cwBars');
   barsEl.innerHTML = '';
-
   var totalPct = app.bars.reduce(function(s,b) { return s + b.pct; }, 0);
   var freePct = Math.max(0, 100 - totalPct);
-
   var container = document.createElement('div');
   container.className = 'cw-bar-container';
   container.style.display = 'flex';
-
   app.bars.forEach(function(b) {
     var seg = document.createElement('div');
     seg.className = 'cw-bar-fill ' + b.cls;
@@ -1023,30 +912,22 @@ function showApp(name, btn) {
     seg.title = b.label + ': ~' + b.pct + '%';
     container.appendChild(seg);
   });
-
   if (freePct > 0) {
     var free = document.createElement('div');
-    free.style.width = freePct + '%';
-    free.style.height = '100%';
-    free.style.display = 'flex';
-    free.style.alignItems = 'center';
-    free.style.justifyContent = 'center';
-    free.style.fontFamily = 'var(--mono)';
-    free.style.fontSize = '0.6rem';
-    free.style.color = 'var(--muted)';
+    free.style.width = freePct + '%'; free.style.height = '100%';
+    free.style.display = 'flex'; free.style.alignItems = 'center'; free.style.justifyContent = 'center';
+    free.style.fontFamily = 'var(--mono)'; free.style.fontSize = '0.55rem'; free.style.color = 'var(--muted)';
     free.textContent = freePct >= 10 ? 'Free: ' + freePct + '%' : '';
     container.appendChild(free);
   }
-
   barsEl.appendChild(container);
   document.getElementById('cwExplanation').innerHTML = app.explanation;
 }
 
-showApp('chatgpt', document.querySelector('.cw-controls .cw-btn'));
-
 // ═══ CONTEXT ROT VISUAL ═══
 (function() {
   var rot = document.getElementById('rotVisual');
+  if (!rot) return;
   for (var i = 0; i < 40; i++) {
     var b = document.createElement('div');
     b.className = 'rot-block';
@@ -1067,14 +948,8 @@ showApp('chatgpt', document.querySelector('.cw-controls .cw-btn'));
 
 // ═══ INTERACTIVE SIM ═══
 var simState = {
-  windowSize: 32000,
-  strategy: 'full',
-  systemTokens: 2000,
-  turns: [],
-  totalHistory: 0,
-  summaryTokens: 0,
-  ragTokens: 0,
-  turnCount: 0
+  windowSize: 32000, strategy: 'full', systemTokens: 2000,
+  turns: [], totalHistory: 0, summaryTokens: 0, ragTokens: 0, turnCount: 0
 };
 
 function updateSimConfig() {
@@ -1096,27 +971,18 @@ function simSendMessage() {
   var msgTokens = 1200 + Math.floor(Math.random() * 600);
   var respTokens = 800 + Math.floor(Math.random() * 1000);
   var turnTokens = msgTokens + respTokens;
-
   simState.turns.push(turnTokens);
   simState.totalHistory += turnTokens;
-
-  addLog('info', 'Turn ' + simState.turnCount + ': User sent ~' + msgTokens + ' tokens, model responded ~' + respTokens + ' tokens');
-
+  addLog('info', 'Turn ' + simState.turnCount + ': User ~' + msgTokens + ' tokens, model ~' + respTokens + ' tokens');
   var totalUsed = simState.systemTokens + simState.totalHistory + simState.summaryTokens + simState.ragTokens;
   var usage = totalUsed / simState.windowSize;
-
   if (usage > 0.85) {
-    if (simState.strategy === 'full') {
-      addLog('warn', 'Context window at ' + Math.round(usage*100) + '%! Full replay strategy \u2014 no room. Conversation will FAIL on next turn.');
-    } else if (simState.strategy === 'sliding') {
-      autoSlide();
-    } else if (simState.strategy === 'compact') {
-      autoCompact();
-    }
+    if (simState.strategy === 'full') addLog('warn', 'Context at ' + Math.round(usage*100) + '%! Full replay \u2014 no room. Will FAIL next turn.');
+    else if (simState.strategy === 'sliding') autoSlide();
+    else if (simState.strategy === 'compact') autoCompact();
   } else if (usage > 0.65) {
-    addLog('alice', 'Context at ' + Math.round(usage*100) + '%. ' + (simState.strategy === 'full' ? 'No action \u2014 full replay continues.' : 'Monitoring for compaction trigger.'));
+    addLog('alice', 'Context at ' + Math.round(usage*100) + '%. ' + (simState.strategy === 'full' ? 'No action.' : 'Monitoring for compaction.'));
   }
-
   renderSimBar();
 }
 
@@ -1127,21 +993,21 @@ function autoSlide() {
     var summarySize = Math.round(removedTokens * 0.15);
     simState.totalHistory -= removedTokens;
     simState.summaryTokens += summarySize;
-    addLog('alice', 'Sliding window: Dropped ' + removed.length + ' old turns (' + removedTokens + ' tokens) \u2192 Summarized to ' + summarySize + ' tokens');
-    addLog('action', 'Freed ~' + (removedTokens - summarySize) + ' tokens. Alice whispers the summary to Dr. Neural.');
+    addLog('alice', 'Sliding window: Dropped ' + removed.length + ' turns (' + removedTokens + ' tok) \u2192 ' + summarySize + ' tok summary');
+    addLog('action', 'Freed ~' + (removedTokens - summarySize) + ' tokens.');
   }
 }
 
 function autoCompact() {
   if (simState.turns.length > 2) {
-    var compactCount = Math.ceil(simState.turns.length * 0.5);
-    var compacted = simState.turns.splice(0, compactCount);
+    var n = Math.ceil(simState.turns.length * 0.5);
+    var compacted = simState.turns.splice(0, n);
     var compactedTokens = compacted.reduce(function(a,b) { return a+b; }, 0);
     var summarySize = Math.round(compactedTokens * 0.1);
     simState.totalHistory -= compactedTokens;
     simState.summaryTokens += summarySize;
-    addLog('alice', 'Auto-compaction: Server summarized ' + compactCount + ' turns (' + compactedTokens + ' tokens) \u2192 ' + summarySize + ' tokens');
-    addLog('action', 'Conversation continues seamlessly. Early details are now lossy summaries.');
+    addLog('alice', 'Auto-compaction: ' + n + ' turns (' + compactedTokens + ' tok) \u2192 ' + summarySize + ' tok');
+    addLog('action', 'Conversation continues. Early details are now lossy summaries.');
   }
 }
 
@@ -1149,13 +1015,12 @@ function simRAGQuery() {
   var ragSize = 2500 + Math.floor(Math.random() * 1500);
   simState.ragTokens += ragSize;
   simState.turnCount++;
-  addLog('info', 'RAG: Retrieved ' + ragSize + ' tokens of relevant documents');
-  addLog('alice', 'Injected ' + ragSize + ' tokens of document context. Like Alice pulling the right reference books.');
-
+  addLog('info', 'RAG: Retrieved ' + ragSize + ' tokens of documents');
+  addLog('alice', 'Injected ' + ragSize + ' tokens of context.');
   var totalUsed = simState.systemTokens + simState.totalHistory + simState.summaryTokens + simState.ragTokens;
   if (totalUsed / simState.windowSize > 0.85) {
     simState.ragTokens -= Math.round(ragSize * 0.5);
-    addLog('warn', 'Trimmed older RAG results to stay within window. Keeping most recent retrieval.');
+    addLog('warn', 'Trimmed older RAG results to stay within window.');
   }
   renderSimBar();
 }
@@ -1164,21 +1029,16 @@ function simForceCompact() {
   if (simState.turns.length < 2) { addLog('info', 'Nothing to compact yet.'); return; }
   var allTokens = simState.totalHistory;
   var summarySize = Math.round(allTokens * 0.12);
-  simState.turns = [];
-  simState.totalHistory = 0;
+  simState.turns = []; simState.totalHistory = 0;
   simState.summaryTokens += summarySize;
-  var freed = allTokens - summarySize;
-  addLog('alice', 'Force compact: All ' + allTokens + ' history tokens \u2192 ' + summarySize + ' token summary');
-  addLog('action', 'Freed ' + freed + ' tokens. Dr. Neural now gets a cliff-notes briefing instead of the full novel.');
+  addLog('alice', 'Force compact: ' + allTokens + ' history \u2192 ' + summarySize + ' tok summary');
+  addLog('action', 'Freed ' + (allTokens - summarySize) + ' tokens.');
   renderSimBar();
 }
 
 function simReset() {
-  simState.turns = [];
-  simState.totalHistory = 0;
-  simState.summaryTokens = 0;
-  simState.ragTokens = 0;
-  simState.turnCount = 0;
+  simState.turns = []; simState.totalHistory = 0;
+  simState.summaryTokens = 0; simState.ragTokens = 0; simState.turnCount = 0;
   document.getElementById('simLog').innerHTML =
     '<div class="log-alice">Alice: Context window reset. System prompt loaded (2K tokens).</div>' +
     '<div class="log-info">Ready to manage state for Dr. Neural...</div>';
@@ -1187,14 +1047,12 @@ function simReset() {
 
 function renderSimBar() {
   var bar = document.getElementById('simBar');
+  if (!bar) return;
   var total = simState.windowSize;
-  var sys = simState.systemTokens;
-  var hist = simState.totalHistory;
-  var sum = simState.summaryTokens;
-  var rag = simState.ragTokens;
+  var sys = simState.systemTokens, hist = simState.totalHistory;
+  var sum = simState.summaryTokens, rag = simState.ragTokens;
   var used = sys + hist + sum + rag;
   var free = Math.max(0, total - used);
-
   bar.innerHTML = '';
   var segments = [
     { tokens: sys, cls: 'sys-seg', label: 'System ' + Math.round(sys/1000) + 'K' },
@@ -1203,7 +1061,6 @@ function renderSimBar() {
     { tokens: rag, cls: 'cur-seg', label: 'RAG ' + Math.round(rag/1000) + 'K' },
     { tokens: free, cls: 'free-seg', label: 'Free ' + Math.round(free/1000) + 'K' }
   ];
-
   segments.forEach(function(s) {
     if (s.tokens <= 0) return;
     var seg = document.createElement('div');
@@ -1212,7 +1069,6 @@ function renderSimBar() {
     if ((s.tokens / total) > 0.08) seg.textContent = s.label;
     bar.appendChild(seg);
   });
-
   var pct = Math.round((used / total) * 100);
   document.getElementById('simUsed').textContent = 'Used: ' + Math.round(used/1000) + 'K / ' + Math.round(total/1000) + 'K tokens (' + pct + '%)';
   var health = document.getElementById('simHealth');
@@ -1223,6 +1079,7 @@ function renderSimBar() {
 
 function addLog(type, text) {
   var log = document.getElementById('simLog');
+  if (!log) return;
   var entry = document.createElement('div');
   entry.className = 'log-' + type;
   entry.textContent = text;
@@ -1230,6 +1087,7 @@ function addLog(type, text) {
   log.scrollTop = log.scrollHeight;
 }
 
+// Init on load
 renderSimBar();
 </script>
 
