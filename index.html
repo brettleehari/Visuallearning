@@ -496,6 +496,254 @@
   }
 
   @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ─── SPINE & LEAF TAB ─── */
+  #top-spine-leaf .container { padding: 2rem 2rem 3rem; }
+  #top-spine-leaf .sl-hero { padding: 1.5rem 0 1rem; }
+  #top-spine-leaf .sl-eyebrow {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.35em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem;
+  }
+  #top-spine-leaf h1.sl-title {
+    font-family: var(--display); font-weight: 700; font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1.05; letter-spacing: -0.01em; margin-bottom: 0.4rem;
+  }
+  #top-spine-leaf h1.sl-title em { font-style: normal; color: var(--accent); }
+  #top-spine-leaf .sl-strap {
+    font-family: var(--display); font-weight: 300; font-style: italic;
+    font-size: 1.05rem; color: var(--text); margin-bottom: 1.2rem;
+  }
+  #top-spine-leaf .sl-epigraph {
+    border-left: 3px solid var(--accent);
+    background: rgba(232,160,52,0.06);
+    padding: 1rem 1.2rem; margin: 1.4rem 0; border-radius: 4px;
+    font-family: var(--display); font-style: italic; font-size: 1rem;
+    color: var(--text); max-width: 820px; line-height: 1.55;
+  }
+  #top-spine-leaf .sl-epigraph .att {
+    display: block; margin-top: 0.5rem; font-family: var(--mono); font-size: 0.6rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); font-style: normal;
+  }
+  #top-spine-leaf .sl-question {
+    font-size: 0.9rem; color: var(--muted); max-width: 760px; margin-top: 0.8rem;
+  }
+  #top-spine-leaf .sl-question em { color: var(--text); font-style: italic; }
+
+  /* Diagram wrap */
+  #top-spine-leaf .sl-diagram {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.6rem 1.4rem; margin: 1rem 0;
+  }
+
+  /* Spine timeline */
+  #top-spine-leaf .sl-spine {
+    display: grid; grid-template-columns: 1.15fr 1fr 1fr 1fr 1fr; gap: 0;
+    background: linear-gradient(90deg, rgba(77,166,232,0.08), rgba(77,166,232,0.18));
+    border: 1px solid rgba(77,166,232,0.32); border-radius: 8px;
+    padding: 0.85rem 1rem; margin-bottom: 1.6rem; position: relative;
+  }
+  #top-spine-leaf .sl-spine::before {
+    content: 'SPINE'; position: absolute; top: -8px; left: 14px;
+    font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.25em;
+    color: var(--blue); background: var(--surface); padding: 0 6px; border-radius: 3px;
+  }
+  #top-spine-leaf .sl-phase {
+    padding: 0.3rem 0.8rem; border-right: 1px dashed rgba(77,166,232,0.28);
+  }
+  #top-spine-leaf .sl-phase:last-child { border-right: 0; }
+  #top-spine-leaf .sl-phase .when {
+    font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--blue); margin-bottom: 0.25rem;
+  }
+  #top-spine-leaf .sl-phase .what {
+    font-size: 0.78rem; color: var(--text); line-height: 1.45;
+  }
+  #top-spine-leaf .sl-phase.anchor {
+    background: rgba(77,166,232,0.18); border-radius: 6px;
+  }
+  #top-spine-leaf .sl-phase.anchor .when { color: var(--accent); }
+
+  /* Leaves */
+  #top-spine-leaf .sl-leaves {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.8rem;
+  }
+  #top-spine-leaf .sl-leaf {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.95rem; cursor: pointer; position: relative;
+    transition: transform 0.15s, background 0.15s, border-color 0.15s;
+  }
+  #top-spine-leaf .sl-leaf::before {
+    content: ''; position: absolute; top: -12px; left: 50%; width: 1px; height: 12px;
+    background: rgba(77,166,232,0.3);
+  }
+  #top-spine-leaf .sl-leaf:hover { transform: translateY(-2px); background: var(--surface3); }
+  #top-spine-leaf .sl-leaf.expanded { background: var(--surface3); }
+  #top-spine-leaf .sl-leaf .stripe {
+    width: 28px; height: 3px; border-radius: 2px; margin-bottom: 0.5rem;
+  }
+  #top-spine-leaf .sl-leaf[data-leaf="arch"] .stripe { background: var(--blue); }
+  #top-spine-leaf .sl-leaf[data-leaf="eng"] .stripe { background: var(--green); }
+  #top-spine-leaf .sl-leaf[data-leaf="gtm"] .stripe { background: var(--accent); }
+  #top-spine-leaf .sl-leaf[data-leaf="design"] .stripe { background: var(--purple); }
+  #top-spine-leaf .sl-leaf[data-leaf="comp"] .stripe { background: var(--red); }
+  #top-spine-leaf .sl-leaf h3 {
+    font-family: var(--display); font-weight: 500; font-size: 1rem;
+    margin-bottom: 0.15rem; color: var(--text);
+  }
+  #top-spine-leaf .sl-leaf .for {
+    font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 0.55rem;
+  }
+  #top-spine-leaf .sl-leaf .one {
+    font-size: 0.78rem; color: var(--text); line-height: 1.5;
+  }
+  #top-spine-leaf .sl-leaf .more {
+    display: none; margin-top: 0.6rem; padding-top: 0.6rem;
+    border-top: 1px solid var(--border); font-size: 0.74rem; color: var(--muted); line-height: 1.55;
+  }
+  #top-spine-leaf .sl-leaf.expanded .more { display: block; }
+  #top-spine-leaf .sl-leaf .more strong { color: var(--text); }
+  #top-spine-leaf .sl-leaf .more ul { margin: 0.3rem 0 0; padding-left: 1rem; }
+  #top-spine-leaf .sl-leaf .more li { margin: 0.18rem 0; }
+  #top-spine-leaf .sl-leaf .toggle {
+    position: absolute; top: 0.7rem; right: 0.7rem;
+    font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+    border: 1px solid var(--border); padding: 2px 6px; border-radius: 999px;
+  }
+  #top-spine-leaf .sl-leaf.expanded .toggle { color: var(--accent); border-color: var(--accent); }
+
+  /* Code-callout under leaves */
+  #top-spine-leaf .sl-code-callout {
+    margin-top: 1rem; padding: 0.7rem 1rem; border-radius: 6px;
+    background: rgba(77,166,232,0.07); border: 1px solid rgba(77,166,232,0.2);
+    font-size: 0.82rem; color: var(--text);
+  }
+  #top-spine-leaf .sl-code-callout strong { color: var(--blue); }
+
+  /* Build vs Leverage */
+  #top-spine-leaf .sl-bvl { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  #top-spine-leaf .sl-col {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.1rem 1.2rem;
+  }
+  #top-spine-leaf .sl-col.build { border-color: rgba(77,166,232,0.32); }
+  #top-spine-leaf .sl-col.leverage { border-color: rgba(255,255,255,0.10); }
+  #top-spine-leaf .sl-col h3 {
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.18em;
+    text-transform: uppercase; margin-bottom: 0.15rem;
+  }
+  #top-spine-leaf .sl-col.build h3 { color: var(--blue); }
+  #top-spine-leaf .sl-col.leverage h3 { color: var(--muted); }
+  #top-spine-leaf .sl-col .sub {
+    font-size: 0.78rem; color: var(--muted); margin-bottom: 0.6rem; font-style: italic;
+  }
+  #top-spine-leaf .sl-col ul { padding-left: 1.1rem; margin: 0; }
+  #top-spine-leaf .sl-col li {
+    font-size: 0.85rem; color: var(--text); line-height: 1.55; margin: 0.35rem 0;
+  }
+  #top-spine-leaf .sl-heuristic {
+    margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 6px;
+    background: rgba(232,160,52,0.07); border: 1px solid rgba(232,160,52,0.25);
+    color: var(--text); font-size: 0.88rem; line-height: 1.55;
+  }
+  #top-spine-leaf .sl-heuristic strong { color: var(--accent); }
+  #top-spine-leaf .sl-heuristic em { color: var(--text); font-style: italic; }
+
+  /* Rhythm */
+  #top-spine-leaf .sl-rhythm { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.6rem; }
+  #top-spine-leaf .sl-day {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.8rem;
+  }
+  #top-spine-leaf .sl-day .when {
+    font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 0.3rem;
+  }
+  #top-spine-leaf .sl-day .what {
+    font-size: 0.82rem; color: var(--text); margin-bottom: 0.35rem; line-height: 1.4;
+  }
+  #top-spine-leaf .sl-day .delta {
+    font-size: 0.72rem; color: var(--muted); line-height: 1.45;
+  }
+
+  /* Thesis */
+  #top-spine-leaf .sl-thesis {
+    margin-top: 1.4rem; padding: 1.3rem 1.4rem;
+    background: linear-gradient(90deg, rgba(77,216,138,0.06), rgba(77,166,232,0.08));
+    border: 1px solid var(--border); border-radius: 10px;
+  }
+  #top-spine-leaf .sl-thesis h2 {
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem;
+  }
+  #top-spine-leaf .sl-thesis p { margin: 0.5rem 0; line-height: 1.6; font-size: 0.92rem; }
+  #top-spine-leaf .sl-thesis .floor strong { color: var(--green); }
+  #top-spine-leaf .sl-thesis .ceiling strong { color: var(--blue); }
+  #top-spine-leaf .sl-accountability {
+    margin-top: 1rem; padding: 0.95rem 1.1rem; border-radius: 6px;
+    background: rgba(232,84,84,0.06); border-left: 3px solid var(--red);
+  }
+  #top-spine-leaf .sl-accountability strong {
+    color: var(--red); font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.16em;
+    text-transform: uppercase; display: block; margin-bottom: 0.35rem;
+  }
+  #top-spine-leaf .sl-accountability span { font-size: 0.88rem; line-height: 1.6; color: var(--text); }
+  #top-spine-leaf .sl-signoff {
+    margin-top: 1.2rem; padding: 1.1rem 1.3rem;
+    background: rgba(232,160,52,0.08); border-left: 4px solid var(--accent);
+    border-radius: 6px;
+  }
+  #top-spine-leaf .sl-signoff .lbl {
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 0.4rem;
+  }
+  #top-spine-leaf .sl-signoff .line {
+    font-family: var(--display); font-style: italic; font-size: 1.05rem;
+    color: var(--text); line-height: 1.55;
+  }
+  #top-spine-leaf .sl-surfboard {
+    margin-top: 1rem; font-family: var(--display); font-style: italic;
+    color: var(--text); font-size: 0.95rem;
+  }
+
+  /* Asset cards */
+  #top-spine-leaf .sl-assets { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  #top-spine-leaf .sl-asset {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.1rem 1.2rem; text-decoration: none; color: var(--text);
+    display: block; transition: border-color 0.15s, background 0.15s;
+  }
+  #top-spine-leaf .sl-asset:hover { border-color: var(--accent); background: var(--surface2); }
+  #top-spine-leaf .sl-asset .kicker {
+    font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--blue); margin-bottom: 0.3rem;
+  }
+  #top-spine-leaf .sl-asset h3 {
+    font-family: var(--display); font-weight: 500; font-size: 1.15rem;
+    margin-bottom: 0.25rem; color: var(--text);
+  }
+  #top-spine-leaf .sl-asset p { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.6rem; line-height: 1.5; }
+  #top-spine-leaf .sl-asset-links {
+    display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.5rem;
+  }
+  #top-spine-leaf .sl-asset-links a {
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent); text-decoration: none;
+    padding: 0.35rem 0.7rem; border: 1px solid rgba(232,160,52,0.4); border-radius: 4px;
+  }
+  #top-spine-leaf .sl-asset-links a:hover { background: rgba(232,160,52,0.1); }
+
+  /* Section labels reuse parent .section-num pattern */
+
+  @media (max-width: 880px) {
+    #top-spine-leaf .sl-spine,
+    #top-spine-leaf .sl-leaves,
+    #top-spine-leaf .sl-rhythm { grid-template-columns: 1fr 1fr; }
+    #top-spine-leaf .sl-bvl,
+    #top-spine-leaf .sl-assets { grid-template-columns: 1fr; }
+  }
+
 </style>
 </head>
 <body>
@@ -505,7 +753,7 @@
   <div class="top-brand">VISUAL LEARNING</div>
   <div class="top-links">
     <button class="top-link active" onclick="switchTop('context-mgmt', this)">Context Management</button>
-    <button class="top-link" style="opacity:0.35;cursor:default" disabled>More Coming Soon</button>
+    <button class="top-link" onclick="switchTop('spine-leaf', this)">Spine &amp; Leaf</button>
   </div>
 </nav>
 
@@ -930,6 +1178,344 @@
   </footer>
 
 </div><!-- end top-context-mgmt -->
+
+<!-- ═══ SPINE & LEAF ═══ -->
+<div class="top-content" id="top-spine-leaf">
+  <div class="sub-bar">
+    <div class="sub-bar-title">A Product Delivery <em>Blueprint</em> for the AI Era</div>
+    <div class="sub-links">
+      <button class="sub-link active" onclick="switchSub('sl-overview', this)">Overview</button>
+      <button class="sub-link" onclick="switchSub('sl-model', this)">The Model</button>
+      <button class="sub-link" onclick="switchSub('sl-strategy', this)">Build vs. Leverage</button>
+      <button class="sub-link" onclick="switchSub('sl-rhythm', this)">Operating Rhythm</button>
+      <button class="sub-link" onclick="switchSub('sl-thesis', this)">Thesis</button>
+      <button class="sub-link" onclick="switchSub('sl-assets', this)">Assets</button>
+    </div>
+  </div>
+
+  <!-- Overview -->
+  <div class="sub-content active" id="sub-sl-overview">
+    <div class="container">
+      <div class="sl-hero">
+        <div class="sl-eyebrow">Methodology · Visual Blueprint</div>
+        <h1 class="sl-title">Spine <em>and</em> Leaf</h1>
+        <p class="sl-strap">Customer empathy is the foundation. Technology depth is the new ceiling.</p>
+        <div class="sl-epigraph">
+          One day, AGI will do everything. Until that day arrives, we have to raise our baseline based on the ecosystem we have.
+          Using the ecosystem without raising your baseline is a recipe for failure.
+          <span class="att">— this paper, in one sentence</span>
+        </div>
+        <p class="sl-question">
+          Most teams are using new tools to write a faster PRD — running yesterday's process with today's tools.
+          The goal of this blueprint is to ask the better question:
+          <em>what is the best outcome a Product Manager can bring to the table now that the cost curves have moved?</em>
+        </p>
+      </div>
+
+      <div class="section-num">01 — Paradigm Shift</div>
+      <h2>From <strong>router</strong> to <strong>builder</strong></h2>
+      <p class="lead" style="max-width:820px;">
+        The Product Manager role was forged when high-fidelity artifacts were expensive. Documents were the rational unit of communication
+        because everything else cost too much. That constraint has lifted — generative tools have collapsed the cost of producing working code,
+        interactive demos, and architecture diagrams to a level a single PM can sustain. The opportunity is to retire the PRD as the primary
+        artifact and replace it with a <strong style="color:var(--text)">Spine</strong> — the immutable customer narrative — and a set of
+        <strong style="color:var(--text)">Leaves</strong> — high-resolution artifacts each stakeholder consumes directly, without translation.
+      </p>
+    </div>
+  </div>
+
+  <!-- The Model -->
+  <div class="sub-content" id="sub-sl-model">
+    <div class="container">
+      <div class="section-num">02 — The Model</div>
+      <h2>The <strong>Spine</strong> and the five <strong>Leaves</strong></h2>
+      <p class="lead">
+        The Spine is the immutable customer narrative. The Leaves are high-resolution artifacts the PM produces directly,
+        each tuned to the stakeholder who will actually consume it. Click any leaf to expand.
+      </p>
+
+      <div class="sl-diagram">
+        <div class="sl-spine">
+          <div class="sl-phase anchor">
+            <div class="when">Spine · Day 0</div>
+            <div class="what">Problem · User · Direction · Metrics · Scope</div>
+          </div>
+          <div class="sl-phase">
+            <div class="when">Days 1–2</div>
+            <div class="what">Single alignment session — artifacts do the work</div>
+          </div>
+          <div class="sl-phase">
+            <div class="when">Days 3–8</div>
+            <div class="what">Parallel execution: eng, GTM, design, partners</div>
+          </div>
+          <div class="sl-phase">
+            <div class="when">Days 9–12</div>
+            <div class="what">Integration · trace each Leaf to the Spine</div>
+          </div>
+          <div class="sl-phase">
+            <div class="when">Days 13–14</div>
+            <div class="what">Ship · same artifacts align team and customer</div>
+          </div>
+        </div>
+
+        <div class="sl-leaves">
+          <div class="sl-leaf" data-leaf="arch">
+            <span class="toggle">expand</span>
+            <div class="stripe"></div>
+            <h3>Architecture</h3>
+            <div class="for">Architects · infra · security</div>
+            <div class="one">System diagram with explicit Build vs. Leverage decisions and trust mechanisms.</div>
+            <div class="more">
+              <strong>Eliminates:</strong> ambiguity about what is bought vs. built; recurring mid-sprint rediscovery.
+              <ul>
+                <li>Component map with Build / Leverage flags</li>
+                <li>Data + control flow between layers</li>
+                <li>Trust + verification mechanisms</li>
+              </ul>
+            </div>
+          </div>
+          <div class="sl-leaf" data-leaf="eng">
+            <span class="toggle">expand</span>
+            <div class="stripe"></div>
+            <h3>Engineering</h3>
+            <div class="for">Frontend · design system</div>
+            <div class="one">Working coded prototype demonstrating layout, state, motion, trust signals.</div>
+            <div class="more">
+              <strong>Eliminates:</strong> wireframe-to-DOM loss; missing-state surprises in week three.
+              <ul>
+                <li>DOM the engineer can copy and bind</li>
+                <li>State machine for typing, loading, error, empty</li>
+                <li>CSS variables and tokens, ready to consume</li>
+              </ul>
+            </div>
+          </div>
+          <div class="sl-leaf" data-leaf="gtm">
+            <span class="toggle">expand</span>
+            <div class="stripe"></div>
+            <h3>Go-To-Market</h3>
+            <div class="for">Sales · exec · design partners</div>
+            <div class="one">Interactive guided tour of the value proposition — clickable, sequenced, demo-ready.</div>
+            <div class="more">
+              <strong>Eliminates:</strong> strategy-to-pitch loss; the gap between what the team ships and what the field sells.
+              <ul>
+                <li>Sequenced narrative of value, not features</li>
+                <li>Highlights anchored to real interface elements</li>
+                <li>Sales runs it on a customer call today</li>
+              </ul>
+            </div>
+          </div>
+          <div class="sl-leaf" data-leaf="design">
+            <span class="toggle">expand</span>
+            <div class="stripe"></div>
+            <h3>Design</h3>
+            <div class="for">Designers · UX research</div>
+            <div class="one">Interaction states, motion, trust signals — specified, not described.</div>
+            <div class="more">
+              <strong>Eliminates:</strong> static-frame-to-living-interface loss; trust-signal ambiguity.
+              <ul>
+                <li>Loading · empty · error · long-string · offline</li>
+                <li>Confidence indicators and source citations</li>
+                <li>Routing breadcrumbs and verification cues</li>
+              </ul>
+            </div>
+          </div>
+          <div class="sl-leaf" data-leaf="comp">
+            <span class="toggle">expand</span>
+            <div class="stripe"></div>
+            <h3>Compliance</h3>
+            <div class="for">QA · audit · support</div>
+            <div class="one">Traceability matrix — every committed feature mapped to a Spine commitment and a test.</div>
+            <div class="more">
+              <strong>Eliminates:</strong> spec-to-test loss; scope drift discovered the week before launch.
+              <ul>
+                <li>Feature → Spine commitment → test case → owner</li>
+                <li>Gaps surface continuously, not at launch</li>
+                <li>Source of truth for scope</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="sl-code-callout">
+          <strong>The Leaves are code.</strong> Under version control, derivatives of the same source —
+          a change to the Spine propagates to every team's resolution. The methodology compounds because
+          the artifacts share a substrate.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Build vs Leverage -->
+  <div class="sub-content" id="sub-sl-strategy">
+    <div class="container">
+      <div class="section-num">03 — Strategy</div>
+      <h2>Build vs. Leverage — where the <strong>moat</strong> lives</h2>
+      <p class="lead">
+        The single most important question in AI-era product delivery is: where is the moat? A PM without
+        technology depth defaults to <em style="color:var(--text)">build everything</em> or
+        <em style="color:var(--text)">leverage everything</em>. Both fail, in opposite directions.
+      </p>
+
+      <div class="sl-bvl">
+        <div class="sl-col leverage">
+          <h3>Leverage — Commodity</h3>
+          <div class="sub">If a competitor can also use it tomorrow.</div>
+          <ul>
+            <li>Foundation models for general reasoning, summarization, classification</li>
+            <li>Vector stores and embedding pipelines</li>
+            <li>Standard integrations (ITSM, CRM, identity, telemetry)</li>
+            <li>Off-the-shelf evaluation infrastructure</li>
+            <li>Common UI primitives and accessibility libraries</li>
+          </ul>
+        </div>
+        <div class="sl-col build">
+          <h3>Build — The Moat</h3>
+          <div class="sub">If it encodes how your user thinks.</div>
+          <ul>
+            <li>Domain-specific orchestration logic</li>
+            <li>Trust mechanisms calibrated to user risk tolerance</li>
+            <li>Bespoke visualizations of complex domain state</li>
+            <li>Domain evaluation framework — what "correct" means here</li>
+            <li>The interaction model that makes this product not generic</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sl-heuristic">
+        <strong>Heuristic:</strong> If a competitor can also use it tomorrow, leverage it.
+        If it encodes how your user thinks, build it. The right answer is almost always
+        a <em>small Build</em> sitting on top of a <em>large Leverage</em>.
+      </div>
+    </div>
+  </div>
+
+  <!-- Operating Rhythm -->
+  <div class="sub-content" id="sub-sl-rhythm">
+    <div class="container">
+      <div class="section-num">04 — Operating Rhythm</div>
+      <h2>The <strong>two-week cycle</strong>, inverted</h2>
+      <p class="lead">
+        The alignment cost that used to dominate the first half of every sprint is paid up front, by the PM,
+        in artifacts that aren't documents. The back half is freed for execution rather than translation.
+      </p>
+
+      <div class="sl-rhythm">
+        <div class="sl-day">
+          <div class="when">Day 0</div>
+          <div class="what">Spine + first-draft Leaves produced</div>
+          <div class="delta">In the old rhythm, this was the PRD-only phase</div>
+        </div>
+        <div class="sl-day">
+          <div class="when">Days 1–2</div>
+          <div class="what">Single alignment session</div>
+          <div class="delta">Artifacts do the work; meeting confirms</div>
+        </div>
+        <div class="sl-day">
+          <div class="when">Days 3–8</div>
+          <div class="what">Parallel execution across functions</div>
+          <div class="delta">No one waits for the next translation</div>
+        </div>
+        <div class="sl-day">
+          <div class="when">Days 9–12</div>
+          <div class="what">Integrate · reconcile to Spine</div>
+          <div class="delta">Traceability surfaces drift continuously</div>
+        </div>
+        <div class="sl-day">
+          <div class="when">Days 13–14</div>
+          <div class="what">Ship · same artifacts ship outward</div>
+          <div class="delta">Launch is a re-use, not a re-build</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thesis -->
+  <div class="sub-content" id="sub-sl-thesis">
+    <div class="container">
+      <div class="section-num">05 — Thesis</div>
+      <h2><strong>Empathy</strong> is the floor. <strong>Depth</strong> is the new ceiling.</h2>
+
+      <div class="sl-thesis">
+        <h2 style="font-family:var(--mono);font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;">The Thesis</h2>
+        <p class="floor"><strong>Empathy is the floor.</strong>
+          Customer truth is what the Spine encodes. Generative tools amplify whatever the Spine says — so a
+          poorly understood user produces a wrong product, faster than ever.</p>
+        <p class="ceiling"><strong>Depth is the new ceiling.</strong>
+          Build vs. Leverage is a product decision. The PM with depth proposes the architecture as a peer to
+          engineering. The PM without it defaults to whoever speaks loudest.</p>
+        <p style="color:var(--muted); margin-top:0.6rem; font-size:0.88rem;">
+          The PM role was not broken. The constraints around it changed. The methodology in this paper is what
+          the role looks like when the constraints lift — and when the PM uses the new tools to externalize
+          their model of the product directly, in the medium each stakeholder actually consumes.
+        </p>
+      </div>
+
+      <div class="sl-accountability">
+        <strong>A note on accountability</strong>
+        <span>The new tools are not failing to deliver value — they are delivering exactly what we ask of them.
+          If we keep asking for faster PRDs, we keep getting faster PRDs, and we keep wondering why the AI
+          investment hasn't changed how the team delivers. The methodology is what we choose to ask the tools
+          to produce. That part is in our hands.</span>
+      </div>
+
+      <div class="sl-signoff">
+        <span class="lbl">One sentence</span>
+        <div class="line">One day, AGI will do everything. Until that day arrives, we have to raise our baseline based on the ecosystem we have. Using the ecosystem without raising your baseline is a recipe for failure.</div>
+      </div>
+
+      <p class="sl-surfboard">The wave is here. The methodology is the surfboard.</p>
+    </div>
+  </div>
+
+  <!-- Assets -->
+  <div class="sub-content" id="sub-sl-assets">
+    <div class="container">
+      <div class="section-num">06 — Assets</div>
+      <h2>Download the <strong>full deliverables</strong></h2>
+      <p class="lead">
+        The white paper carries the full argument and adoption guide. The executive one-pager distills it
+        for senior audiences. The visual blueprint here is the live companion.
+      </p>
+
+      <div class="sl-assets">
+        <div class="sl-asset">
+          <div class="kicker">White Paper · 19 pages</div>
+          <h3>Spine and Leaf — Full Argument</h3>
+          <p>Eleven sections covering the paradigm shift, the Spine, the five Leaves, Build vs Leverage,
+            operating rhythm, anti-patterns, and adoption path. ~5,900 words.</p>
+          <div class="sl-asset-links">
+            <a href="assets/spine-and-leaf/spine_and_leaf_whitepaper.docx" download>DOCX</a>
+            <a href="assets/spine-and-leaf/spine_and_leaf_whitepaper.pdf" target="_blank">PDF</a>
+          </div>
+        </div>
+
+        <div class="sl-asset">
+          <div class="kicker">Executive Brief · 1 page</div>
+          <h3>Spine and Leaf — One-Pager</h3>
+          <p>Single-page distillation for executive audiences: the shift, the model, the rhythm,
+            the why-now callouts, and a four-step adoption sequence.</p>
+          <div class="sl-asset-links">
+            <a href="assets/spine-and-leaf/spine_and_leaf_onepager.docx" download>DOCX</a>
+            <a href="assets/spine-and-leaf/spine_and_leaf_onepager.pdf" target="_blank">PDF</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end top-spine-leaf -->
+
+<script>
+// Spine & Leaf — leaf expand/collapse
+document.querySelectorAll('#top-spine-leaf .sl-leaf').forEach(function(el) {
+  el.addEventListener('click', function() {
+    el.classList.toggle('expanded');
+    var t = el.querySelector('.toggle');
+    if (t) t.textContent = el.classList.contains('expanded') ? 'collapse' : 'expand';
+  });
+});
+</script>
+
 
 <script>
 // ═══ TOP TAB SWITCHING ═══
