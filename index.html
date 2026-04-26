@@ -396,6 +396,78 @@
     border-top: 1px solid var(--border);
   }
 
+  /* ─── CHAT MESSAGES ─── */
+  .chat-system-msg {
+    text-align: center; font-family: var(--mono); font-size: 0.55rem;
+    color: var(--muted); padding: 0.3rem 0.6rem; background: var(--surface2);
+    border-radius: 4px; align-self: center;
+  }
+  .chat-bubble {
+    max-width: 80%; padding: 0.6rem 0.9rem; border-radius: 8px;
+    font-size: 0.82rem; line-height: 1.5; position: relative;
+    animation: fadeUp 0.25s ease;
+  }
+  .chat-bubble.user {
+    align-self: flex-end; background: rgba(77,166,232,0.12);
+    border: 1px solid rgba(77,166,232,0.2); color: var(--text);
+    border-bottom-right-radius: 2px;
+  }
+  .chat-bubble.assistant {
+    align-self: flex-start; background: var(--surface2);
+    border: 1px solid var(--border); color: var(--text);
+    border-bottom-left-radius: 2px;
+  }
+  .chat-bubble .chat-meta {
+    font-family: var(--mono); font-size: 0.5rem; color: var(--muted);
+    margin-top: 0.3rem;
+  }
+  .chat-bubble.user .chat-meta { text-align: right; }
+  .chat-bubble.summarized {
+    opacity: 0.4; border-style: dashed; position: relative;
+  }
+  .chat-bubble.summarized::after {
+    content: 'SUMMARIZED'; position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%); font-family: var(--mono);
+    font-size: 0.5rem; letter-spacing: 0.15em; color: var(--accent);
+    background: var(--bg); padding: 0.1rem 0.5rem; border-radius: 2px;
+  }
+  .chat-bubble.dropped {
+    opacity: 0.15; text-decoration: line-through; border-style: dashed;
+  }
+  .chat-summary-insert {
+    text-align: center; padding: 0.4rem 0.8rem; margin: 0.2rem 0;
+    font-family: var(--mono); font-size: 0.55rem; color: var(--accent);
+    background: rgba(232,160,52,0.06); border: 1px dashed rgba(232,160,52,0.25);
+    border-radius: 4px; align-self: center;
+  }
+
+  /* ─── PAYLOAD PANEL ─── */
+  .payload-section {
+    padding: 0.4rem 0.6rem; margin-bottom: 0.4rem; border-radius: 4px;
+    border-left: 3px solid var(--muted);
+  }
+  .payload-section.payload-sys { border-color: var(--purple); background: rgba(168,124,232,0.05); }
+  .payload-section.payload-summary { border-color: var(--accent); background: rgba(232,160,52,0.05); }
+  .payload-section.payload-hist { border-color: var(--blue); background: rgba(77,166,232,0.05); }
+  .payload-section.payload-rag { border-color: var(--green); background: rgba(77,216,138,0.05); }
+  .payload-section.payload-current { border-color: var(--text); background: rgba(255,255,255,0.03); }
+  .payload-label {
+    font-size: 0.5rem; letter-spacing: 0.1em; color: var(--muted);
+    margin-bottom: 0.15rem; text-transform: uppercase;
+  }
+  .payload-content {
+    font-size: 0.55rem; color: var(--text); line-height: 1.4;
+    max-height: 60px; overflow: hidden; text-overflow: ellipsis;
+  }
+  .payload-content.truncated::after {
+    content: '...'; color: var(--muted);
+  }
+
+  @media (max-width: 800px) {
+    #sub-simulate .container-compact > div:nth-child(3) { flex-direction: column; }
+    #sub-simulate .container-compact > div:nth-child(3) > div:last-child { width: 100%; height: 200px; }
+  }
+
   @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
 </style>
 </head>
@@ -751,48 +823,78 @@
 
   <!-- ═══ SUB 5: SIMULATE ═══ -->
   <div class="sub-content" id="sub-simulate">
-    <div class="container">
-      <div class="section-num">05 — Interactive Simulation</div>
-      <h2>Watch <strong>Alice</strong> Manage the Context Window</h2>
-      <p class="lead">Send messages and watch how the application layer decides what to keep, summarize, and discard.</p>
+    <div class="container-compact" style="height:calc(100vh - 90px);display:flex;flex-direction:column;padding-bottom:0">
 
-      <div class="sim-container">
-        <div class="sim-top">
-          <div class="sim-config">
-            <label>Context Window Size</label>
-            <div class="sim-value" id="simWindowDisplay">32K tokens</div>
-            <input type="range" class="sim-slider" id="simWindowSlider" min="8" max="200" value="32" oninput="updateSimConfig()">
+      <!-- Top config row -->
+      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-bottom:0.6rem;flex-shrink:0">
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.1em">STRATEGY:</div>
+        <div style="display:flex;gap:0.3rem">
+          <button class="cw-btn active" id="strat-full" onclick="setStrategy('full')">Full Replay</button>
+          <button class="cw-btn" id="strat-sliding" onclick="setStrategy('sliding')">Sliding + Summary</button>
+          <button class="cw-btn" id="strat-compact" onclick="setStrategy('compact')">Auto-Compact</button>
+        </div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:0.5rem">
+          <span style="font-family:var(--mono);font-size:0.55rem;color:var(--muted)">WINDOW:</span>
+          <input type="range" style="width:100px;accent-color:var(--accent);cursor:pointer" id="simWindowSlider" min="8" max="128" value="32" oninput="updateSimConfig()">
+          <span style="font-family:var(--mono);font-size:0.7rem;color:var(--accent)" id="simWindowDisplay">32K</span>
+        </div>
+      </div>
+
+      <!-- Context window bar -->
+      <div style="flex-shrink:0;margin-bottom:0.6rem">
+        <div class="sim-tokens-bar" id="simBar" style="height:32px;background:var(--surface3);border-radius:4px;overflow:hidden;display:flex;margin-bottom:0.3rem"></div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.58rem;color:var(--muted)">
+          <span id="simUsed">Used: 2K / 32K tokens (6%)</span>
+          <span id="simHealth" class="ok" style="color:var(--green)">&#9679; Healthy</span>
+        </div>
+      </div>
+
+      <!-- Main split: Chat + What Alice Sends -->
+      <div style="flex:1;display:flex;gap:0.8rem;min-height:0;margin-bottom:0.6rem">
+
+        <!-- LEFT: Chat window -->
+        <div style="flex:1;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <!-- Chat header -->
+          <div style="padding:0.6rem 1rem;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--accent);letter-spacing:0.1em">CHAT WITH DR. NEURAL</span>
+            <button onclick="simReset()" style="font-family:var(--mono);font-size:0.55rem;padding:0.25rem 0.6rem;background:rgba(232,84,84,0.1);color:var(--red);border:1px solid rgba(232,84,84,0.25);border-radius:3px;cursor:pointer">Reset</button>
           </div>
-          <div class="sim-config">
-            <label>Strategy</label>
-            <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.4rem">
-              <button class="cw-btn active" id="strat-full" onclick="setStrategy('full')">Full Replay</button>
-              <button class="cw-btn" id="strat-sliding" onclick="setStrategy('sliding')">Sliding + Summary</button>
-              <button class="cw-btn" id="strat-compact" onclick="setStrategy('compact')">Auto-Compact</button>
+
+          <!-- Messages area -->
+          <div id="chatMessages" style="flex:1;overflow-y:auto;padding:0.8rem;display:flex;flex-direction:column;gap:0.5rem">
+            <div class="chat-system-msg">System prompt loaded (2K tokens). Alice is ready.</div>
+          </div>
+
+          <!-- Input area -->
+          <div style="padding:0.6rem;border-top:1px solid var(--border);display:flex;gap:0.4rem">
+            <input type="text" id="chatInput" placeholder="Type a message to Dr. Neural..." onkeydown="if(event.key==='Enter')simSendChat()" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:0.5rem 0.8rem;color:var(--text);font-family:var(--body);font-size:0.82rem;outline:none">
+            <button onclick="simSendChat()" style="font-family:var(--mono);font-size:0.6rem;padding:0.5rem 1rem;background:rgba(77,166,232,0.15);color:var(--blue);border:1px solid rgba(77,166,232,0.3);border-radius:4px;cursor:pointer;white-space:nowrap">Send</button>
+            <button onclick="simRAGQuery()" style="font-family:var(--mono);font-size:0.6rem;padding:0.5rem 0.8rem;background:rgba(168,124,232,0.1);color:var(--purple);border:1px solid rgba(168,124,232,0.3);border-radius:4px;cursor:pointer;white-space:nowrap" title="Inject RAG documents">+RAG</button>
+          </div>
+        </div>
+
+        <!-- RIGHT: What Alice Sends to LLM -->
+        <div style="width:320px;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-shrink:0">
+          <div style="padding:0.6rem 1rem;background:var(--surface2);border-bottom:1px solid var(--border)">
+            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--green);letter-spacing:0.1em">WHAT ALICE SENDS TO LLM</span>
+            <div style="font-family:var(--mono);font-size:0.5rem;color:var(--muted);margin-top:0.15rem">API call payload — rebuilt every turn</div>
+          </div>
+          <div id="alicePayload" style="flex:1;overflow-y:auto;padding:0.6rem;font-family:var(--mono);font-size:0.6rem;line-height:1.6">
+            <div class="payload-section payload-sys">
+              <div class="payload-label">SYSTEM PROMPT (2K tok)</div>
+              <div class="payload-content">You are a helpful assistant...</div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="sim-visual">
-          <div class="sim-tokens-bar" id="simBar"></div>
-          <div class="sim-status">
-            <span id="simUsed">Used: 2K / 32K tokens (6%)</span>
-            <span id="simHealth" class="ok">&#9679; Healthy</span>
-          </div>
-        </div>
-
-        <div class="sim-btn-row">
-          <button class="sim-btn sim-btn-send" onclick="simSendMessage()">Send Message (~1.5K tokens)</button>
-          <button class="sim-btn sim-btn-rag" onclick="simRAGQuery()">RAG Query (+3K docs)</button>
-          <button class="sim-btn sim-btn-compact" onclick="simForceCompact()">Force Compact</button>
-          <button class="sim-btn sim-btn-reset" onclick="simReset()">Reset</button>
-        </div>
-
-        <div class="sim-log" id="simLog">
-          <div class="log-alice">Alice: Context window initialized. System prompt loaded (2K tokens).</div>
-          <div class="log-info">Ready to manage state for Dr. Neural...</div>
+      <!-- Alice's log -->
+      <div style="flex-shrink:0;margin-bottom:0.6rem">
+        <div id="simLog" style="background:var(--surface2);border-radius:4px;padding:0.5rem 0.8rem;font-family:var(--mono);font-size:0.58rem;line-height:1.6;max-height:80px;overflow-y:auto;border:1px solid var(--border)">
+          <div class="log-alice">Alice: Ready to manage context for Dr. Neural.</div>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -946,116 +1048,228 @@ function showApp(name, btn) {
   }
 })();
 
-// ═══ INTERACTIVE SIM ═══
+// ═══ INTERACTIVE CHAT SIM ═══
 var simState = {
   windowSize: 32000, strategy: 'full', systemTokens: 2000,
-  turns: [], totalHistory: 0, summaryTokens: 0, ragTokens: 0, turnCount: 0
+  messages: [], // {role, text, tokens, status:'active'|'summarized'|'dropped', elId}
+  summaryTokens: 0, ragTokens: 0, turnCount: 0, msgIdCounter: 0,
+  summaryText: ''
 };
+
+// Fake responses Dr. Neural gives
+var fakeResponses = [
+  'Based on the context provided, I can help with that. The key consideration here is how the application layer manages state between API calls.',
+  'That\'s a great question. The stateless nature of the model means every call starts fresh \u2014 Alice must reconstruct the relevant context each time.',
+  'I see from our conversation history that you\'ve been exploring context management strategies. Building on that, the sliding window approach trades off completeness for efficiency.',
+  'Let me think about this carefully. The context window is finite, so the real engineering challenge is deciding what to include and what to leave out.',
+  'Interesting point. This relates to the fundamental tension between having complete context and staying within token limits. RAG can help by injecting only relevant documents.',
+  'From what I can see in the conversation so far, you\'re building a good understanding of how these systems work. The 95/5 rule really applies here.',
+  'That\'s exactly the right way to think about it. The application layer \u2014 Alice \u2014 is doing the heavy lifting to create the illusion of continuity.',
+  'I should note that as our conversation grows, the context window is filling up. The strategy you\'ve chosen determines what happens next.'
+];
+
+function estimateTokens(text) {
+  return Math.max(50, Math.round(text.length / 3.5));
+}
+
+function getTotalUsed() {
+  var hist = 0;
+  simState.messages.forEach(function(m) { if (m.status === 'active') hist += m.tokens; });
+  return simState.systemTokens + hist + simState.summaryTokens + simState.ragTokens;
+}
 
 function updateSimConfig() {
   var v = parseInt(document.getElementById('simWindowSlider').value);
   simState.windowSize = v * 1000;
-  document.getElementById('simWindowDisplay').textContent = v + 'K tokens';
+  document.getElementById('simWindowDisplay').textContent = v + 'K';
   renderSimBar();
+  renderPayload();
 }
 
 function setStrategy(s) {
   simState.strategy = s;
-  document.querySelectorAll('.sim-config .cw-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('#sub-simulate .cw-btn').forEach(function(b) { b.classList.remove('active'); });
   document.getElementById('strat-' + s).classList.add('active');
-  addLog('alice', 'Strategy changed to: ' + (s === 'full' ? 'Full Replay' : s === 'sliding' ? 'Sliding Window + Summary' : 'Auto-Compact'));
+  addLog('alice', 'Strategy \u2192 ' + (s === 'full' ? 'Full Replay' : s === 'sliding' ? 'Sliding + Summary' : 'Auto-Compact'));
 }
 
-function simSendMessage() {
+function simSendChat() {
+  var input = document.getElementById('chatInput');
+  var text = input.value.trim();
+  if (!text) return;
+  input.value = '';
   simState.turnCount++;
-  var msgTokens = 1200 + Math.floor(Math.random() * 600);
-  var respTokens = 800 + Math.floor(Math.random() * 1000);
-  var turnTokens = msgTokens + respTokens;
-  simState.turns.push(turnTokens);
-  simState.totalHistory += turnTokens;
-  addLog('info', 'Turn ' + simState.turnCount + ': User ~' + msgTokens + ' tokens, model ~' + respTokens + ' tokens');
-  var totalUsed = simState.systemTokens + simState.totalHistory + simState.summaryTokens + simState.ragTokens;
-  var usage = totalUsed / simState.windowSize;
-  if (usage > 0.85) {
-    if (simState.strategy === 'full') addLog('warn', 'Context at ' + Math.round(usage*100) + '%! Full replay \u2014 no room. Will FAIL next turn.');
-    else if (simState.strategy === 'sliding') autoSlide();
-    else if (simState.strategy === 'compact') autoCompact();
-  } else if (usage > 0.65) {
-    addLog('alice', 'Context at ' + Math.round(usage*100) + '%. ' + (simState.strategy === 'full' ? 'No action.' : 'Monitoring for compaction.'));
+
+  // Add user message
+  var userTokens = estimateTokens(text);
+  var userId = addChatMessage('user', text, userTokens);
+
+  // Check context before responding
+  var usage = getTotalUsed() / simState.windowSize;
+  if (usage > 0.95 && simState.strategy === 'full') {
+    addChatSystemMsg('API CALL FAILED \u2014 context window exceeded! Alice has no strategy to free space.');
+    addLog('warn', 'FAILED! Context at ' + Math.round(usage * 100) + '%. Full replay cannot continue.');
+    renderSimBar();
+    renderPayload();
+    return;
   }
+
+  // Trigger compaction if needed BEFORE the response
+  if (usage > 0.75) {
+    if (simState.strategy === 'sliding') autoSlide();
+    else if (simState.strategy === 'compact') autoCompact();
+  }
+
+  // Simulate AI response
+  var respText = fakeResponses[simState.turnCount % fakeResponses.length];
+  var respTokens = estimateTokens(respText);
+  setTimeout(function() {
+    addChatMessage('assistant', respText, respTokens);
+
+    // Post-response check
+    var postUsage = getTotalUsed() / simState.windowSize;
+    if (postUsage > 0.65) {
+      addLog('alice', 'Context at ' + Math.round(postUsage * 100) + '% after turn ' + simState.turnCount);
+    }
+    renderSimBar();
+    renderPayload();
+  }, 300 + Math.random() * 400);
+
   renderSimBar();
+  renderPayload();
+}
+
+function addChatMessage(role, text, tokens) {
+  var id = 'msg-' + (simState.msgIdCounter++);
+  simState.messages.push({ role: role, text: text, tokens: tokens, status: 'active', elId: id });
+
+  var chat = document.getElementById('chatMessages');
+  var bubble = document.createElement('div');
+  bubble.className = 'chat-bubble ' + role;
+  bubble.id = id;
+  bubble.innerHTML = escapeHtml(text) + '<div class="chat-meta">' + (role === 'user' ? 'You' : 'Dr. Neural') + ' \u00B7 ~' + tokens + ' tokens</div>';
+  chat.appendChild(bubble);
+  chat.scrollTop = chat.scrollHeight;
+
+  addLog('info', (role === 'user' ? 'You' : 'Dr. Neural') + ': ~' + tokens + ' tok');
+  return id;
+}
+
+function addChatSystemMsg(text) {
+  var chat = document.getElementById('chatMessages');
+  var msg = document.createElement('div');
+  msg.className = 'chat-system-msg';
+  msg.textContent = text;
+  chat.appendChild(msg);
+  chat.scrollTop = chat.scrollHeight;
 }
 
 function autoSlide() {
-  if (simState.turns.length > 3) {
-    var removed = simState.turns.splice(0, Math.floor(simState.turns.length * 0.4));
-    var removedTokens = removed.reduce(function(a,b) { return a+b; }, 0);
-    var summarySize = Math.round(removedTokens * 0.15);
-    simState.totalHistory -= removedTokens;
-    simState.summaryTokens += summarySize;
-    addLog('alice', 'Sliding window: Dropped ' + removed.length + ' turns (' + removedTokens + ' tok) \u2192 ' + summarySize + ' tok summary');
-    addLog('action', 'Freed ~' + (removedTokens - summarySize) + ' tokens.');
+  var active = simState.messages.filter(function(m) { return m.status === 'active'; });
+  if (active.length < 4) return;
+  var dropCount = Math.floor(active.length * 0.4);
+  var droppedTokens = 0;
+  var droppedTexts = [];
+  for (var i = 0; i < dropCount && i < active.length; i++) {
+    active[i].status = 'summarized';
+    droppedTokens += active[i].tokens;
+    droppedTexts.push(active[i].text.substring(0, 30));
+    var el = document.getElementById(active[i].elId);
+    if (el) el.className = 'chat-bubble ' + active[i].role + ' summarized';
   }
+  var summarySize = Math.round(droppedTokens * 0.15);
+  simState.summaryTokens += summarySize;
+  simState.summaryText = 'Summary of ' + dropCount + ' messages: ' + droppedTexts.join('; ').substring(0, 100) + '...';
+
+  // Insert summary marker in chat
+  var chat = document.getElementById('chatMessages');
+  var marker = document.createElement('div');
+  marker.className = 'chat-summary-insert';
+  marker.textContent = 'Alice summarized ' + dropCount + ' messages (' + droppedTokens + ' tok \u2192 ' + summarySize + ' tok)';
+  // Insert after last summarized message
+  var lastSummarized = document.getElementById(active[dropCount - 1].elId);
+  if (lastSummarized && lastSummarized.nextSibling) {
+    chat.insertBefore(marker, lastSummarized.nextSibling);
+  } else {
+    chat.appendChild(marker);
+  }
+
+  addLog('alice', 'Sliding window: ' + dropCount + ' msgs (' + droppedTokens + ' tok) \u2192 ' + summarySize + ' tok summary');
 }
 
 function autoCompact() {
-  if (simState.turns.length > 2) {
-    var n = Math.ceil(simState.turns.length * 0.5);
-    var compacted = simState.turns.splice(0, n);
-    var compactedTokens = compacted.reduce(function(a,b) { return a+b; }, 0);
-    var summarySize = Math.round(compactedTokens * 0.1);
-    simState.totalHistory -= compactedTokens;
-    simState.summaryTokens += summarySize;
-    addLog('alice', 'Auto-compaction: ' + n + ' turns (' + compactedTokens + ' tok) \u2192 ' + summarySize + ' tok');
-    addLog('action', 'Conversation continues. Early details are now lossy summaries.');
+  var active = simState.messages.filter(function(m) { return m.status === 'active'; });
+  if (active.length < 3) return;
+  var compactCount = Math.ceil(active.length * 0.5);
+  var compactedTokens = 0;
+  var compactedTexts = [];
+  for (var i = 0; i < compactCount; i++) {
+    active[i].status = 'summarized';
+    compactedTokens += active[i].tokens;
+    compactedTexts.push(active[i].text.substring(0, 30));
+    var el = document.getElementById(active[i].elId);
+    if (el) el.className = 'chat-bubble ' + active[i].role + ' summarized';
   }
+  var summarySize = Math.round(compactedTokens * 0.1);
+  simState.summaryTokens += summarySize;
+  simState.summaryText = 'Compacted ' + compactCount + ' messages: ' + compactedTexts.join('; ').substring(0, 100) + '...';
+
+  var chat = document.getElementById('chatMessages');
+  var marker = document.createElement('div');
+  marker.className = 'chat-summary-insert';
+  marker.textContent = 'Auto-compaction: ' + compactCount + ' msgs (' + compactedTokens + ' tok \u2192 ' + summarySize + ' tok)';
+  var lastCompacted = document.getElementById(active[compactCount - 1].elId);
+  if (lastCompacted && lastCompacted.nextSibling) {
+    chat.insertBefore(marker, lastCompacted.nextSibling);
+  } else {
+    chat.appendChild(marker);
+  }
+
+  addLog('alice', 'Auto-compact: ' + compactCount + ' msgs (' + compactedTokens + ' tok) \u2192 ' + summarySize + ' tok');
 }
 
 function simRAGQuery() {
   var ragSize = 2500 + Math.floor(Math.random() * 1500);
   simState.ragTokens += ragSize;
-  simState.turnCount++;
-  addLog('info', 'RAG: Retrieved ' + ragSize + ' tokens of documents');
-  addLog('alice', 'Injected ' + ragSize + ' tokens of context.');
-  var totalUsed = simState.systemTokens + simState.totalHistory + simState.summaryTokens + simState.ragTokens;
+  addChatSystemMsg('RAG: Retrieved ' + ragSize + ' tokens of relevant documents');
+  addLog('alice', '+' + ragSize + ' tok RAG docs injected');
+
+  var totalUsed = getTotalUsed();
   if (totalUsed / simState.windowSize > 0.85) {
-    simState.ragTokens -= Math.round(ragSize * 0.5);
-    addLog('warn', 'Trimmed older RAG results to stay within window.');
+    var trimmed = Math.round(ragSize * 0.4);
+    simState.ragTokens -= trimmed;
+    addLog('warn', 'Trimmed ' + trimmed + ' tok of older RAG results');
   }
   renderSimBar();
-}
-
-function simForceCompact() {
-  if (simState.turns.length < 2) { addLog('info', 'Nothing to compact yet.'); return; }
-  var allTokens = simState.totalHistory;
-  var summarySize = Math.round(allTokens * 0.12);
-  simState.turns = []; simState.totalHistory = 0;
-  simState.summaryTokens += summarySize;
-  addLog('alice', 'Force compact: ' + allTokens + ' history \u2192 ' + summarySize + ' tok summary');
-  addLog('action', 'Freed ' + (allTokens - summarySize) + ' tokens.');
-  renderSimBar();
+  renderPayload();
 }
 
 function simReset() {
-  simState.turns = []; simState.totalHistory = 0;
-  simState.summaryTokens = 0; simState.ragTokens = 0; simState.turnCount = 0;
-  document.getElementById('simLog').innerHTML =
-    '<div class="log-alice">Alice: Context window reset. System prompt loaded (2K tokens).</div>' +
-    '<div class="log-info">Ready to manage state for Dr. Neural...</div>';
+  simState.messages = [];
+  simState.summaryTokens = 0; simState.ragTokens = 0;
+  simState.turnCount = 0; simState.msgIdCounter = 0;
+  simState.summaryText = '';
+  document.getElementById('chatMessages').innerHTML = '<div class="chat-system-msg">System prompt loaded (2K tokens). Alice is ready.</div>';
+  document.getElementById('simLog').innerHTML = '<div class="log-alice">Alice: Context window reset. Ready.</div>';
   renderSimBar();
+  renderPayload();
 }
 
 function renderSimBar() {
   var bar = document.getElementById('simBar');
   if (!bar) return;
   var total = simState.windowSize;
-  var sys = simState.systemTokens, hist = simState.totalHistory;
-  var sum = simState.summaryTokens, rag = simState.ragTokens;
+  var sys = simState.systemTokens;
+  var hist = 0;
+  simState.messages.forEach(function(m) { if (m.status === 'active') hist += m.tokens; });
+  var sum = simState.summaryTokens;
+  var rag = simState.ragTokens;
   var used = sys + hist + sum + rag;
   var free = Math.max(0, total - used);
+
   bar.innerHTML = '';
   var segments = [
-    { tokens: sys, cls: 'sys-seg', label: 'System ' + Math.round(sys/1000) + 'K' },
+    { tokens: sys, cls: 'sys-seg', label: 'Sys ' + Math.round(sys/1000) + 'K' },
     { tokens: sum, cls: 'sum-seg', label: 'Summary ' + Math.round(sum/1000) + 'K' },
     { tokens: hist, cls: 'hist-seg', label: 'History ' + Math.round(hist/1000) + 'K' },
     { tokens: rag, cls: 'cur-seg', label: 'RAG ' + Math.round(rag/1000) + 'K' },
@@ -1066,15 +1280,61 @@ function renderSimBar() {
     var seg = document.createElement('div');
     seg.className = 'sim-segment ' + s.cls;
     seg.style.width = Math.max(0, (s.tokens / total) * 100) + '%';
-    if ((s.tokens / total) > 0.08) seg.textContent = s.label;
+    if ((s.tokens / total) > 0.06) seg.textContent = s.label;
     bar.appendChild(seg);
   });
+
   var pct = Math.round((used / total) * 100);
-  document.getElementById('simUsed').textContent = 'Used: ' + Math.round(used/1000) + 'K / ' + Math.round(total/1000) + 'K tokens (' + pct + '%)';
-  var health = document.getElementById('simHealth');
-  if (pct > 90) { health.textContent = '\u25CF Critical'; health.className = 'warn'; }
-  else if (pct > 70) { health.textContent = '\u25CF Warning'; health.style.color = 'var(--accent)'; health.className = ''; }
-  else { health.textContent = '\u25CF Healthy'; health.className = 'ok'; health.style.color = ''; }
+  var usedEl = document.getElementById('simUsed');
+  var healthEl = document.getElementById('simHealth');
+  if (usedEl) usedEl.textContent = 'Used: ' + Math.round(used/1000) + 'K / ' + Math.round(total/1000) + 'K tokens (' + pct + '%)';
+  if (healthEl) {
+    if (pct > 90) { healthEl.textContent = '\u25CF Critical'; healthEl.className = 'warn'; healthEl.style.color = 'var(--red)'; }
+    else if (pct > 70) { healthEl.textContent = '\u25CF Warning'; healthEl.style.color = 'var(--accent)'; healthEl.className = ''; }
+    else { healthEl.textContent = '\u25CF Healthy'; healthEl.className = 'ok'; healthEl.style.color = 'var(--green)'; }
+  }
+}
+
+function renderPayload() {
+  var payload = document.getElementById('alicePayload');
+  if (!payload) return;
+  var html = '';
+
+  // System prompt
+  html += '<div class="payload-section payload-sys"><div class="payload-label">SYSTEM PROMPT (' + simState.systemTokens + ' tok)</div>';
+  html += '<div class="payload-content">You are a helpful assistant. Follow the user\'s instructions carefully...</div></div>';
+
+  // Summary if exists
+  if (simState.summaryTokens > 0) {
+    html += '<div class="payload-section payload-summary"><div class="payload-label">CONVERSATION SUMMARY (' + simState.summaryTokens + ' tok)</div>';
+    html += '<div class="payload-content">' + escapeHtml(simState.summaryText || 'Compressed summary of earlier messages...') + '</div></div>';
+  }
+
+  // RAG docs
+  if (simState.ragTokens > 0) {
+    html += '<div class="payload-section payload-rag"><div class="payload-label">RAG DOCUMENTS (' + simState.ragTokens + ' tok)</div>';
+    html += '<div class="payload-content">Retrieved context documents relevant to current query...</div></div>';
+  }
+
+  // Active messages
+  var active = simState.messages.filter(function(m) { return m.status === 'active'; });
+  if (active.length > 0) {
+    html += '<div class="payload-section payload-hist"><div class="payload-label">CONVERSATION HISTORY (' + active.length + ' msgs)</div>';
+    active.forEach(function(m, i) {
+      var prefix = m.role === 'user' ? '\u25B6 User: ' : '\u25C0 Assistant: ';
+      var snippet = m.text.length > 50 ? m.text.substring(0, 50) + '...' : m.text;
+      html += '<div class="payload-content" style="margin-bottom:0.2rem;opacity:' + (0.5 + (i / active.length) * 0.5) + '">' + prefix + escapeHtml(snippet) + ' <span style="color:var(--muted)">(' + m.tokens + ' tok)</span></div>';
+    });
+    html += '</div>';
+  }
+
+  // Dropped count
+  var dropped = simState.messages.filter(function(m) { return m.status !== 'active'; });
+  if (dropped.length > 0) {
+    html += '<div style="font-size:0.5rem;color:var(--red);margin-top:0.3rem;padding:0.3rem">' + dropped.length + ' messages summarized/dropped</div>';
+  }
+
+  payload.innerHTML = html;
 }
 
 function addLog(type, text) {
@@ -1087,8 +1347,15 @@ function addLog(type, text) {
   log.scrollTop = log.scrollHeight;
 }
 
-// Init on load
+function escapeHtml(text) {
+  var div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Init
 renderSimBar();
+renderPayload();
 </script>
 
 </body>
