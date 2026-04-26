@@ -441,6 +441,33 @@
     border-radius: 4px; align-self: center;
   }
 
+  /* ─── PROMPT OPTIONS ─── */
+  .prompt-opt {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.45rem 0.8rem; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 6px;
+    cursor: pointer; transition: all 0.2s; text-align: left;
+    font-family: var(--body); font-size: 0.78rem; color: var(--text);
+    line-height: 1.3;
+  }
+  .prompt-opt:hover { border-color: rgba(77,166,232,0.4); background: rgba(77,166,232,0.06); }
+  .prompt-opt .opt-icon {
+    font-size: 0.9rem; flex-shrink: 0; width: 1.4rem; text-align: center;
+  }
+  .prompt-opt .opt-tokens {
+    margin-left: auto; font-family: var(--mono); font-size: 0.5rem;
+    color: var(--muted); white-space: nowrap; flex-shrink: 0;
+  }
+  .prompt-opt.opt-rag { border-color: rgba(168,124,232,0.2); }
+  .prompt-opt.opt-rag:hover { border-color: rgba(168,124,232,0.4); background: rgba(168,124,232,0.06); }
+  .prompt-opt.opt-action { border-color: rgba(77,216,138,0.2); }
+  .prompt-opt.opt-action:hover { border-color: rgba(77,216,138,0.4); background: rgba(77,216,138,0.06); }
+  .prompt-opt.opt-end {
+    border-color: rgba(232,160,52,0.2); color: var(--accent);
+    font-family: var(--mono); font-size: 0.65rem; justify-content: center;
+  }
+  .prompt-opt.opt-end:hover { border-color: rgba(232,160,52,0.4); background: rgba(232,160,52,0.06); }
+
   /* ─── PAYLOAD PANEL ─── */
   .payload-section {
     padding: 0.4rem 0.6rem; margin-bottom: 0.4rem; border-radius: 4px;
@@ -865,11 +892,10 @@
             <div class="chat-system-msg">System prompt loaded (2K tokens). Alice is ready.</div>
           </div>
 
-          <!-- Input area -->
-          <div style="padding:0.6rem;border-top:1px solid var(--border);display:flex;gap:0.4rem">
-            <input type="text" id="chatInput" placeholder="Type a message to Dr. Neural..." onkeydown="if(event.key==='Enter')simSendChat()" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:0.5rem 0.8rem;color:var(--text);font-family:var(--body);font-size:0.82rem;outline:none">
-            <button onclick="simSendChat()" style="font-family:var(--mono);font-size:0.6rem;padding:0.5rem 1rem;background:rgba(77,166,232,0.15);color:var(--blue);border:1px solid rgba(77,166,232,0.3);border-radius:4px;cursor:pointer;white-space:nowrap">Send</button>
-            <button onclick="simRAGQuery()" style="font-family:var(--mono);font-size:0.6rem;padding:0.5rem 0.8rem;background:rgba(168,124,232,0.1);color:var(--purple);border:1px solid rgba(168,124,232,0.3);border-radius:4px;cursor:pointer;white-space:nowrap" title="Inject RAG documents">+RAG</button>
+          <!-- Prompt options area -->
+          <div style="padding:0.6rem;border-top:1px solid var(--border)">
+            <div style="font-family:var(--mono);font-size:0.5rem;color:var(--muted);letter-spacing:0.08em;margin-bottom:0.4rem">CHOOSE A MESSAGE TO SEND:</div>
+            <div id="promptOptions" style="display:flex;flex-direction:column;gap:0.3rem"></div>
           </div>
         </div>
 
@@ -920,8 +946,8 @@ function switchSub(name, btn) {
   document.querySelectorAll('.sub-link').forEach(function(t) { t.classList.remove('active'); });
   var tab = document.getElementById('sub-' + name);
   if (tab) { tab.classList.add('active'); btn.classList.add('active'); }
-  // Re-render sim bar when switching to simulate tab
-  if (name === 'simulate') { renderSimBar(); }
+  // Re-render sim when switching to simulate tab
+  if (name === 'simulate') { renderSimBar(); renderPayload(); renderPromptOptions(); }
   // Re-render context window visualizer
   if (name === 'window') { showApp('chatgpt', document.querySelector('.cw-controls .cw-btn')); }
 }
@@ -1051,21 +1077,61 @@ function showApp(name, btn) {
 // ═══ INTERACTIVE CHAT SIM ═══
 var simState = {
   windowSize: 32000, strategy: 'full', systemTokens: 2000,
-  messages: [], // {role, text, tokens, status:'active'|'summarized'|'dropped', elId}
-  summaryTokens: 0, ragTokens: 0, turnCount: 0, msgIdCounter: 0,
-  summaryText: ''
+  messages: [], summaryTokens: 0, ragTokens: 0, turnCount: 0,
+  msgIdCounter: 0, summaryText: '', step: 0
 };
 
-// Fake responses Dr. Neural gives
-var fakeResponses = [
-  'Based on the context provided, I can help with that. The key consideration here is how the application layer manages state between API calls.',
-  'That\'s a great question. The stateless nature of the model means every call starts fresh \u2014 Alice must reconstruct the relevant context each time.',
-  'I see from our conversation history that you\'ve been exploring context management strategies. Building on that, the sliding window approach trades off completeness for efficiency.',
-  'Let me think about this carefully. The context window is finite, so the real engineering challenge is deciding what to include and what to leave out.',
-  'Interesting point. This relates to the fundamental tension between having complete context and staying within token limits. RAG can help by injecting only relevant documents.',
-  'From what I can see in the conversation so far, you\'re building a good understanding of how these systems work. The 95/5 rule really applies here.',
-  'That\'s exactly the right way to think about it. The application layer \u2014 Alice \u2014 is doing the heavy lifting to create the illusion of continuity.',
-  'I should note that as our conversation grows, the context window is filling up. The strategy you\'ve chosen determines what happens next.'
+// Scripted conversation: each step has 3 options user can click
+var conversationScript = [
+  { // Step 0
+    options: [
+      { text: 'Hi! Can you explain how LLMs handle memory?', type: 'chat', response: 'Great question! LLMs like me are actually stateless \u2014 I have no memory between API calls. Every time you send a message, the application layer (think of it as "Alice") must re-send the entire conversation history so I have context. I only see what\'s in this single request.' },
+      { text: 'What is a context window?', type: 'chat', response: 'A context window is the fixed-size buffer that holds everything I can "see" in a single API call \u2014 system prompt, conversation history, any injected documents, and your current message. Think of it as my desk: it can only hold so many papers at once. For GPT-4 it\'s 128K tokens, for Claude up to 1M tokens.' },
+      { text: 'I\'m building a chatbot. Where do I start?', type: 'chat', response: 'Start with understanding that 95% of your chatbot is traditional software engineering. You need: a database for conversation history, an API integration layer, context management logic, and a UI. The LLM itself is maybe 5% of the work. The hard part is deciding what to include in each API call\'s context window.' }
+    ]
+  },
+  { // Step 1
+    options: [
+      { text: 'Why can\'t you just remember everything?', type: 'chat', response: 'Because each API call is independent \u2014 like visiting a doctor with amnesia. I process everything you send as one big prompt, generate a response, then immediately forget everything. The next call starts completely fresh. Your app must re-send whatever context it wants me to have.' },
+      { text: 'What happens when the conversation gets too long?', type: 'chat', response: 'That\'s the core engineering challenge! When conversation history exceeds the context window, something has to give. You have several strategies: truncate old messages (sliding window), summarize them (compaction), or retrieve only relevant parts (RAG). Each has trade-offs between cost, accuracy, and completeness.' },
+      { text: 'Search docs: "context management best practices"', type: 'rag', response: 'Based on the retrieved documentation: Context management is the #1 differentiator between AI apps. Key practices include: 1) Never send raw conversation \u2014 always curate, 2) Use system prompts efficiently, 3) Implement summarization before you hit limits, 4) Consider RAG for knowledge-heavy applications. The best apps make context engineering invisible to users.' }
+    ]
+  },
+  { // Step 2
+    options: [
+      { text: 'How does ChatGPT handle this?', type: 'chat', response: 'ChatGPT uses a sliding window approach: it keeps recent messages and gradually drops older ones. It also has a separate Memory system that extracts key facts ("user is a developer", "prefers Python") and persists them across conversations as compact injections in the system prompt. So it literally forgets your message from 20 turns ago \u2014 but remembers your name.' },
+      { text: 'How is Claude different from ChatGPT?', type: 'chat', response: 'Claude takes a different approach: it keeps the FULL conversation history in the window as long as possible (up to 200K or even 1M tokens). When approaching limits, server-side compaction automatically summarizes earlier messages. The trade-off: more expensive per-call since bigger context = more compute, but I see the complete picture. It\'s like getting the full notebook vs. cliff notes.' },
+      { text: 'Search docs: "RAG implementation patterns"', type: 'rag', response: 'The retrieved documents explain RAG as: Retrieval-Augmented Generation \u2014 instead of stuffing all knowledge into the context, you index it in a vector database and search for relevant chunks per-query. Perplexity does this with web search, Cursor does it with codebase indexing. The key insight: RAG is just file processing + database operations + API calls. Traditional engineering.' }
+    ]
+  },
+  { // Step 3
+    options: [
+      { text: 'Show me what happens at 80% capacity', type: 'chat', response: 'Right now I can see our entire conversation \u2014 but we\'re getting close to the limit. Watch the context bar above. With Full Replay, once we hit ~95%, the API call will simply FAIL. With Sliding Window, Alice will start dropping old messages and replacing them with summaries. Try switching strategies to see the difference!' },
+      { text: 'Can you recall what my first question was?', type: 'chat', response: 'Let me check... I can see our full conversation history in my context window right now, so yes! Your first message was about LLMs and memory. But here\'s the key insight: I\'m not "remembering" \u2014 Alice included your first message in this API call. If she had summarized or dropped it, I\'d have no idea what you originally asked.' },
+      { text: 'Search docs: "token optimization strategies"', type: 'rag', response: 'From the docs: Token optimization involves several techniques: 1) System prompt compression \u2014 remove redundant instructions, 2) Message deduplication \u2014 don\'t repeat context the model already has, 3) Selective history \u2014 only include turns relevant to current query, 4) Structured summaries \u2014 use bullet points instead of prose. Aider achieves 98% token reduction using tree-sitter repo maps instead of full file contents.' }
+    ]
+  },
+  { // Step 4
+    options: [
+      { text: 'What\'s the "lost in the middle" problem?', type: 'chat', response: 'Research shows that even within the context window, models pay uneven attention. We recall the START of the context and the END very well, but information in the MIDDLE gets less attention \u2014 like skimming a long document. This is why smart context ordering matters: put the most important info at the beginning or end, not buried in the middle.' },
+      { text: 'How would you build a production chatbot?', type: 'chat', response: 'Here\'s my production-ready architecture: 1) System prompt with core instructions (~2K tokens), 2) User memory/profile from database (~500 tokens), 3) RAG-retrieved context relevant to current query (~3K tokens), 4) Sliding window of recent conversation (~8K tokens), 5) Summary of older conversation (~1K tokens), 6) Current user message. That\'s about 15K tokens per call \u2014 well within any modern model\'s limits.' },
+      { text: 'Search docs: "Aider context management"', type: 'rag', response: 'Aider (open-source code editor) uses a fascinating approach verified from source code: 1) Tree-sitter parses ALL files into ASTs, 2) PageRank algorithm ranks files by importance with a 50x boost for actively-referenced files, 3) A compact "repo map" (~1K tokens) gives the LLM a bird\'s-eye view, 4) Only /add\'ed files are included in full. Result: 98% token reduction vs. sending the whole codebase.' }
+    ]
+  },
+  { // Step 5
+    options: [
+      { text: 'Summarize everything we\'ve discussed', type: 'chat', response: 'Here\'s our conversation arc: We started with the fundamental problem \u2014 LLMs are stateless. Every API call must include all context. We explored how different apps solve this: ChatGPT uses sliding windows + memory, Claude uses full history + compaction, Perplexity uses RAG, Cursor and Aider use code-aware context selection. The key insight: context management IS the product. 95% traditional engineering, 5% AI.' },
+      { text: 'What should I learn next?', type: 'chat', response: 'Based on our conversation, I\'d recommend: 1) Build a simple chatbot with full history replay \u2014 see it break, 2) Implement sliding window + summarization, 3) Add a vector database for RAG, 4) Study how Aider\'s repo map works (it\'s open source!), 5) Read about the "lost in the middle" research. The real skill isn\'t prompting \u2014 it\'s context engineering. And you already know the building blocks from traditional software engineering.' },
+      { text: 'Restart conversation', type: 'reset' }
+    ]
+  },
+  { // Step 6+ (loops)
+    options: [
+      { text: 'Tell me more about the 95/5 rule', type: 'chat', response: 'The 95/5 rule says that building AI applications is 95% traditional software engineering and 5% AI-specific work. Think about it: database management, API orchestration, caching, error handling, UI/UX, deployment, monitoring \u2014 these are all skills you already have. The context window is just another resource to manage, like memory or disk space. AI didn\'t change engineering \u2014 it added a new API to call.' },
+      { text: 'How do AI coding assistants differ from chatbots?', type: 'chat', response: 'Coding assistants face unique context challenges: they need to understand entire codebases (millions of tokens) but only have ~200K token windows. So they use clever techniques like Aider\'s repo map (tree-sitter AST + PageRank), Cursor\'s codebase indexing, or Claude Code\'s file-aware context selection. The "Alice layer" for code is essentially a smart search engine that knows which files matter for your current task.' },
+      { text: 'Restart conversation', type: 'reset' }
+    ]
+  }
 ];
 
 function estimateTokens(text) {
@@ -1093,50 +1159,84 @@ function setStrategy(s) {
   addLog('alice', 'Strategy \u2192 ' + (s === 'full' ? 'Full Replay' : s === 'sliding' ? 'Sliding + Summary' : 'Auto-Compact'));
 }
 
-function simSendChat() {
-  var input = document.getElementById('chatInput');
-  var text = input.value.trim();
-  if (!text) return;
-  input.value = '';
+function renderPromptOptions() {
+  var container = document.getElementById('promptOptions');
+  if (!container) return;
+  container.innerHTML = '';
+  var stepIdx = Math.min(simState.step, conversationScript.length - 1);
+  var step = conversationScript[stepIdx];
+
+  step.options.forEach(function(opt, i) {
+    var btn = document.createElement('button');
+    btn.className = 'prompt-opt' + (opt.type === 'rag' ? ' opt-rag' : '') + (opt.type === 'reset' ? ' opt-end' : '') + (opt.type === 'action' ? ' opt-action' : '');
+
+    if (opt.type === 'reset') {
+      btn.innerHTML = '\u21BA Restart conversation';
+      btn.onclick = function() { simReset(); };
+    } else {
+      var icon = opt.type === 'rag' ? '\uD83D\uDD0D' : '\uD83D\uDCAC';
+      var tokens = estimateTokens(opt.text);
+      var label = opt.type === 'rag' ? '+RAG' : '~' + tokens + ' tok';
+      btn.innerHTML = '<span class="opt-icon">' + icon + '</span><span>' + escapeHtml(opt.text) + '</span><span class="opt-tokens">' + label + '</span>';
+      btn.onclick = (function(o) { return function() { handleOption(o); }; })(opt);
+    }
+    container.appendChild(btn);
+  });
+}
+
+function handleOption(opt) {
   simState.turnCount++;
 
   // Add user message
-  var userTokens = estimateTokens(text);
-  var userId = addChatMessage('user', text, userTokens);
+  var userTokens = estimateTokens(opt.text);
+  addChatMessage('user', opt.text, userTokens);
+
+  // RAG injection
+  if (opt.type === 'rag') {
+    var ragSize = 2500 + Math.floor(Math.random() * 1500);
+    simState.ragTokens += ragSize;
+    addChatSystemMsg('+RAG: Retrieved ' + ragSize + ' tokens of documents');
+    addLog('alice', '+' + ragSize + ' tok RAG docs injected');
+  }
 
   // Check context before responding
   var usage = getTotalUsed() / simState.windowSize;
   if (usage > 0.95 && simState.strategy === 'full') {
-    addChatSystemMsg('API CALL FAILED \u2014 context window exceeded! Alice has no strategy to free space.');
+    addChatSystemMsg('API CALL FAILED \u2014 context window exceeded!');
     addLog('warn', 'FAILED! Context at ' + Math.round(usage * 100) + '%. Full replay cannot continue.');
-    renderSimBar();
-    renderPayload();
+    // Show restart option
+    simState.step = conversationScript.length - 1;
+    renderSimBar(); renderPayload(); renderPromptOptions();
     return;
   }
 
-  // Trigger compaction if needed BEFORE the response
+  // Trigger compaction if needed
   if (usage > 0.75) {
     if (simState.strategy === 'sliding') autoSlide();
     else if (simState.strategy === 'compact') autoCompact();
   }
 
-  // Simulate AI response
-  var respText = fakeResponses[simState.turnCount % fakeResponses.length];
+  // Disable options during "thinking"
+  var container = document.getElementById('promptOptions');
+  container.innerHTML = '<div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);padding:0.4rem;text-align:center">Dr. Neural is thinking...</div>';
+
+  // Simulate response delay
+  var respText = opt.response;
   var respTokens = estimateTokens(respText);
   setTimeout(function() {
     addChatMessage('assistant', respText, respTokens);
 
-    // Post-response check
     var postUsage = getTotalUsed() / simState.windowSize;
     if (postUsage > 0.65) {
       addLog('alice', 'Context at ' + Math.round(postUsage * 100) + '% after turn ' + simState.turnCount);
     }
-    renderSimBar();
-    renderPayload();
-  }, 300 + Math.random() * 400);
 
-  renderSimBar();
-  renderPayload();
+    // Advance to next step
+    simState.step++;
+    renderSimBar(); renderPayload(); renderPromptOptions();
+  }, 400 + Math.random() * 600);
+
+  renderSimBar(); renderPayload();
 }
 
 function addChatMessage(role, text, tokens) {
@@ -1248,11 +1348,12 @@ function simReset() {
   simState.messages = [];
   simState.summaryTokens = 0; simState.ragTokens = 0;
   simState.turnCount = 0; simState.msgIdCounter = 0;
-  simState.summaryText = '';
+  simState.summaryText = ''; simState.step = 0;
   document.getElementById('chatMessages').innerHTML = '<div class="chat-system-msg">System prompt loaded (2K tokens). Alice is ready.</div>';
   document.getElementById('simLog').innerHTML = '<div class="log-alice">Alice: Context window reset. Ready.</div>';
   renderSimBar();
   renderPayload();
+  renderPromptOptions();
 }
 
 function renderSimBar() {
@@ -1356,6 +1457,7 @@ function escapeHtml(text) {
 // Init
 renderSimBar();
 renderPayload();
+renderPromptOptions();
 </script>
 
 </body>
