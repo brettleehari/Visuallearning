@@ -50,65 +50,6 @@
   .top-content { display: none; }
   .top-content.active { display: flex; flex-direction: column; height: calc(100vh - 40px); }
 
-  /* ─── ABOUT BADGE ─── */
-  .about-toggle {
-    margin-left: auto; font-family: var(--mono); font-size: 0.6rem;
-    letter-spacing: 0.08em; padding: 0.35rem 0.9rem;
-    background: rgba(232,160,52,0.08); color: var(--accent);
-    border: 1px solid rgba(232,160,52,0.25); border-radius: 4px;
-    cursor: pointer; transition: all 0.2s; white-space: nowrap;
-  }
-  .about-toggle:hover { background: rgba(232,160,52,0.15); border-color: rgba(232,160,52,0.4); }
-  .about-panel {
-    display: none; position: fixed; top: 40px; right: 0; z-index: 200;
-    width: 380px; max-height: calc(100vh - 50px); overflow-y: auto;
-    background: var(--surface); border: 1px solid var(--border);
-    border-top: none; border-radius: 0 0 0 10px;
-    box-shadow: -4px 4px 20px rgba(0,0,0,0.4);
-    padding: 1.5rem; animation: slideIn 0.25s ease;
-  }
-  .about-panel.open { display: block; }
-  @keyframes slideIn { from { opacity:0; transform:translateX(10px); } to { opacity:1; transform:translateX(0); } }
-  .about-panel .about-close {
-    position: absolute; top: 0.8rem; right: 0.8rem;
-    background: none; border: none; color: var(--muted); cursor: pointer;
-    font-size: 1rem; line-height: 1;
-  }
-  .about-panel .about-close:hover { color: var(--text); }
-  .about-bio {
-    font-size: 0.82rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.2rem;
-  }
-  .about-bio strong { color: var(--text); }
-  .about-bio em { color: var(--accent); font-style: normal; }
-  .about-stats {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem;
-    margin-bottom: 1.2rem;
-  }
-  .about-stat {
-    text-align: center; padding: 0.6rem 0.3rem;
-    background: var(--surface2); border-radius: 6px;
-    border: 1px solid var(--border);
-  }
-  .about-stat-num {
-    font-family: var(--display); font-size: 1.4rem; font-weight: 700;
-    color: var(--accent); line-height: 1;
-  }
-  .about-stat-label {
-    font-family: var(--mono); font-size: 0.48rem; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--muted); margin-top: 0.25rem;
-  }
-  .about-link {
-    display: block; text-align: center; font-family: var(--mono);
-    font-size: 0.6rem; letter-spacing: 0.08em; padding: 0.5rem;
-    background: rgba(77,166,232,0.1); color: var(--blue);
-    border: 1px solid rgba(77,166,232,0.25); border-radius: 4px;
-    text-decoration: none; transition: all 0.2s;
-  }
-  .about-link:hover { background: rgba(77,166,232,0.18); }
-  @media (max-width: 500px) {
-    .about-panel { width: 100%; border-radius: 0; }
-  }
-
   /* ─── SUB-TAB BAR ─── */
   .sub-bar {
     background: var(--surface2); border-bottom: 1px solid var(--border);
@@ -814,36 +755,7 @@
     <button class="top-link active" onclick="switchTop('context-mgmt', this)">Context Management</button>
     <button class="top-link" onclick="switchTop('spine-leaf', this)">Spine &amp; Leaf</button>
   </div>
-  <button class="about-toggle" onclick="toggleAbout()">About the Author</button>
 </nav>
-
-<!-- About Panel -->
-<div class="about-panel" id="aboutPanel">
-  <button class="about-close" onclick="toggleAbout()">&times;</button>
-  <div class="about-bio">
-    I hands-on build the <em>full stack around the model</em> in addition to the SLM and fine-tuning work. The customer interacts with the <strong>product</strong>, not the model. The product compensates for the model's weaknesses.<br><br>
-    Building mission-critical applications with <em>AI stack since 2020</em>. Gen AI context management as infrastructure. Evaluation and explainability as <strong>first-class concerns</strong>, not afterthoughts.
-  </div>
-  <div class="about-stats">
-    <div class="about-stat">
-      <div class="about-stat-num">3</div>
-      <div class="about-stat-label">Patents</div>
-    </div>
-    <div class="about-stat">
-      <div class="about-stat-num">6+</div>
-      <div class="about-stat-label">Papers</div>
-    </div>
-    <div class="about-stat">
-      <div class="about-stat-num">45+</div>
-      <div class="about-stat-label">Citations</div>
-    </div>
-    <div class="about-stat">
-      <div class="about-stat-num">20</div>
-      <div class="about-stat-label">Years</div>
-    </div>
-  </div>
-  <a class="about-link" href="https://github.com/brettleehari" target="_blank" rel="noopener">Full Background &rarr;</a>
-</div>
 
 <!-- ═══ TOP CONTENT: CONTEXT MANAGEMENT ═══ -->
 <div class="top-content active" id="top-context-mgmt">
@@ -1606,19 +1518,6 @@ document.querySelectorAll('#top-spine-leaf .sl-leaf').forEach(function(el) {
 
 
 <script>
-// ═══ ABOUT PANEL ═══
-function toggleAbout() {
-  document.getElementById('aboutPanel').classList.toggle('open');
-}
-// Close panel when clicking outside
-document.addEventListener('click', function(e) {
-  var panel = document.getElementById('aboutPanel');
-  var toggle = document.querySelector('.about-toggle');
-  if (panel.classList.contains('open') && !panel.contains(e.target) && e.target !== toggle) {
-    panel.classList.remove('open');
-  }
-});
-
 // ═══ TOP TAB SWITCHING ═══
 function switchTop(name, btn) {
   document.querySelectorAll('.top-content').forEach(function(t) { t.classList.remove('active'); });
