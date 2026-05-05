@@ -744,6 +744,207 @@
     #top-spine-leaf .sl-assets { grid-template-columns: 1fr; }
   }
 
+  /* ─── EMBEDDINGS & VECTORS TAB ─── */
+  .emb-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.5rem; margin: 1rem 0;
+  }
+  .emb-card-title {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 0.8rem;
+  }
+  .emb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin: 1rem 0; }
+  @media (max-width: 700px) { .emb-grid { grid-template-columns: 1fr; } }
+  .emb-block {
+    background: var(--surface2); border-radius: 8px; padding: 1.2rem;
+    border: 1px solid var(--border);
+  }
+  .emb-block-label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--blue); margin-bottom: 0.5rem;
+  }
+  .emb-analogy {
+    display: flex; align-items: center; gap: 1.5rem; margin: 1.2rem 0;
+    padding: 1rem 1.5rem; background: var(--surface2); border-radius: 8px;
+    border-left: 3px solid var(--green);
+  }
+  .emb-analogy-icon { font-size: 2rem; flex-shrink: 0; }
+  .emb-analogy-text { font-size: 0.9rem; color: var(--text); line-height: 1.6; }
+  .emb-analogy-text strong { color: var(--accent); }
+
+  /* Tokenizer demo */
+  .tok-input {
+    width: 100%; padding: 0.8rem 1rem; background: var(--surface3); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px; font-family: var(--body);
+    font-size: 0.9rem; resize: none; outline: none; transition: border-color 0.2s;
+  }
+  .tok-input:focus { border-color: var(--blue); }
+  .tok-output {
+    display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 1rem;
+    background: var(--surface3); border-radius: 6px; min-height: 3rem;
+    margin-top: 0.6rem;
+  }
+  .tok-chip {
+    display: inline-flex; align-items: center; padding: 0.25rem 0.55rem;
+    border-radius: 4px; font-family: var(--mono); font-size: 0.7rem;
+    border: 1px solid transparent; transition: all 0.15s; cursor: default;
+  }
+  .tok-chip:hover { transform: translateY(-1px); }
+  .tok-chip-id {
+    font-size: 0.5rem; color: var(--muted); margin-left: 0.35rem;
+    opacity: 0.7;
+  }
+  .tok-stats {
+    display: flex; gap: 1.5rem; margin-top: 0.6rem; font-family: var(--mono);
+    font-size: 0.65rem; color: var(--muted);
+  }
+  .tok-stats span { color: var(--accent); }
+
+  /* Vector heatmap */
+  .vec-heatmap {
+    display: flex; gap: 2px; margin: 0.8rem 0; padding: 0.6rem;
+    background: var(--surface3); border-radius: 6px; overflow-x: auto;
+  }
+  .vec-cell {
+    width: 18px; height: 32px; border-radius: 2px; flex-shrink: 0;
+    position: relative; cursor: default;
+  }
+  .vec-cell:hover::after {
+    content: attr(data-val);
+    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    background: var(--surface); color: var(--text); font-family: var(--mono);
+    font-size: 0.55rem; padding: 0.2rem 0.4rem; border-radius: 3px;
+    white-space: nowrap; border: 1px solid var(--border); z-index: 10;
+  }
+  .vec-dim-label {
+    font-family: var(--mono); font-size: 0.5rem; color: var(--muted);
+    text-align: center; margin-top: 0.2rem;
+  }
+
+  /* 2D scatter canvas */
+  .emb-canvas-wrap {
+    position: relative; background: var(--surface2); border-radius: 8px;
+    border: 1px solid var(--border); overflow: hidden;
+  }
+  .emb-canvas-wrap canvas { display: block; width: 100%; height: 420px; }
+  .emb-canvas-legend {
+    position: absolute; top: 0.8rem; right: 0.8rem; background: rgba(10,11,15,0.85);
+    border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem;
+    font-family: var(--mono); font-size: 0.55rem; color: var(--muted);
+  }
+  .emb-canvas-legend div { display: flex; align-items: center; gap: 0.4rem; margin: 0.25rem 0; }
+  .emb-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* Similarity demo */
+  .sim-pair {
+    display: flex; align-items: stretch; gap: 1rem; margin: 0.8rem 0;
+  }
+  .sim-pair-word {
+    flex: 1; background: var(--surface2); border-radius: 8px; padding: 1rem;
+    text-align: center; border: 1px solid var(--border);
+  }
+  .sim-pair-word .word {
+    font-family: var(--display); font-size: 1.3rem; font-weight: 500; color: var(--text);
+  }
+  .sim-pair-score {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-width: 100px;
+  }
+  .sim-score-val {
+    font-family: var(--mono); font-size: 1.8rem; font-weight: 600;
+  }
+  .sim-score-label {
+    font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); margin-top: 0.2rem;
+  }
+  .sim-bar-track {
+    width: 100%; height: 8px; background: var(--surface3); border-radius: 4px;
+    overflow: hidden; margin-top: 0.4rem;
+  }
+  .sim-bar-fill {
+    height: 100%; border-radius: 4px; transition: width 0.6s ease;
+  }
+  .sim-examples {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; margin: 1rem 0;
+  }
+  @media (max-width: 700px) { .sim-examples { grid-template-columns: 1fr; } }
+  .sim-example-card {
+    background: var(--surface2); border-radius: 8px; padding: 1rem;
+    border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;
+  }
+  .sim-example-card:hover { border-color: var(--green); background: var(--surface3); }
+  .sim-example-card.active { border-color: var(--green); }
+  .sim-example-card .pair-label {
+    font-family: var(--mono); font-size: 0.6rem; color: var(--muted);
+    letter-spacing: 0.08em; margin-bottom: 0.3rem;
+  }
+  .sim-example-card .pair-words {
+    font-size: 0.9rem; color: var(--text); margin-bottom: 0.4rem;
+  }
+  .sim-angle-visual {
+    position: relative; width: 160px; height: 160px; margin: 1rem auto;
+  }
+  .sim-angle-visual canvas { width: 160px; height: 160px; }
+
+  /* Pipeline flow */
+  .pipeline-flow {
+    display: flex; align-items: center; gap: 0; margin: 1.5rem 0;
+    overflow-x: auto; padding: 0.5rem 0;
+  }
+  .pipeline-step {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.8rem 1.2rem; text-align: center; min-width: 140px; flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .pipeline-step.active { border-color: var(--green); background: rgba(77,216,138,0.06); }
+  .pipeline-step .step-icon { font-size: 1.4rem; margin-bottom: 0.3rem; }
+  .pipeline-step .step-label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--blue);
+  }
+  .pipeline-step .step-detail {
+    font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem;
+  }
+  .pipeline-arrow {
+    font-family: var(--mono); font-size: 1.2rem; color: var(--muted);
+    padding: 0 0.5rem; flex-shrink: 0;
+  }
+
+  /* Live demo section */
+  .live-input-row {
+    display: flex; gap: 0.6rem; margin: 0.8rem 0; flex-wrap: wrap;
+  }
+  .live-input {
+    flex: 1; min-width: 200px; padding: 0.6rem 1rem; background: var(--surface3);
+    color: var(--text); border: 1px solid var(--border); border-radius: 6px;
+    font-family: var(--body); font-size: 0.85rem; outline: none;
+  }
+  .live-input:focus { border-color: var(--green); }
+  .live-btn {
+    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em;
+    padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; border: none;
+    background: rgba(77,216,138,0.15); color: var(--green);
+    border: 1px solid rgba(77,216,138,0.3); transition: all 0.2s;
+  }
+  .live-btn:hover { background: rgba(77,216,138,0.25); }
+  .live-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .live-results {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;
+  }
+  @media (max-width: 700px) { .live-results { grid-template-columns: 1fr; } }
+  .live-result-card {
+    background: var(--surface2); border-radius: 8px; padding: 1rem;
+    border: 1px solid var(--border);
+  }
+  .live-result-card .rank {
+    font-family: var(--mono); font-size: 1.4rem; font-weight: 700; float: right;
+  }
+  .live-result-card .doc-text { font-size: 0.88rem; color: var(--text); margin-bottom: 0.5rem; }
+  .live-result-card .score-row {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--muted);
+    display: flex; justify-content: space-between;
+  }
+
 </style>
 </head>
 <body>
@@ -754,6 +955,7 @@
   <div class="top-links">
     <button class="top-link active" onclick="switchTop('context-mgmt', this)">Context Management</button>
     <button class="top-link" onclick="switchTop('spine-leaf', this)">Spine &amp; Leaf</button>
+    <button class="top-link" onclick="switchTop('embeddings', this)">Embeddings &amp; Vectors</button>
   </div>
 </nav>
 
@@ -1505,6 +1707,324 @@
 
 </div><!-- end top-spine-leaf -->
 
+<!-- ═══ TOP CONTENT: VECTOR SEARCH ═══ -->
+<!-- ═══ TOP CONTENT: EMBEDDINGS & VECTORS ═══ -->
+<div class="top-content" id="top-embeddings">
+
+  <div class="sub-bar">
+    <div class="sub-bar-title">How Machines Understand <em>Meaning</em></div>
+    <div class="sub-links">
+      <button class="sub-link active" onclick="switchSub('emb-concept', this)">The Concept</button>
+      <button class="sub-link" onclick="switchSub('emb-tokenize', this)">Tokenization</button>
+      <button class="sub-link" onclick="switchSub('emb-space', this)">Vector Space</button>
+      <button class="sub-link" onclick="switchSub('emb-similarity', this)">Similarity</button>
+      <button class="sub-link" onclick="switchSub('emb-pipeline', this)">Full Pipeline</button>
+      <button class="sub-link" onclick="switchSub('emb-live', this)">Live Demo</button>
+    </div>
+  </div>
+
+  <!-- ═══ SUB 1: THE CONCEPT ═══ -->
+  <div class="sub-content active" id="sub-emb-concept">
+    <div class="container">
+      <div class="section-num">01 — The Core Idea</div>
+      <h2>Words as <strong>Coordinates</strong> in Space</h2>
+      <p class="lead">An embedding is a way to represent text as a list of numbers (a vector) so that similar meanings end up near each other in a mathematical space. It's how machines "understand" language.</p>
+
+      <div class="book-quote">
+        <p>"You can't do math on words. But you can do math on numbers. Embeddings are the bridge — they turn meaning into geometry."</p>
+        <cite>— The fundamental insight of vector search</cite>
+      </div>
+
+      <div class="emb-analogy">
+        <div class="emb-analogy-icon">&#127758;</div>
+        <div class="emb-analogy-text">
+          <strong>GPS Analogy:</strong> Just as GPS coordinates (latitude, longitude) place any location on Earth so you can measure the distance between cities, embeddings place any piece of text in a high-dimensional space so you can measure the distance between <em>meanings</em>.
+        </div>
+      </div>
+
+      <div class="emb-grid">
+        <div class="emb-block">
+          <div class="emb-block-label">The Old Way: Keywords</div>
+          <p style="font-size:0.85rem;color:var(--muted);line-height:1.6">Search for "car" and you only find documents containing the exact word "car." You miss "automobile," "vehicle," "sedan," and "Tesla Model 3." Keyword matching is <span style="color:var(--red)">brittle</span> — it can't understand meaning.</p>
+        </div>
+        <div class="emb-block">
+          <div class="emb-block-label">The New Way: Vectors</div>
+          <p style="font-size:0.85rem;color:var(--muted);line-height:1.6">Embed "car" as a vector and it lands <span style="color:var(--green)">near</span> "automobile," "vehicle," and "sedan" in vector space. Search becomes: find the vectors closest to my query vector. Meaning is preserved as <span style="color:var(--green)">geometry</span>.</p>
+        </div>
+      </div>
+
+      <div class="emb-card">
+        <div class="emb-card-title">What Does an Embedding Look Like?</div>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.8rem">Each word or sentence becomes a list of numbers — typically 384 to 1536 dimensions. Here's a simplified 2D example:</p>
+        <div style="font-family:var(--mono);font-size:0.8rem;line-height:2;color:var(--text)">
+          <div>"<span style="color:var(--blue)">king</span>"&nbsp;&nbsp;&nbsp; &#8594; [0.83, 0.91, -0.12, 0.45, ...] &nbsp;<span style="color:var(--muted);font-size:0.65rem">(384 dimensions)</span></div>
+          <div>"<span style="color:var(--blue)">queen</span>"&nbsp;&nbsp; &#8594; [0.81, 0.89, -0.10, 0.47, ...] &nbsp;<span style="color:var(--green);font-size:0.65rem">very similar!</span></div>
+          <div>"<span style="color:var(--blue)">banana</span>" &#8594; [-0.22, 0.14, 0.67, -0.31, ...] &nbsp;<span style="color:var(--red);font-size:0.65rem">very different</span></div>
+        </div>
+      </div>
+
+      <div class="emb-card">
+        <div class="emb-card-title">The Magic: Math on Meaning</div>
+        <p style="font-size:0.85rem;color:var(--muted);line-height:1.6">The famous example: <span style="font-family:var(--mono);color:var(--accent)">king - man + woman &#8776; queen</span>. Embeddings capture relationships. The vector from "man" to "king" (royalty direction) is roughly the same as the vector from "woman" to "queen." Meaning becomes arithmetic.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SUB 2: TOKENIZATION ═══ -->
+  <div class="sub-content" id="sub-emb-tokenize">
+    <div class="container">
+      <div class="section-num">02 — Tokenization</div>
+      <h2>From Text to <strong>Tokens</strong> to Numbers</h2>
+      <p class="lead">Before text can become a vector, it must be broken into tokens — subword pieces the model understands. This is the first step in the embedding pipeline.</p>
+
+      <div class="emb-analogy">
+        <div class="emb-analogy-icon">&#129513;</div>
+        <div class="emb-analogy-text">
+          <strong>Puzzle Pieces:</strong> A tokenizer breaks text into puzzle pieces. Common words like "the" stay whole. Rare words like "tokenization" get split into pieces: "token" + "ization". Each piece has an ID number the model recognizes.
+        </div>
+      </div>
+
+      <div class="emb-card">
+        <div class="emb-card-title">Interactive Tokenizer</div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.6rem">Type any text to see how it gets tokenized. Colors show different tokens.</p>
+        <textarea class="tok-input" id="tokInput" rows="2" placeholder="Type something... e.g. 'The cat sat on the mat'">Embeddings turn meaning into geometry</textarea>
+        <div class="tok-output" id="tokOutput"></div>
+        <div class="tok-stats" id="tokStats"></div>
+      </div>
+
+      <div class="emb-grid">
+        <div class="emb-block">
+          <div class="emb-block-label">Why Not Whole Words?</div>
+          <p style="font-size:0.85rem;color:var(--muted);line-height:1.6">If we used whole words, the vocabulary would be infinite — every new word (slang, names, typos) would be unknown. Subword tokenization handles any text with a fixed vocabulary of ~30,000-50,000 pieces.</p>
+        </div>
+        <div class="emb-block">
+          <div class="emb-block-label">Token Count Matters</div>
+          <p style="font-size:0.85rem;color:var(--muted);line-height:1.6">Remember the context window? It's measured in tokens, not words. A 128K token window holds roughly 96K words. Longer tokens = more efficient. "AI" is 1 token; "artificial intelligence" is 2-3 tokens.</p>
+        </div>
+      </div>
+
+      <div class="emb-card">
+        <div class="emb-card-title">Common Tokenization Patterns</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.5rem">
+          <div>
+            <div style="font-family:var(--mono);font-size:0.65rem;color:var(--green);margin-bottom:0.3rem">COMMON WORDS (1 token)</div>
+            <div style="font-family:var(--mono);font-size:0.8rem;color:var(--text);line-height:2">"the" "is" "and" "code" "data" "model"</div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:0.65rem;color:var(--accent);margin-bottom:0.3rem">SPLIT WORDS (2+ tokens)</div>
+            <div style="font-family:var(--mono);font-size:0.8rem;color:var(--text);line-height:2">"embed" + "ding" &nbsp; "vector" + "ization"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SUB 3: VECTOR SPACE ═══ -->
+  <div class="sub-content" id="sub-emb-space">
+    <div class="container">
+      <div class="section-num">03 — Vector Space</div>
+      <h2>Visualizing <strong>Meaning</strong> as Geometry</h2>
+      <p class="lead">In reality, embeddings live in 384+ dimensions. Here we project them down to 2D so you can see how similar concepts cluster together.</p>
+
+      <div class="emb-card">
+        <div class="emb-card-title">Semantic Clusters — 2D Projection</div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.6rem">Words with similar meanings cluster together. Hover over points to see labels. Click a category to highlight it.</p>
+        <div class="emb-canvas-wrap">
+          <canvas id="embScatter" width="1000" height="420"></canvas>
+          <div class="emb-canvas-legend" id="embLegend"></div>
+        </div>
+      </div>
+
+      <div class="emb-grid">
+        <div class="emb-block">
+          <div class="emb-block-label">Why 384 Dimensions?</div>
+          <p style="font-size:0.85rem;color:var(--muted);line-height:1.6">More dimensions = more nuance. 2D can separate "animals" from "vehicles," but 384D can capture that a "bat" is both an animal AND sports equipment, depending on context. Each dimension encodes a subtle feature of meaning.</p>
+        </div>
+        <div class="emb-block">
+          <div class="emb-block-label">PCA Projection</div>
+          <p style="font-size:0.85rem;color:var(--muted);line-height:1.6">We use PCA (Principal Component Analysis) to collapse 384 dimensions into 2 or 3 for visualization. This preserves the most important patterns but loses some detail — like flattening a globe into a map.</p>
+        </div>
+      </div>
+
+      <div class="emb-card">
+        <div class="emb-card-title">Vector Dimensions Heatmap</div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem">Each cell represents one dimension of the embedding vector. Hover to see values. Notice how similar words have similar patterns.</p>
+        <div style="margin-bottom:0.5rem">
+          <span style="font-family:var(--mono);font-size:0.7rem;color:var(--blue)">&#9679; "king"</span>
+          <div class="vec-heatmap" id="heatmapKing"></div>
+        </div>
+        <div style="margin-bottom:0.5rem">
+          <span style="font-family:var(--mono);font-size:0.7rem;color:var(--green)">&#9679; "queen"</span>
+          <div class="vec-heatmap" id="heatmapQueen"></div>
+        </div>
+        <div>
+          <span style="font-family:var(--mono);font-size:0.7rem;color:var(--red)">&#9679; "banana"</span>
+          <div class="vec-heatmap" id="heatmapBanana"></div>
+        </div>
+        <div class="vec-dim-label">&#8592; Dimension 0 &nbsp;&nbsp;...&nbsp;&nbsp; Dimension 31 &#8594;</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SUB 4: SIMILARITY ═══ -->
+  <div class="sub-content" id="sub-emb-similarity">
+    <div class="container">
+      <div class="section-num">04 — Measuring Similarity</div>
+      <h2>How Close Are Two <strong>Meanings</strong>?</h2>
+      <p class="lead">Once text is a vector, we measure similarity using geometry. The two main metrics are cosine similarity (angle between vectors) and Euclidean distance (straight-line distance).</p>
+
+      <div class="emb-analogy">
+        <div class="emb-analogy-icon">&#128270;</div>
+        <div class="emb-analogy-text">
+          <strong>Flashlight Analogy:</strong> Imagine two flashlights shining from the same spot. <strong>Cosine similarity</strong> measures whether they point in the same direction (regardless of brightness). <strong>Euclidean distance</strong> measures how far apart their beams land on the wall. Most search systems use cosine similarity.
+        </div>
+      </div>
+
+      <div class="emb-card">
+        <div class="emb-card-title">Click a Pair to Compare</div>
+        <div class="sim-examples" id="simExamples"></div>
+        <div id="simDisplay" style="margin-top:1rem"></div>
+      </div>
+
+      <div class="emb-grid">
+        <div class="emb-block">
+          <div class="emb-block-label">Cosine Similarity</div>
+          <p style="font-size:0.85rem;color:var(--muted);line-height:1.6">Range: <span style="color:var(--green)">1.0</span> (identical direction) to <span style="color:var(--red)">-1.0</span> (opposite). Most similar texts score 0.7-0.95. Formula: dot product of vectors divided by the product of their magnitudes.</p>
+          <div style="font-family:var(--mono);font-size:0.75rem;color:var(--accent);margin-top:0.5rem;text-align:center">cos(A, B) = (A &middot; B) / (|A| &times; |B|)</div>
+        </div>
+        <div class="emb-block">
+          <div class="emb-block-label">Euclidean Distance</div>
+          <p style="font-size:0.85rem;color:var(--muted);line-height:1.6">Range: <span style="color:var(--green)">0.0</span> (identical) to <span style="color:var(--red)">&#8734;</span> (far apart). It's just the straight-line distance in N-dimensional space. Sensitive to vector magnitude, which is why cosine is usually preferred.</p>
+          <div style="font-family:var(--mono);font-size:0.75rem;color:var(--accent);margin-top:0.5rem;text-align:center">d(A, B) = &#8730;&#8721;(A&#7522; - B&#7522;)&#178;</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SUB 5: FULL PIPELINE ═══ -->
+  <div class="sub-content" id="sub-emb-pipeline">
+    <div class="container">
+      <div class="section-num">05 — The Full Pipeline</div>
+      <h2>From Question to <strong>Answer</strong></h2>
+      <p class="lead">Vector search is how RAG (Retrieval-Augmented Generation) works under the hood. Here's the complete pipeline — click each step to learn more.</p>
+
+      <div class="pipeline-flow">
+        <div class="pipeline-step active" onclick="showPipeStep(0, this)">
+          <div class="step-label">Step 1</div>
+          <div class="step-detail">Ingest Docs</div>
+        </div>
+        <div class="pipeline-arrow">&#8594;</div>
+        <div class="pipeline-step" onclick="showPipeStep(1, this)">
+          <div class="step-label">Step 2</div>
+          <div class="step-detail">Chunk</div>
+        </div>
+        <div class="pipeline-arrow">&#8594;</div>
+        <div class="pipeline-step" onclick="showPipeStep(2, this)">
+          <div class="step-label">Step 3</div>
+          <div class="step-detail">Embed</div>
+        </div>
+        <div class="pipeline-arrow">&#8594;</div>
+        <div class="pipeline-step" onclick="showPipeStep(3, this)">
+          <div class="step-label">Step 4</div>
+          <div class="step-detail">Index</div>
+        </div>
+        <div class="pipeline-arrow">&#8594;</div>
+        <div class="pipeline-step" onclick="showPipeStep(4, this)">
+          <div class="step-label">Step 5</div>
+          <div class="step-detail">Query</div>
+        </div>
+        <div class="pipeline-arrow">&#8594;</div>
+        <div class="pipeline-step" onclick="showPipeStep(5, this)">
+          <div class="step-label">Step 6</div>
+          <div class="step-detail">Rank &amp; Return</div>
+        </div>
+      </div>
+
+      <div class="emb-card" id="pipeDetail">
+        <div class="emb-card-title" id="pipeTitle">STEP 1: INGEST DOCUMENTS</div>
+        <div id="pipeContent">
+          <p style="font-size:0.88rem;color:var(--text);line-height:1.7;margin-bottom:0.8rem">Collect the documents you want to make searchable — PDFs, web pages, code files, Slack messages, anything with text.</p>
+          <div class="emb-grid">
+            <div class="emb-block">
+              <div class="emb-block-label">Input</div>
+              <p style="font-size:0.85rem;color:var(--muted)">Raw documents in any format</p>
+            </div>
+            <div class="emb-block">
+              <div class="emb-block-label">Output</div>
+              <p style="font-size:0.85rem;color:var(--muted)">Clean text extracted from each document</p>
+            </div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--muted);font-style:italic">This is 100% traditional software engineering — file parsing, encoding handling, metadata extraction.</p>
+        </div>
+      </div>
+
+      <div class="book-quote">
+        <p>"RAG is just file processing + database operations + API calls. The vector database is the only new piece — and even that is just a specialized index."</p>
+        <cite>— The 95/5 Rule</cite>
+      </div>
+
+      <div class="emb-card">
+        <div class="emb-card-title">Where Embeddings Connect to Context Management</div>
+        <p style="font-size:0.88rem;color:var(--muted);line-height:1.7">Remember the Context Management tab? RAG is one of the 5 strategies for filling the context window. Instead of stuffing entire documents into the prompt, you:</p>
+        <ol style="font-size:0.85rem;color:var(--text);line-height:2;padding-left:1.5rem;margin-top:0.5rem">
+          <li>Embed your documents into a vector database (offline, once)</li>
+          <li>When a user asks a question, embed the question</li>
+          <li>Find the most similar document chunks via vector search</li>
+          <li>Inject only those chunks into the context window</li>
+          <li>The LLM generates an answer grounded in your data</li>
+        </ol>
+        <p style="font-size:0.8rem;color:var(--accent);margin-top:0.8rem;font-family:var(--mono)">Perplexity, Cursor, and ChatGPT with file uploads all do exactly this.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SUB 6: LIVE DEMO ═══ -->
+  <div class="sub-content" id="sub-emb-live">
+    <div class="container">
+      <div class="section-num">06 — Live Demo</div>
+      <h2>Try <strong>Vector Search</strong> Yourself</h2>
+      <p class="lead">Enter a query and documents below. The backend will tokenize, embed, and rank them by similarity — showing you the full pipeline in action.</p>
+
+      <div class="emb-card" id="liveStatusCard">
+        <div class="emb-card-title">BACKEND STATUS</div>
+        <div id="liveStatus" style="font-family:var(--mono);font-size:0.8rem;color:var(--muted)">Checking connection to localhost:8000...</div>
+      </div>
+
+      <div class="emb-card">
+        <div class="emb-card-title">QUERY</div>
+        <input class="live-input" id="liveQuery" type="text" placeholder="e.g. How do neural networks learn?" value="What is machine learning?">
+      </div>
+
+      <div class="emb-card">
+        <div class="emb-card-title">DOCUMENTS (one per line)</div>
+        <textarea class="tok-input" id="liveDocs" rows="6" placeholder="Enter documents, one per line...">Machine learning is a subset of AI that learns from data
+The weather today is sunny and warm
+Neural networks are inspired by the human brain
+I enjoy cooking Italian food on weekends
+Deep learning uses multiple layers of neural networks
+The stock market closed higher today</textarea>
+      </div>
+
+      <div style="display:flex;gap:0.6rem;align-items:center;margin:0.8rem 0">
+        <button class="live-btn" id="liveSearchBtn" onclick="runLiveSearch()">Run Vector Search</button>
+        <span style="font-family:var(--mono);font-size:0.6rem;color:var(--muted)" id="liveModel">Model: all-MiniLM-L6-v2 (384 dims)</span>
+      </div>
+
+      <div id="liveResults"></div>
+
+      <div class="emb-card" style="margin-top:1.5rem;border-color:rgba(232,160,52,0.3)">
+        <div class="emb-card-title" style="color:var(--accent)">ABOUT THE BACKEND</div>
+        <p style="font-size:0.85rem;color:var(--text);line-height:1.7;margin-bottom:0.6rem">This demo uses <strong>pre-computed embeddings</strong> — 20 documents and 20 queries were embedded offline using all-MiniLM-L6-v2 (384 dimensions). The backend only does cosine similarity math, no ML inference — so it runs on Render's free tier.</p>
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);line-height:1.8;margin-top:0.5rem">
+          <div>Supported queries: AI, machine learning, neural networks, programming, weather, food, sports, climate, databases, animals, embeddings, quantum computing, DNA, literature, plants, containerization</div>
+        </div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-top:0.5rem">Free tier may cold-start (~30s). The page retries automatically.</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end top-embeddings -->
+
 <script>
 // Spine & Leaf — leaf expand/collapse
 document.querySelectorAll('#top-spine-leaf .sl-leaf').forEach(function(el) {
@@ -1524,6 +2044,11 @@ function switchTop(name, btn) {
   document.querySelectorAll('.top-link').forEach(function(t) { t.classList.remove('active'); });
   var tab = document.getElementById('top-' + name);
   if (tab) { tab.classList.add('active'); btn.classList.add('active'); }
+  // Initialize embeddings tab visualizations on first visit
+  if (name === 'embeddings' && !window._embInited) {
+    window._embInited = true;
+    setTimeout(function() { initEmbeddingsTab(); }, 100);
+  }
 }
 
 // ═══ SUB TAB SWITCHING ═══
@@ -2044,6 +2569,387 @@ function escapeHtml(text) {
 renderSimBar();
 renderPayload();
 renderPromptOptions();
+</script>
+
+<script>
+// ═══ EMBEDDINGS & VECTORS TAB ═══
+
+// Token colors palette
+var tokColors = [
+  'rgba(77,166,232,0.25)', 'rgba(77,216,138,0.25)', 'rgba(232,160,52,0.25)',
+  'rgba(168,124,232,0.25)', 'rgba(232,84,84,0.25)', 'rgba(77,216,200,0.25)',
+  'rgba(200,180,100,0.25)', 'rgba(150,120,232,0.25)'
+];
+var tokBorders = [
+  'rgba(77,166,232,0.5)', 'rgba(77,216,138,0.5)', 'rgba(232,160,52,0.5)',
+  'rgba(168,124,232,0.5)', 'rgba(232,84,84,0.5)', 'rgba(77,216,200,0.5)',
+  'rgba(200,180,100,0.5)', 'rgba(150,120,232,0.5)'
+];
+
+// Simple BPE-like tokenizer simulation
+function simpleTokenize(text) {
+  var commonTokens = ['the','is','are','was','were','have','has','had','will','would','could','should',
+    'can','may','might','must','shall','do','does','did','a','an','and','or','but','not','no',
+    'in','on','at','to','for','of','with','by','from','as','it','this','that','these','those',
+    'be','been','being','am','if','then','than','so','up','out','about','into','over','after',
+    'i','you','he','she','we','they','me','him','her','us','them','my','your','his','its','our',
+    'their','what','which','who','when','where','how','why','all','each','every','both','few',
+    'more','most','other','some','such','new','old','first','last','long','great','little','own',
+    'just','also','back','now','only','very','even','still','just','also'];
+  var suffixes = ['ing','tion','ment','ness','able','ible','ful','less','ous','ive','al','ly','er','est','ed','es','s'];
+  var result = [];
+  var words = text.replace(/([.,!?;:'"()\[\]{}])/g, ' $1 ').split(/\s+/).filter(function(w) { return w.length > 0; });
+  var idCounter = 1000;
+  words.forEach(function(word) {
+    var lower = word.toLowerCase();
+    if (commonTokens.indexOf(lower) >= 0 || word.length <= 3) {
+      result.push({ token: word, id: lower.charCodeAt(0) * 100 + lower.length });
+    } else {
+      var found = false;
+      for (var s = 0; s < suffixes.length; s++) {
+        var suf = suffixes[s];
+        if (lower.length > suf.length + 2 && lower.substring(lower.length - suf.length) === suf) {
+          var stem = word.substring(0, word.length - suf.length);
+          var end = word.substring(word.length - suf.length);
+          result.push({ token: stem, id: idCounter++ });
+          result.push({ token: end, id: idCounter++ });
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        if (word.length > 6) {
+          var mid = Math.ceil(word.length * 0.6);
+          result.push({ token: word.substring(0, mid), id: idCounter++ });
+          result.push({ token: word.substring(mid), id: idCounter++ });
+        } else {
+          result.push({ token: word, id: idCounter++ });
+        }
+      }
+    }
+  });
+  return result;
+}
+
+function renderTokenizer() {
+  var input = document.getElementById('tokInput');
+  var output = document.getElementById('tokOutput');
+  var stats = document.getElementById('tokStats');
+  if (!input || !output) return;
+  var text = input.value;
+  if (!text.trim()) { output.innerHTML = '<span style="color:var(--muted);font-size:0.75rem">Type something above...</span>'; stats.innerHTML = ''; return; }
+  var tokens = simpleTokenize(text);
+  output.innerHTML = '';
+  tokens.forEach(function(t, i) {
+    var chip = document.createElement('span');
+    chip.className = 'tok-chip';
+    var ci = i % tokColors.length;
+    chip.style.background = tokColors[ci];
+    chip.style.borderColor = tokBorders[ci];
+    chip.innerHTML = escapeHtml(t.token) + '<span class="tok-chip-id">' + t.id + '</span>';
+    output.appendChild(chip);
+  });
+  stats.innerHTML = 'Characters: <span>' + text.length + '</span> | Tokens: <span>' + tokens.length + '</span> | Ratio: <span>' + (text.length / tokens.length).toFixed(1) + '</span> chars/token';
+}
+
+// Semantic cluster data (simulated 2D projections)
+var clusterData = {
+  Animals: { color: '#4da6e8', words: [
+    { label: 'cat', x: 0.15, y: 0.72 }, { label: 'dog', x: 0.18, y: 0.68 },
+    { label: 'horse', x: 0.22, y: 0.75 }, { label: 'fish', x: 0.12, y: 0.65 },
+    { label: 'bird', x: 0.20, y: 0.80 }, { label: 'rabbit', x: 0.16, y: 0.77 },
+    { label: 'lion', x: 0.25, y: 0.70 }, { label: 'tiger', x: 0.24, y: 0.73 }
+  ]},
+  Technology: { color: '#4dd88a', words: [
+    { label: 'computer', x: 0.75, y: 0.25 }, { label: 'software', x: 0.72, y: 0.20 },
+    { label: 'algorithm', x: 0.78, y: 0.22 }, { label: 'database', x: 0.70, y: 0.28 },
+    { label: 'code', x: 0.73, y: 0.18 }, { label: 'API', x: 0.76, y: 0.30 },
+    { label: 'server', x: 0.68, y: 0.24 }, { label: 'network', x: 0.80, y: 0.26 }
+  ]},
+  Food: { color: '#e8a034', words: [
+    { label: 'pizza', x: 0.45, y: 0.85 }, { label: 'pasta', x: 0.48, y: 0.82 },
+    { label: 'banana', x: 0.40, y: 0.78 }, { label: 'apple', x: 0.42, y: 0.80 },
+    { label: 'bread', x: 0.50, y: 0.88 }, { label: 'cheese', x: 0.47, y: 0.86 },
+    { label: 'rice', x: 0.43, y: 0.83 }
+  ]},
+  Royalty: { color: '#a87ce8', words: [
+    { label: 'king', x: 0.82, y: 0.78 }, { label: 'queen', x: 0.85, y: 0.75 },
+    { label: 'prince', x: 0.80, y: 0.72 }, { label: 'princess', x: 0.83, y: 0.70 },
+    { label: 'throne', x: 0.87, y: 0.76 }, { label: 'crown', x: 0.84, y: 0.80 },
+    { label: 'castle', x: 0.79, y: 0.74 }
+  ]},
+  Emotions: { color: '#e85454', words: [
+    { label: 'happy', x: 0.30, y: 0.35 }, { label: 'sad', x: 0.25, y: 0.40 },
+    { label: 'angry', x: 0.28, y: 0.38 }, { label: 'joy', x: 0.32, y: 0.32 },
+    { label: 'fear', x: 0.22, y: 0.42 }, { label: 'love', x: 0.35, y: 0.30 },
+    { label: 'hope', x: 0.33, y: 0.36 }
+  ]}
+};
+
+function renderScatter() {
+  var canvas = document.getElementById('embScatter');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var dpr = window.devicePixelRatio || 1;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (var gx = 0; gx < W; gx += 50) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+  for (var gy = 0; gy < H; gy += 50) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+
+  // Axes labels
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.font = '10px IBM Plex Mono';
+  ctx.fillText('PCA Component 1', W / 2 - 45, H - 8);
+  ctx.save();
+  ctx.translate(14, H / 2 + 50);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('PCA Component 2', 0, 0);
+  ctx.restore();
+
+  // Draw points
+  var pad = 60;
+  Object.keys(clusterData).forEach(function(cat) {
+    var cluster = clusterData[cat];
+    // Draw cluster cloud
+    var cx = 0, cy = 0;
+    cluster.words.forEach(function(w) { cx += w.x; cy += w.y; });
+    cx /= cluster.words.length; cy /= cluster.words.length;
+    var cloudX = pad + cx * (W - 2 * pad);
+    var cloudY = pad + (1 - cy) * (H - 2 * pad);
+    ctx.beginPath();
+    ctx.arc(cloudX, cloudY, 55, 0, Math.PI * 2);
+    ctx.fillStyle = cluster.color.replace(')', ',0.06)').replace('rgb', 'rgba');
+    ctx.fill();
+
+    cluster.words.forEach(function(w) {
+      var px = pad + w.x * (W - 2 * pad);
+      var py = pad + (1 - w.y) * (H - 2 * pad);
+      // Dot
+      ctx.beginPath();
+      ctx.arc(px, py, 5, 0, Math.PI * 2);
+      ctx.fillStyle = cluster.color;
+      ctx.fill();
+      // Label
+      ctx.fillStyle = 'rgba(228,224,216,0.8)';
+      ctx.font = '11px IBM Plex Mono';
+      ctx.fillText(w.label, px + 8, py + 4);
+    });
+  });
+
+  // Legend
+  var legend = document.getElementById('embLegend');
+  if (legend) {
+    legend.innerHTML = '';
+    Object.keys(clusterData).forEach(function(cat) {
+      var div = document.createElement('div');
+      div.innerHTML = '<div class="emb-legend-dot" style="background:' + clusterData[cat].color + '"></div>' + cat;
+      legend.appendChild(div);
+    });
+  }
+}
+
+// Vector heatmaps (simulated 32-dim vectors)
+function generateFakeVector(seed) {
+  var vec = [];
+  var s = seed;
+  for (var i = 0; i < 32; i++) {
+    s = (s * 9301 + 49297) % 233280;
+    vec.push((s / 233280) * 2 - 1);
+  }
+  return vec;
+}
+
+function renderHeatmap(elId, vec, baseColor) {
+  var el = document.getElementById(elId);
+  if (!el) return;
+  el.innerHTML = '';
+  vec.forEach(function(v) {
+    var cell = document.createElement('div');
+    cell.className = 'vec-cell';
+    var intensity = (v + 1) / 2; // normalize 0-1
+    var r, g, b;
+    if (baseColor === 'blue') { r = 77; g = 166; b = 232; }
+    else if (baseColor === 'green') { r = 77; g = 216; b = 138; }
+    else { r = 232; g = 84; b = 84; }
+    cell.style.background = 'rgba(' + r + ',' + g + ',' + b + ',' + (0.1 + intensity * 0.7) + ')';
+    cell.setAttribute('data-val', v.toFixed(3));
+    el.appendChild(cell);
+  });
+}
+
+// Similarity demo
+var simPairs = [
+  { a: 'happy', b: 'joyful', cosine: 0.92, euclidean: 0.41, category: 'synonyms' },
+  { a: 'king', b: 'queen', cosine: 0.85, euclidean: 0.58, category: 'related' },
+  { a: 'cat', b: 'dog', cosine: 0.80, euclidean: 0.65, category: 'same domain' },
+  { a: 'happy', b: 'sad', cosine: 0.52, euclidean: 1.12, category: 'antonyms' },
+  { a: 'computer', b: 'banana', cosine: 0.15, euclidean: 1.71, category: 'unrelated' },
+  { a: 'car', b: 'automobile', cosine: 0.95, euclidean: 0.31, category: 'same thing' }
+];
+
+function renderSimExamples() {
+  var container = document.getElementById('simExamples');
+  if (!container) return;
+  container.innerHTML = '';
+  simPairs.forEach(function(pair, i) {
+    var card = document.createElement('div');
+    card.className = 'sim-example-card' + (i === 0 ? ' active' : '');
+    card.innerHTML = '<div class="pair-label">' + pair.category.toUpperCase() + '</div>' +
+      '<div class="pair-words">"' + pair.a + '" vs "' + pair.b + '"</div>' +
+      '<div style="font-family:var(--mono);font-size:0.65rem;color:var(--accent)">cos: ' + pair.cosine.toFixed(2) + '</div>';
+    card.onclick = (function(idx) { return function() { showSimPair(idx); }; })(i);
+    container.appendChild(card);
+  });
+  showSimPair(0);
+}
+
+function showSimPair(idx) {
+  document.querySelectorAll('.sim-example-card').forEach(function(c) { c.classList.remove('active'); });
+  document.querySelectorAll('.sim-example-card')[idx].classList.add('active');
+  var pair = simPairs[idx];
+  var cosColor = pair.cosine > 0.7 ? 'var(--green)' : pair.cosine > 0.4 ? 'var(--accent)' : 'var(--red)';
+  var eucColor = pair.euclidean < 0.7 ? 'var(--green)' : pair.euclidean < 1.3 ? 'var(--accent)' : 'var(--red)';
+  var display = document.getElementById('simDisplay');
+  if (!display) return;
+  display.innerHTML =
+    '<div class="sim-pair">' +
+      '<div class="sim-pair-word"><div class="word" style="color:var(--blue)">' + pair.a + '</div></div>' +
+      '<div class="sim-pair-score">' +
+        '<div class="sim-score-val" style="color:' + cosColor + '">' + pair.cosine.toFixed(2) + '</div>' +
+        '<div class="sim-score-label">Cosine Similarity</div>' +
+        '<div class="sim-bar-track"><div class="sim-bar-fill" style="width:' + (pair.cosine * 100) + '%;background:' + cosColor + '"></div></div>' +
+      '</div>' +
+      '<div class="sim-pair-word"><div class="word" style="color:var(--green)">' + pair.b + '</div></div>' +
+    '</div>' +
+    '<div style="display:flex;gap:1.5rem;margin-top:0.8rem;justify-content:center">' +
+      '<div style="text-align:center"><div style="font-family:var(--mono);font-size:1.1rem;color:' + cosColor + '">' + pair.cosine.toFixed(2) + '</div><div style="font-family:var(--mono);font-size:0.55rem;color:var(--muted)">COSINE SIM</div></div>' +
+      '<div style="text-align:center"><div style="font-family:var(--mono);font-size:1.1rem;color:' + eucColor + '">' + pair.euclidean.toFixed(2) + '</div><div style="font-family:var(--mono);font-size:0.55rem;color:var(--muted)">EUCLIDEAN DIST</div></div>' +
+      '<div style="text-align:center"><div style="font-family:var(--mono);font-size:1.1rem;color:var(--text)">' + pair.category + '</div><div style="font-family:var(--mono);font-size:0.55rem;color:var(--muted)">RELATIONSHIP</div></div>' +
+    '</div>';
+}
+
+// Pipeline steps
+var pipeSteps = [
+  { title: 'STEP 1: INGEST DOCUMENTS',
+    html: '<p style="font-size:0.88rem;color:var(--text);line-height:1.7;margin-bottom:0.8rem">Collect the documents you want to make searchable — PDFs, web pages, code files, Slack messages, anything with text.</p><div class="emb-grid"><div class="emb-block"><div class="emb-block-label">Input</div><p style="font-size:0.85rem;color:var(--muted)">Raw documents in any format</p></div><div class="emb-block"><div class="emb-block-label">Output</div><p style="font-size:0.85rem;color:var(--muted)">Clean text extracted from each document</p></div></div><p style="font-size:0.8rem;color:var(--muted);font-style:italic">This is 100% traditional software engineering — file parsing, encoding handling, metadata extraction.</p>' },
+  { title: 'STEP 2: CHUNK INTO PIECES',
+    html: '<p style="font-size:0.88rem;color:var(--text);line-height:1.7;margin-bottom:0.8rem">Split documents into smaller pieces (chunks) of 200-500 tokens each. Overlapping chunks prevent information from being split at boundaries.</p><div class="emb-grid"><div class="emb-block"><div class="emb-block-label">Why Chunk?</div><p style="font-size:0.85rem;color:var(--muted)">Embedding models work best on paragraph-sized text. A 50-page PDF as one vector loses detail. 100 chunks = 100 searchable pieces.</p></div><div class="emb-block"><div class="emb-block-label">Chunking Strategies</div><p style="font-size:0.85rem;color:var(--muted)">Fixed-size (every 300 tokens), sentence-based (split at periods), or semantic (split at topic boundaries).</p></div></div>' },
+  { title: 'STEP 3: EMBED INTO VECTORS',
+    html: '<p style="font-size:0.88rem;color:var(--text);line-height:1.7;margin-bottom:0.8rem">Run each chunk through an embedding model (like all-MiniLM-L6-v2). Input: text string. Output: a 384-dimensional vector of floating-point numbers.</p><div class="emb-grid"><div class="emb-block"><div class="emb-block-label">The Model</div><p style="font-size:0.85rem;color:var(--muted)">Trained on millions of text pairs to place similar meanings near each other. The model is a neural network with ~22M parameters.</p></div><div class="emb-block"><div class="emb-block-label">Output</div><p style="font-size:0.85rem;color:var(--muted)">Each chunk becomes [0.012, -0.034, 0.156, ...] — 384 numbers that encode its meaning. This is the embedding.</p></div></div>' },
+  { title: 'STEP 4: INDEX IN VECTOR DATABASE',
+    html: '<p style="font-size:0.88rem;color:var(--text);line-height:1.7;margin-bottom:0.8rem">Store vectors in a specialized database (Pinecone, Weaviate, pgvector, ChromaDB) that supports fast nearest-neighbor search.</p><div class="emb-grid"><div class="emb-block"><div class="emb-block-label">Why Not Regular DBs?</div><p style="font-size:0.85rem;color:var(--muted)">SQL databases find exact matches. Vector databases find approximate nearest neighbors in 384-dimensional space — fundamentally different operation.</p></div><div class="emb-block"><div class="emb-block-label">Index Types</div><p style="font-size:0.85rem;color:var(--muted)">HNSW (hierarchical graphs), IVF (inverted file index), or flat (brute force for small datasets). Trade-off: speed vs. accuracy.</p></div></div>' },
+  { title: 'STEP 5: EMBED THE QUERY',
+    html: '<p style="font-size:0.88rem;color:var(--text);line-height:1.7;margin-bottom:0.8rem">When a user asks a question, embed it with the SAME model used for documents. The query vector lands in the same space as the document vectors.</p><div class="emb-grid"><div class="emb-block"><div class="emb-block-label">Critical Rule</div><p style="font-size:0.85rem;color:var(--muted)">Query and documents MUST use the same embedding model. Different models create incompatible vector spaces — like GPS coordinates from different projections.</p></div><div class="emb-block"><div class="emb-block-label">Speed</div><p style="font-size:0.85rem;color:var(--muted)">Embedding a single query takes ~5-20ms on CPU. The bottleneck is the nearest-neighbor search, not the embedding.</p></div></div>' },
+  { title: 'STEP 6: RANK & RETURN RESULTS',
+    html: '<p style="font-size:0.88rem;color:var(--text);line-height:1.7;margin-bottom:0.8rem">Find the K nearest document vectors to the query vector using cosine similarity. Return the original text chunks, ranked by relevance.</p><div class="emb-grid"><div class="emb-block"><div class="emb-block-label">Top-K Search</div><p style="font-size:0.85rem;color:var(--muted)">Typically return top 3-10 chunks. More chunks = more context for the LLM but more tokens consumed. This is the RAG retrieval step.</p></div><div class="emb-block"><div class="emb-block-label">Into the Context Window</div><p style="font-size:0.85rem;color:var(--muted)">The retrieved chunks get injected into the LLM prompt: "Based on these documents: [chunk1, chunk2, ...], answer the user\'s question." Full circle back to Context Management.</p></div></div>' }
+];
+
+function showPipeStep(idx, btn) {
+  document.querySelectorAll('.pipeline-step').forEach(function(s) { s.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  var titleEl = document.getElementById('pipeTitle');
+  var contentEl = document.getElementById('pipeContent');
+  if (titleEl) titleEl.textContent = pipeSteps[idx].title;
+  if (contentEl) contentEl.innerHTML = pipeSteps[idx].html;
+}
+
+// Live demo — auto-detect backend URL
+var API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:8000'
+  : 'https://visual-learning-api.onrender.com';
+
+function checkBackend() {
+  var statusEl = document.getElementById('liveStatus');
+  var btnEl = document.getElementById('liveSearchBtn');
+  fetch(API_BASE + '/api/models')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      statusEl.innerHTML = '<span style="color:var(--green)">&#9679; Connected</span> — Models: ' + Object.keys(data.models).join(', ') + ' <span style="color:var(--muted)">(' + API_BASE + ')</span>';
+      if (btnEl) btnEl.disabled = false;
+    })
+    .catch(function() {
+      statusEl.innerHTML = '<span style="color:var(--red)">&#9679; Not connected</span> — Backend may be cold-starting on Render (takes ~30s on free tier). <a href="' + API_BASE + '/api/models" target="_blank" style="color:var(--blue)">Wake it up</a>';
+      if (btnEl) btnEl.disabled = true;
+      // Retry after 5s in case of Render cold start
+      setTimeout(checkBackend, 5000);
+    });
+}
+
+function runLiveSearch() {
+  var query = document.getElementById('liveQuery').value.trim();
+  var docsText = document.getElementById('liveDocs').value.trim();
+  var resultsEl = document.getElementById('liveResults');
+  if (!query || !docsText) { resultsEl.innerHTML = '<p style="color:var(--red);font-size:0.85rem">Enter a query and documents.</p>'; return; }
+  var docs = docsText.split('\n').filter(function(d) { return d.trim().length > 0; });
+  var btn = document.getElementById('liveSearchBtn');
+  btn.disabled = true;
+  btn.textContent = 'Searching...';
+  resultsEl.innerHTML = '<p style="color:var(--muted);font-family:var(--mono);font-size:0.75rem">Embedding and searching...</p>';
+
+  fetch(API_BASE + '/api/query', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: query, documents: docs, model: 'all-MiniLM-L6-v2' })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.disabled = false;
+    btn.textContent = 'Run Vector Search';
+    var sorted = data.documents.slice().sort(function(a, b) { return a.rank_cosine - b.rank_cosine; });
+    var html = '<div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-bottom:0.8rem">Model: ' + data.model + ' | Dimensions: ' + data.dim + ' | Query tokens: ' + data.query.tokens.join(' ') + '</div>';
+    html += '<div class="live-results">';
+    sorted.forEach(function(doc) {
+      var cosColor = doc.cosine_similarity > 0.5 ? 'var(--green)' : doc.cosine_similarity > 0.3 ? 'var(--accent)' : 'var(--red)';
+      html += '<div class="live-result-card">' +
+        '<div class="rank" style="color:' + cosColor + '">#' + doc.rank_cosine + '</div>' +
+        '<div class="doc-text">' + escapeHtml(doc.text) + '</div>' +
+        '<div class="score-row"><span>Cosine: <span style="color:' + cosColor + '">' + doc.cosine_similarity.toFixed(4) + '</span></span><span>Euclidean: ' + doc.euclidean_distance.toFixed(4) + '</span></div>' +
+        '<div style="margin-top:0.5rem"><div class="sim-bar-track"><div class="sim-bar-fill" style="width:' + (doc.cosine_similarity * 100) + '%;background:' + cosColor + '"></div></div></div>' +
+        '</div>';
+    });
+    html += '</div>';
+    resultsEl.innerHTML = html;
+  })
+  .catch(function(err) {
+    btn.disabled = false;
+    btn.textContent = 'Run Vector Search';
+    resultsEl.innerHTML = '<p style="color:var(--red);font-size:0.85rem">Error: ' + err.message + '. Is the backend running?</p>';
+  });
+}
+
+function initEmbeddingsTab() {
+  renderTokenizer();
+  renderScatter();
+  // Heatmaps with seeded pseudo-random vectors that simulate similar/different patterns
+  var kingVec = generateFakeVector(42);
+  var queenVec = kingVec.map(function(v, i) { return v + (Math.random() - 0.5) * 0.3; }); // similar to king
+  var bananaVec = generateFakeVector(999); // different seed = different pattern
+  renderHeatmap('heatmapKing', kingVec, 'blue');
+  renderHeatmap('heatmapQueen', queenVec, 'green');
+  renderHeatmap('heatmapBanana', bananaVec, 'red');
+  renderSimExamples();
+  checkBackend();
+
+  // Attach tokenizer listener
+  var tokInput = document.getElementById('tokInput');
+  if (tokInput) {
+    tokInput.addEventListener('input', renderTokenizer);
+  }
+}
+
+// If the tab is already active on load (shouldn't be, but just in case)
+if (document.getElementById('top-embeddings') && document.getElementById('top-embeddings').classList.contains('active')) {
+  initEmbeddingsTab();
+}
 </script>
 <script data-goatcounter="https://brettleehari.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 
