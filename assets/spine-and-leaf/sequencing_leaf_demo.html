@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Sequencing Leaf — Work-item routing for dev teams · Spine and Leaf</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0b0f;
+    --surface: #111318;
+    --surface2: #181b22;
+    --surface3: #1f222c;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.18);
+    --accent: #e8a034;
+    --blue: #4da6e8;
+    --green: #4dd88a;
+    --red: #e85454;
+    --purple: #a87ce8;
+    --teal: #4dd8c8;
+    --pink: #ff5470;
+    --text: #e4e0d8;
+    --text-strong: #ffffff;
+    --muted: #706e64;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+    --display: 'Playfair Display', Georgia, serif;
+    --body: 'Inter', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--body); line-height: 1.55; overflow: hidden;
+  }
+
+  /* ───── HEADER ───── */
+  header {
+    padding: 16px 28px 14px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+  }
+  header .brand {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    color: var(--accent); text-transform: uppercase;
+  }
+  header h1 {
+    font-family: var(--display); font-weight: 500; font-size: 22px; letter-spacing: -0.01em;
+    color: var(--text-strong);
+  }
+  header h1 em { color: var(--accent); font-style: normal; font-weight: 700; }
+  header .strap {
+    font-size: 13px; color: var(--muted); margin-left: auto;
+    max-width: 520px; text-align: right;
+  }
+
+  /* ───── FILTER BAR ───── */
+  .filter-bar {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 12px 28px; display: flex; align-items: center; gap: 18px;
+    flex-wrap: wrap;
+  }
+  .filter-group { display: flex; align-items: center; gap: 8px; }
+  .filter-group .label {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--muted); font-weight: 600;
+    margin-right: 4px;
+  }
+  .pill {
+    background: transparent; border: 1px solid var(--border); border-radius: 999px;
+    padding: 5px 12px; color: var(--muted); cursor: pointer; font-family: var(--body);
+    font-size: 12px; transition: all 0.15s;
+  }
+  .pill:hover { color: var(--text); border-color: var(--border-strong); }
+  .pill.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+  .pill.discipline.active { background: var(--blue); border-color: var(--blue); }
+
+  .toggle-switch {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--muted); cursor: pointer; user-select: none;
+  }
+  .toggle-switch input { display: none; }
+  .toggle-track {
+    width: 30px; height: 16px; background: var(--surface3);
+    border-radius: 999px; position: relative; transition: background 0.15s;
+  }
+  .toggle-track::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 12px; height: 12px; background: var(--muted); border-radius: 50%;
+    transition: all 0.15s;
+  }
+  .toggle-switch input:checked + .toggle-track { background: rgba(232,160,52,0.3); }
+  .toggle-switch input:checked + .toggle-track::after {
+    left: 16px; background: var(--accent);
+  }
+
+  /* ───── LAYOUT ───── */
+  .app {
+    display: grid; grid-template-columns: 1fr 360px;
+    height: calc(100vh - 110px);
+  }
+  .canvas-wrap {
+    background: radial-gradient(ellipse at top left, rgba(232,160,52,0.04), transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(77,166,232,0.04), transparent 50%),
+                var(--bg);
+    overflow: auto; position: relative;
+  }
+  .canvas-wrap svg { display: block; min-width: 100%; }
+
+  /* ───── SIDEBAR ───── */
+  aside {
+    background: var(--surface); border-left: 1px solid var(--border);
+    overflow-y: auto; padding: 18px 22px;
+  }
+  aside section { margin-bottom: 22px; }
+  aside h3 {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+    font-weight: 600; display: flex; align-items: center; gap: 6px;
+  }
+  aside h3 .count {
+    background: var(--surface3); color: var(--text); padding: 1px 7px;
+    border-radius: 999px; font-size: 9px; font-weight: 700;
+  }
+
+  /* ───── READY NOW QUEUE ───── */
+  .queue-empty {
+    color: var(--muted); font-size: 12px; padding: 14px;
+    background: var(--surface2); border: 1px dashed var(--border); border-radius: 6px;
+    text-align: center;
+  }
+  .queue-item {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px; margin-bottom: 8px;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: flex-start; gap: 10px;
+    border-left: 3px solid var(--green);
+  }
+  .queue-item.in-progress { border-left-color: var(--blue); }
+  .queue-item:hover { background: var(--surface3); border-color: var(--border-strong); }
+  .queue-item.in-progress:hover { border-left-color: var(--blue); }
+  .queue-item .id {
+    font-family: var(--mono); font-size: 9px; color: var(--accent); font-weight: 700;
+    letter-spacing: 0.1em; min-width: 28px;
+  }
+  .queue-item .info { flex: 1; }
+  .queue-item .title {
+    color: var(--text); font-size: 12.5px; line-height: 1.35;
+    margin-bottom: 4px; font-weight: 500;
+  }
+  .queue-item .meta {
+    font-family: var(--mono); font-size: 9px; color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+  .queue-item .meta .disc {
+    color: var(--text);
+    text-transform: uppercase; letter-spacing: 0.12em;
+    margin-right: 6px;
+  }
+  .queue-item .uv-dot {
+    display: inline-block; width: 6px; height: 6px; background: var(--green);
+    border-radius: 50%; margin-right: 4px; vertical-align: middle;
+  }
+  .queue-item .start-btn {
+    background: rgba(232,160,52,0.10); border: 1px solid rgba(232,160,52,0.4);
+    color: var(--accent); font-family: var(--mono); font-size: 9px;
+    letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 8px;
+    border-radius: 4px; cursor: pointer;
+  }
+  .queue-item .start-btn:hover { background: rgba(232,160,52,0.20); }
+  .queue-item.in-progress .start-btn { color: var(--green); border-color: var(--green); background: rgba(77,216,138,0.10); }
+  .queue-item.in-progress .start-btn:hover { background: rgba(77,216,138,0.20); }
+
+  /* ───── METRICS ───── */
+  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .metric {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px;
+  }
+  .metric.full { grid-column: span 2; }
+  .metric .lbl {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+  }
+  .metric .val {
+    font-family: var(--display); font-size: 22px; font-weight: 700; color: var(--text-strong);
+  }
+  .metric .val .unit {
+    font-family: var(--body); font-size: 11px; color: var(--muted);
+    font-weight: 500; margin-left: 4px;
+  }
+  .metric .sub { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+
+  /* ───── LEGEND ───── */
+  .legend-block {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 12px 14px; font-size: 11px;
+  }
+  .legend-block .row { display: flex; align-items: center; gap: 8px; margin: 4px 0; color: var(--text); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .legend-edge { width: 22px; height: 0; border-top: 2px solid var(--text); flex-shrink: 0; }
+  .legend-edge.dashed { border-top-style: dashed; }
+
+  .info-callout {
+    background: rgba(77,166,232,0.06); border: 1px solid rgba(77,166,232,0.18);
+    border-radius: 6px; padding: 10px 12px; font-size: 11.5px;
+    color: var(--text); line-height: 1.55;
+  }
+  .info-callout strong { color: var(--blue); }
+
+  /* ───── SVG NODE STYLING ───── */
+  .node-rect {
+    fill: var(--surface2); stroke: var(--border-strong); stroke-width: 1;
+    cursor: pointer; transition: fill 0.15s, stroke 0.15s, filter 0.15s;
+  }
+  .node:hover .node-rect { stroke: var(--accent); }
+  .node.in-scope .node-rect { fill: var(--surface2); }
+  .node.out-of-scope { opacity: 0.20; }
+  .node.hidden { display: none; }
+  .node.ready .node-rect { stroke: var(--green); stroke-width: 1.5; }
+  .node.in-progress .node-rect { stroke: var(--blue); stroke-width: 2; }
+  .node.in-progress { animation: pulse 2s ease-in-out infinite; }
+  .node.done .node-rect { fill: var(--surface); stroke: var(--border); }
+  .node.done .node-id, .node.done .node-title, .node.done .node-meta { opacity: 0.45; }
+  .node.done .node-title { text-decoration: line-through; }
+  .node.blocked-out-of-discipline { opacity: 0.30; }
+
+  @keyframes pulse {
+    0%, 100% { filter: drop-shadow(0 0 0 rgba(77,166,232,0)); }
+    50% { filter: drop-shadow(0 0 6px rgba(77,166,232,0.5)); }
+  }
+
+  .node-id { font-family: var(--mono); font-size: 9px; fill: var(--accent); font-weight: 600; letter-spacing: 0.1em; }
+  .node-title { font-family: var(--body); font-size: 12px; fill: var(--text); font-weight: 500; }
+  .node-meta { font-family: var(--mono); font-size: 9px; fill: var(--muted); letter-spacing: 0.05em; }
+  .discipline-tag {
+    font-family: var(--mono); font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .status-icon { font-family: var(--mono); font-size: 12px; fill: var(--green); }
+
+  .edge {
+    fill: none; stroke: rgba(255,255,255,0.14); stroke-width: 1.2;
+    transition: stroke 0.15s;
+  }
+  .edge.in-scope { stroke: rgba(255,255,255,0.30); }
+  .edge.satisfied { stroke: var(--green); stroke-opacity: 0.5; }
+  .edge.informs { stroke-dasharray: 4, 3; }
+  .edge.out-of-scope { opacity: 0.10; }
+
+  /* Footer thesis-bar */
+  .thesis-bar {
+    margin-top: 16px; padding: 12px 14px; border-radius: 6px;
+    background: rgba(232,160,52,0.06); border-left: 3px solid var(--accent);
+    font-family: var(--display); font-style: italic; font-size: 13px;
+    color: var(--text); line-height: 1.55;
+  }
+  .thesis-bar strong { color: var(--accent); font-weight: 700; font-style: normal; }
+
+  @media (max-width: 1100px) {
+    .app { grid-template-columns: 1fr; height: auto; }
+    aside { border-left: none; border-top: 1px solid var(--border); height: auto; }
+    body { overflow: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="brand">Spine and Leaf · Sequencing Leaf · The 6th Leaf</div>
+    <h1>What's <em>ready to start</em> right now</h1>
+  </div>
+  <div class="strap">
+    A work-item graph the dev team can self-route from. Filter by slice and discipline; click a node to cycle its status; the queue updates live.
+  </div>
+</header>
+
+<!-- Filter bar -->
+<div class="filter-bar">
+  <div class="filter-group">
+    <span class="label">Slice</span>
+    <button class="pill active" data-filter="slice" data-value="all">All</button>
+    <button class="pill" data-filter="slice" data-value="mvp">Thin MVP</button>
+    <button class="pill" data-filter="slice" data-value="pilot">Pilot</button>
+    <button class="pill" data-filter="slice" data-value="ga">GA</button>
+  </div>
+
+  <div class="filter-group">
+    <span class="label">I am a</span>
+    <button class="pill discipline active" data-filter="discipline" data-value="all">Any</button>
+    <button class="pill discipline" data-filter="discipline" data-value="frontend">Frontend</button>
+    <button class="pill discipline" data-filter="discipline" data-value="backend">Backend</button>
+    <button class="pill discipline" data-filter="discipline" data-value="fullstack">Full-stack</button>
+    <button class="pill discipline" data-filter="discipline" data-value="design">Design</button>
+    <button class="pill discipline" data-filter="discipline" data-value="gtm">GTM</button>
+  </div>
+
+  <label class="toggle-switch" style="margin-left:auto;">
+    <input type="checkbox" id="filterMode" />
+    <span class="toggle-track"></span>
+    <span>Hide non-matching</span>
+  </label>
+
+  <label class="toggle-switch">
+    <input type="checkbox" id="hideDone" />
+    <span class="toggle-track"></span>
+    <span>Hide done</span>
+  </label>
+</div>
+
+<div class="app">
+  <div class="canvas-wrap">
+    <svg id="graph" viewBox="0 0 1400 1000" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+
+  <aside>
+    <section>
+      <h3>Ready now <span class="count" id="readyCount">0</span></h3>
+      <div id="readyQueue"></div>
+    </section>
+
+    <section>
+      <h3>In progress <span class="count" id="inProgressCount">0</span></h3>
+      <div id="inProgressQueue"></div>
+    </section>
+
+    <section>
+      <h3>Slice scope</h3>
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="lbl">Total effort</div>
+          <div class="val"><span id="mEffort">0</span><span class="unit">d</span></div>
+          <div class="sub">In scope · ideal days</div>
+        </div>
+        <div class="metric">
+          <div class="lbl">Calendar time</div>
+          <div class="val"><span id="mCalendar">0</span><span class="unit">d</span></div>
+          <div class="sub" id="mCalendarSub">3 eng + 1 dg/gtm</div>
+        </div>
+        <div class="metric">
+          <div class="lbl">Critical path</div>
+          <div class="val"><span id="mCritical">0</span><span class="unit">d</span></div>
+          <div class="sub">Longest sequential chain</div>
+        </div>
+        <div class="metric">
+          <div class="lbl">Done</div>
+          <div class="val"><span id="mDone">0</span><span class="unit">/ <span id="mTotal">0</span></span></div>
+          <div class="sub">Slice progress</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3>Legend</h3>
+      <div class="legend-block">
+        <div class="row"><span class="legend-dot" style="background:var(--green); border:2px solid var(--green); background:transparent;"></span><strong>Green border:</strong>&nbsp;ready to start</div>
+        <div class="row"><span class="legend-dot" style="background:var(--blue); border:2px solid var(--blue); background:transparent;"></span><strong>Blue border + pulse:</strong>&nbsp;in progress</div>
+        <div class="row"><span class="legend-dot" style="background:var(--surface);"></span><strong>Strikethrough:</strong>&nbsp;done</div>
+        <div class="row"><span class="legend-edge"></span><strong>Solid edge:</strong>&nbsp;blocks</div>
+        <div class="row"><span class="legend-edge dashed"></span><strong>Dashed edge:</strong>&nbsp;informs (preferable)</div>
+      </div>
+    </section>
+
+    <section>
+      <h3>How to use</h3>
+      <div class="info-callout">
+        <strong>Click any node</strong> to cycle its status: <em>not started → in progress → done → not started</em>.
+        When a node moves to <em>done</em>, its downstream nodes become ready automatically.
+        The <em>Ready Now</em> queue is the dev team's morning view — what they can pick up without checking with the PM.
+      </div>
+    </section>
+
+    <div class="thesis-bar">
+      <strong>The methodology in one decision:</strong> the PM authors the graph; the dev team routes from it. The graph removes the PM as a bottleneck for "what's next?" decisions.
+    </div>
+  </aside>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// Work-item-centric data model
+// ─────────────────────────────────────────────────────────────
+
+const WORK_ITEMS = [
+  { id: "N1",  title: "Persist state to localStorage",      effort: 1, discipline: "frontend",   userVisible: true,  commitment: "C1", slices: ["mvp", "ga"],          status: "not_started" },
+  { id: "N2",  title: "Persist state to backend (DB + API)",effort: 3, discipline: "backend",    userVisible: false, commitment: "C1", slices: ["pilot", "ga"],        status: "not_started" },
+  { id: "N3",  title: "Multi-device sync",                  effort: 5, discipline: "backend",    userVisible: false, commitment: "C2", slices: ["ga"],                 status: "not_started" },
+  { id: "N4",  title: "Conflict resolution UI",             effort: 3, discipline: "frontend",   userVisible: true,  commitment: "C2", slices: ["ga"],                 status: "not_started" },
+  { id: "N5",  title: "User authentication",                effort: 4, discipline: "fullstack",  userVisible: true,  commitment: "C3", slices: ["pilot", "ga"],        status: "not_started" },
+  { id: "N6",  title: '"Resume" button + restore UI',       effort: 1, discipline: "frontend",   userVisible: true,  commitment: "C1", slices: ["mvp", "pilot", "ga"], status: "not_started" },
+  { id: "N7",  title: "Auto-save indicator",                effort: 1, discipline: "frontend",   userVisible: true,  commitment: "C1", slices: ["mvp", "ga"],          status: "not_started" },
+  { id: "N8",  title: "Backend rate limiting",              effort: 2, discipline: "backend",    userVisible: false, commitment: "C1", slices: ["pilot", "ga"],        status: "not_started" },
+  { id: "N9",  title: "Telemetry on save events",           effort: 1, discipline: "data",       userVisible: false, commitment: "C1", slices: ["mvp", "ga"],          status: "not_started" },
+  { id: "N10", title: "Keyboard shortcut (a11y)",           effort: 1, discipline: "frontend",   userVisible: true,  commitment: "C1", slices: ["ga"],                 status: "not_started" },
+  { id: "N11", title: "Audit log of saves",                 effort: 2, discipline: "compliance", userVisible: false, commitment: "C3", slices: ["pilot", "ga"],        status: "not_started" },
+  { id: "N12", title: "Marketing landing page",             effort: 2, discipline: "gtm",        userVisible: true,  commitment: "C1", slices: ["pilot", "ga"],        status: "not_started" },
+  { id: "N13", title: "Demo tour: save & resume",           effort: 1, discipline: "gtm",        userVisible: true,  commitment: "C1", slices: ["pilot", "ga"],        status: "not_started" },
+  { id: "N14", title: "Onboarding flow update",             effort: 2, discipline: "design",     userVisible: true,  commitment: "C3", slices: ["pilot", "ga"],        status: "not_started" },
+  { id: "N15", title: "Help docs: how to save",             effort: 1, discipline: "docs",       userVisible: true,  commitment: "C1", slices: ["pilot", "ga"],        status: "not_started" },
+];
+
+const EDGES = [
+  { from: "N1", to: "N6", type: "blocks" },
+  { from: "N1", to: "N7", type: "blocks" },
+  { from: "N1", to: "N9", type: "blocks" },
+  { from: "N2", to: "N3", type: "blocks" },
+  { from: "N2", to: "N4", type: "blocks" },
+  { from: "N2", to: "N6", type: "informs" },
+  { from: "N2", to: "N8", type: "blocks" },
+  { from: "N2", to: "N11", type: "blocks" },
+  { from: "N3", to: "N4", type: "blocks" },
+  { from: "N5", to: "N14", type: "blocks" },
+  { from: "N5", to: "N11", type: "informs" },
+  { from: "N6", to: "N10", type: "blocks" },
+  { from: "N6", to: "N13", type: "blocks" },
+  { from: "N6", to: "N15", type: "blocks" },
+];
+
+const SLICES = {
+  mvp:   { name: "Thin MVP",  desc: "Local-only save & resume. Ships in days, not weeks." },
+  pilot: { name: "Pilot",     desc: "Server-backed with login, marketing, onboarding, docs." },
+  ga:    { name: "GA",        desc: "Full feature including multi-device sync and conflict resolution." },
+};
+
+const DISCIPLINE_COLOR = {
+  frontend: "#4da6e8",
+  backend: "#4dd88a",
+  fullstack: "#a87ce8",
+  design: "#e85454",
+  gtm: "#e8a034",
+  data: "#4dd8c8",
+  compliance: "#ff5470",
+  docs: "#b6c4d8",
+};
+
+// ─────────────────────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────────────────────
+
+const state = {
+  sliceFilter: "all",       // "all" | "mvp" | "pilot" | "ga"
+  disciplineFilter: "all",  // "all" | <discipline>
+  filterMode: "highlight",  // "highlight" | "filter"
+  hideDone: false,
+  engBand: 3,
+  dgBand: 1,
+};
+
+// Indices
+const ITEMS_BY_ID = Object.fromEntries(WORK_ITEMS.map(it => [it.id, it]));
+const PREDS = {};
+const SUCCS = {};
+WORK_ITEMS.forEach(it => { PREDS[it.id] = []; SUCCS[it.id] = []; });
+EDGES.forEach(e => { PREDS[e.to].push(e); SUCCS[e.from].push(e); });
+
+// ─────────────────────────────────────────────────────────────
+// Predicates
+// ─────────────────────────────────────────────────────────────
+
+function inSlice(item) {
+  return state.sliceFilter === "all" || item.slices.includes(state.sliceFilter);
+}
+function inDiscipline(item) {
+  return state.disciplineFilter === "all" || item.discipline === state.disciplineFilter;
+}
+function inScope(item) {
+  return inSlice(item) && inDiscipline(item);
+}
+function isBlocked(item) {
+  return PREDS[item.id]
+    .filter(e => e.type === "blocks")
+    .some(e => ITEMS_BY_ID[e.from].status !== "done");
+}
+function isReady(item) {
+  return item.status === "not_started" && !isBlocked(item);
+}
+
+// ─────────────────────────────────────────────────────────────
+// Layout (topological columns)
+// ─────────────────────────────────────────────────────────────
+
+function topoLevels() {
+  const indeg = {};
+  WORK_ITEMS.forEach(n => indeg[n.id] = 0);
+  EDGES.forEach(e => indeg[e.to]++);
+  const level = {};
+  const queue = WORK_ITEMS.filter(n => indeg[n.id] === 0).map(n => n.id);
+  queue.forEach(id => level[id] = 0);
+  const indegCopy = { ...indeg };
+  while (queue.length) {
+    const id = queue.shift();
+    SUCCS[id].forEach(e => {
+      level[e.to] = Math.max(level[e.to] || 0, level[id] + 1);
+      indegCopy[e.to]--;
+      if (indegCopy[e.to] === 0) queue.push(e.to);
+    });
+  }
+  return level;
+}
+
+function layout() {
+  const level = topoLevels();
+  const cols = {};
+  WORK_ITEMS.forEach(n => {
+    const l = level[n.id];
+    if (!cols[l]) cols[l] = [];
+    cols[l].push(n.id);
+  });
+  const colWidth = 240;
+  const rowHeight = 110;
+  const xOffset = 60;
+  const yOffset = 50;
+  const positions = {};
+  Object.keys(cols).sort((a, b) => +a - +b).forEach(lv => {
+    cols[lv].forEach((id, i) => {
+      positions[id] = { x: xOffset + (+lv) * colWidth, y: yOffset + i * rowHeight, col: +lv };
+    });
+  });
+  return positions;
+}
+const POSITIONS = layout();
+
+// ─────────────────────────────────────────────────────────────
+// Critical path (within current slice scope)
+// ─────────────────────────────────────────────────────────────
+
+function criticalPath() {
+  const inc = WORK_ITEMS.filter(inSlice).map(it => it.id);
+  const incSet = new Set(inc);
+  const adj = {};
+  inc.forEach(id => adj[id] = []);
+  EDGES.forEach(e => {
+    if (e.type === "blocks" && incSet.has(e.from) && incSet.has(e.to)) adj[e.from].push(e.to);
+  });
+  const indeg = {};
+  inc.forEach(id => indeg[id] = 0);
+  Object.values(adj).flat().forEach(t => indeg[t]++);
+  const order = [];
+  const q = inc.filter(id => indeg[id] === 0);
+  while (q.length) {
+    const id = q.shift();
+    order.push(id);
+    (adj[id] || []).forEach(t => { indeg[t]--; if (indeg[t] === 0) q.push(t); });
+  }
+  const dist = {};
+  inc.forEach(id => { dist[id] = ITEMS_BY_ID[id].effort; });
+  order.forEach(id => {
+    (adj[id] || []).forEach(t => {
+      const eff = ITEMS_BY_ID[t].effort;
+      if (dist[id] + eff > (dist[t] || 0)) dist[t] = dist[id] + eff;
+    });
+  });
+  let max = 0;
+  Object.values(dist).forEach(d => { if (d > max) max = d; });
+  return max;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Calendar time (greedy bandwidth-aware schedule of slice scope)
+// ─────────────────────────────────────────────────────────────
+
+function calendarTime() {
+  const inc = WORK_ITEMS.filter(inSlice);
+  if (!inc.length) return 0;
+  const incSet = new Set(inc.map(it => it.id));
+  const remaining = new Set(inc.map(it => it.id));
+  const start = {};
+  const end = {};
+  function track(id) {
+    const d = ITEMS_BY_ID[id].discipline;
+    return ["frontend","backend","fullstack","data","compliance","docs"].includes(d) ? "eng" : "dg";
+  }
+  const preds = {};
+  inc.forEach(it => preds[it.id] = []);
+  EDGES.forEach(e => {
+    if (e.type === "blocks" && incSet.has(e.from) && incSet.has(e.to)) preds[e.to].push(e.from);
+  });
+  let t = 0;
+  let active = [];
+  const MAX_T = 200;
+  while (remaining.size > 0 && t < MAX_T) {
+    active = active.filter(a => {
+      if (a.finishAt <= t) { end[a.id] = a.finishAt; return false; }
+      return true;
+    });
+    const eligible = Array.from(remaining).filter(id =>
+      start[id] === undefined && preds[id].every(p => end[p] !== undefined && end[p] <= t));
+    for (const id of eligible) {
+      const tr = track(id);
+      const cap = tr === "eng" ? state.engBand : state.dgBand;
+      const running = active.filter(a => a.track === tr).length;
+      if (running < cap) {
+        const eff = ITEMS_BY_ID[id].effort;
+        start[id] = t;
+        active.push({ id, finishAt: t + eff, track: tr });
+        remaining.delete(id);
+      }
+    }
+    if (remaining.size === 0 && active.length === 0) break;
+    if (active.length > 0) t = Math.min(...active.map(a => a.finishAt));
+    else t += 1;
+  }
+  active.forEach(a => { if (end[a.id] === undefined) end[a.id] = a.finishAt; });
+  return Math.max(0, ...Object.values(end));
+}
+
+// ─────────────────────────────────────────────────────────────
+// Rendering
+// ─────────────────────────────────────────────────────────────
+
+const NODE_W = 200;
+const NODE_H = 84;
+
+function renderGraph() {
+  const svg = document.getElementById("graph");
+  const xs = Object.values(POSITIONS).map(p => p.x + NODE_W);
+  const ys = Object.values(POSITIONS).map(p => p.y + NODE_H);
+  const maxX = Math.max(...xs) + 60;
+  const maxY = Math.max(...ys) + 60;
+  svg.setAttribute("viewBox", `0 0 ${maxX} ${maxY}`);
+
+  const parts = [];
+
+  // Edges first
+  EDGES.forEach(e => {
+    const a = POSITIONS[e.from];
+    const b = POSITIONS[e.to];
+    const fromItem = ITEMS_BY_ID[e.from];
+    const toItem = ITEMS_BY_ID[e.to];
+    const fromInScope = inScope(fromItem);
+    const toInScope = inScope(toItem);
+    const eitherHidden = state.filterMode === "filter" && (!fromInScope || !toInScope);
+    if (eitherHidden) return;
+    const x1 = a.x + NODE_W;
+    const y1 = a.y + NODE_H / 2;
+    const x2 = b.x;
+    const y2 = b.y + NODE_H / 2;
+    const cx1 = x1 + 50;
+    const cx2 = x2 - 50;
+    let cls = "edge";
+    if (fromInScope && toInScope) cls += " in-scope";
+    if (e.type === "informs") cls += " informs";
+    if (fromItem.status === "done") cls += " satisfied";
+    if (state.filterMode === "highlight" && (!fromInScope || !toInScope)) cls += " out-of-scope";
+    parts.push(`<path d="M ${x1} ${y1} C ${cx1} ${y1}, ${cx2} ${y2}, ${x2} ${y2}" class="${cls}" />`);
+  });
+
+  // Nodes
+  WORK_ITEMS.forEach(n => {
+    const p = POSITIONS[n.id];
+    const inScope_ = inScope(n);
+    const ready = isReady(n) && inScope_;
+    const inProgress = n.status === "in_progress";
+    const done = n.status === "done";
+
+    let visibility = "in-scope";
+    if (!inScope_) visibility = state.filterMode === "filter" ? "hidden" : "out-of-scope";
+    if (state.hideDone && done) visibility = "hidden";
+
+    const cls = ["node",
+      visibility,
+      ready ? "ready" : "",
+      inProgress ? "in-progress" : "",
+      done ? "done" : "",
+    ].filter(Boolean).join(" ");
+
+    const color = DISCIPLINE_COLOR[n.discipline] || "#888";
+    const userMark = n.userVisible
+      ? `<circle cx="${p.x + NODE_W - 14}" cy="${p.y + 14}" r="4" fill="${done ? "#4dd88a" : "var(--green)"}" />`
+      : "";
+    const statusIcon = done
+      ? `<text class="status-icon" x="${p.x + NODE_W - 22}" y="${p.y + NODE_H - 12}">✓</text>`
+      : inProgress
+        ? `<text class="status-icon" x="${p.x + NODE_W - 22}" y="${p.y + NODE_H - 12}" fill="var(--blue)">▶</text>`
+        : "";
+
+    parts.push(`
+      <g class="${cls}" data-id="${n.id}">
+        <rect class="node-rect" x="${p.x}" y="${p.y}" width="${NODE_W}" height="${NODE_H}" rx="8" />
+        <rect x="${p.x}" y="${p.y}" width="6" height="${NODE_H}" rx="3" fill="${color}" />
+        <text class="node-id" x="${p.x + 16}" y="${p.y + 18}">${n.id}</text>
+        <text class="discipline-tag" x="${p.x + 50}" y="${p.y + 18}" fill="${color}">${n.discipline.toUpperCase()}</text>
+        ${userMark}
+        <text class="node-title" x="${p.x + 16}" y="${p.y + 40}">${truncate(n.title, 26)}</text>
+        <text class="node-meta" x="${p.x + 16}" y="${p.y + 60}">${n.effort}d · ${n.commitment}${n.userVisible ? " · USER VISIBLE" : ""}</text>
+        ${statusIcon}
+      </g>
+    `);
+  });
+
+  svg.innerHTML = parts.join("");
+  svg.querySelectorAll(".node").forEach(g => {
+    g.addEventListener("click", () => cycleStatus(g.getAttribute("data-id")));
+  });
+}
+
+function truncate(s, n) { return s.length > n ? s.slice(0, n - 1) + "…" : s; }
+
+function cycleStatus(id) {
+  const it = ITEMS_BY_ID[id];
+  if (!inScope(it) && state.filterMode === "filter") return; // can't act on hidden items
+  const next = { not_started: "in_progress", in_progress: "done", done: "not_started" }[it.status];
+  it.status = next;
+  update();
+}
+
+function renderQueues() {
+  const ready = WORK_ITEMS.filter(it => isReady(it) && inScope(it));
+  const inProgress = WORK_ITEMS.filter(it => it.status === "in_progress" && inScope(it));
+
+  document.getElementById("readyCount").textContent = ready.length;
+  document.getElementById("inProgressCount").textContent = inProgress.length;
+
+  const readyHtml = ready.length === 0
+    ? `<div class="queue-empty">${state.disciplineFilter === "all" ? "Nothing ready in this slice — start an upstream blocker, or change filters." : "Nothing ready for " + state.disciplineFilter + " in this slice."}</div>`
+    : ready.map(it => queueItemHtml(it, "Start →")).join("");
+  document.getElementById("readyQueue").innerHTML = readyHtml;
+
+  const ipHtml = inProgress.length === 0
+    ? `<div class="queue-empty" style="font-size:11px;">No work in progress.</div>`
+    : inProgress.map(it => queueItemHtml(it, "Done ✓", true)).join("");
+  document.getElementById("inProgressQueue").innerHTML = ipHtml;
+
+  document.querySelectorAll(".queue-item").forEach(el => {
+    el.addEventListener("click", () => cycleStatus(el.getAttribute("data-id")));
+  });
+}
+
+function queueItemHtml(it, btnLabel, isInProgress) {
+  const color = DISCIPLINE_COLOR[it.discipline];
+  return `
+    <div class="queue-item${isInProgress ? ' in-progress' : ''}" data-id="${it.id}">
+      <span class="id">${it.id}</span>
+      <div class="info">
+        <div class="title">${it.userVisible ? '<span class="uv-dot"></span>' : ''}${it.title}</div>
+        <div class="meta">
+          <span class="disc" style="color:${color}">${it.discipline}</span>
+          ${it.effort}d · ${it.commitment}
+        </div>
+      </div>
+      <button class="start-btn">${btnLabel}</button>
+    </div>
+  `;
+}
+
+function renderMetrics() {
+  const inc = WORK_ITEMS.filter(inSlice);
+  const totalEffort = inc.reduce((s, it) => s + it.effort, 0);
+  const doneCount = inc.filter(it => it.status === "done").length;
+  const cp = criticalPath();
+  const calendar = calendarTime();
+  document.getElementById("mEffort").textContent = totalEffort;
+  document.getElementById("mCalendar").textContent = calendar;
+  document.getElementById("mCalendarSub").textContent = `${state.engBand} eng + ${state.dgBand} dg/gtm`;
+  document.getElementById("mCritical").textContent = cp;
+  document.getElementById("mDone").textContent = doneCount;
+  document.getElementById("mTotal").textContent = inc.length;
+}
+
+function update() {
+  renderGraph();
+  renderQueues();
+  renderMetrics();
+}
+
+// ─────────────────────────────────────────────────────────────
+// Wire up filter pills + toggles
+// ─────────────────────────────────────────────────────────────
+
+document.querySelectorAll(".pill").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const f = btn.getAttribute("data-filter");
+    const v = btn.getAttribute("data-value");
+    document.querySelectorAll(`.pill[data-filter="${f}"]`).forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    if (f === "slice") state.sliceFilter = v;
+    else if (f === "discipline") state.disciplineFilter = v;
+    update();
+  });
+});
+
+document.getElementById("filterMode").addEventListener("change", e => {
+  state.filterMode = e.target.checked ? "filter" : "highlight";
+  update();
+});
+document.getElementById("hideDone").addEventListener("change", e => {
+  state.hideDone = e.target.checked;
+  update();
+});
+
+update();
+</script>
+</body>
+</html>
