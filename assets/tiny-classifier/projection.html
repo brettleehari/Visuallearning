@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Projection · 16 pixels → 3 neurons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #f5efe4;
+    --paper-2: #ebe3d3;
+    --ink: #1d1a16;
+    --ink-soft: #58524a;
+    --ink-faint: #8a8275;
+    --rule: #d4cab5;
+
+    /* dark canvas palette */
+    --canvas-bg: #0e1018;
+    --canvas-bg-2: #15182230;
+    --canvas-grid: #1c1f2a;
+    --node-dim: #2a2e3d;
+    --node-stroke: #3a3f52;
+    --node-glow: #f5d76e;
+    --edge-pos: #4a8db8;     /* cool blue for positive weight */
+    --edge-neg: #b85a4a;     /* warm red for negative weight */
+    --edge-dim: #2a3040;
+    --pulse-pos: #7bd4ff;
+    --pulse-neg: #ff9985;
+    --text-canvas: #cbd0dc;
+    --text-canvas-soft: #6f7689;
+
+    --tri: #e87862;
+    --sq:  #5b9eb5;
+    --circ: #e3b16e;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Inter", -apple-system, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(rgba(29,26,22,0.025) 1px, transparent 1px),
+      radial-gradient(rgba(29,26,22,0.018) 1px, transparent 1px);
+    background-size: 18px 18px, 36px 36px;
+    background-position: 0 0, 9px 9px;
+  }
+
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* HEADER */
+  header {
+    margin-bottom: 28px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  h1 {
+    font-family: "Fraunces", serif;
+    font-weight: 500;
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 6px;
+  }
+  h1 em { font-style: italic; color: var(--tri); font-weight: 400; }
+  .sub {
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 16px;
+    max-width: 540px;
+  }
+  .credit {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: right;
+  }
+  .credit a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--rule); }
+  .credit a:hover { color: var(--ink); }
+
+  /* CAPTION */
+  .caption-bar {
+    background: var(--paper-2);
+    border-left: 3px solid var(--ink);
+    padding: 16px 22px;
+    border-radius: 0 4px 4px 0;
+    margin-bottom: 18px;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+  }
+  .caption-text {
+    font-family: "Fraunces", serif;
+    font-size: 17px;
+    line-height: 1.4;
+    opacity: 0;
+    transform: translateY(3px);
+    transition: opacity 280ms ease, transform 280ms ease;
+  }
+  .caption-text.visible { opacity: 1; transform: translateY(0); }
+  .caption-text em { font-style: italic; color: var(--ink-soft); }
+  .caption-text strong { font-weight: 500; }
+
+  /* CANVAS */
+  .stage {
+    background: var(--canvas-bg);
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: inset 0 0 0 1px #1f2330, 0 2px 0 rgba(0,0,0,0.06);
+    background-image:
+      linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+    background-size: 24px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  svg.network {
+    display: block;
+    width: 100%;
+    height: auto;
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  /* phase marker (top-left of canvas) */
+  .phase-tag {
+    position: absolute;
+    top: 14px;
+    left: 18px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--text-canvas-soft);
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .phase-tag b { color: var(--node-glow); font-weight: 500; margin-left: 6px; }
+
+  /* SVG element classes — using attributes for animation */
+  .grid-cell {
+    transition: fill 200ms ease;
+  }
+  .grid-cell-bg { fill: var(--canvas-grid); stroke: var(--node-stroke); stroke-width: 0.7; }
+  .grid-cell-on { fill: var(--node-glow); }
+
+  .input-node {
+    fill: var(--node-dim);
+    stroke: var(--node-stroke);
+    stroke-width: 1.2;
+    transition: fill 220ms ease, stroke 220ms ease, r 220ms ease, filter 300ms ease;
+    opacity: 0;
+  }
+  .input-node.on {
+    fill: var(--node-glow);
+    stroke: var(--node-glow);
+    filter: drop-shadow(0 0 5px rgba(245,215,110,0.55));
+  }
+  .input-node.placed { opacity: 1; }
+  /* currently-firing input gets a halo */
+  .input-node.focus {
+    stroke: #fff;
+    stroke-width: 2;
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.6));
+  }
+
+  .output-node {
+    fill: var(--node-dim);
+    stroke: var(--node-stroke);
+    stroke-width: 1.4;
+    transition: fill 250ms ease, stroke 250ms ease, r 250ms ease, filter 350ms ease;
+  }
+  .output-node[data-cls="triangle"].active { stroke: var(--tri); }
+  .output-node[data-cls="square"].active { stroke: var(--sq); }
+  .output-node[data-cls="circle"].active { stroke: var(--circ); }
+  .output-node[data-cls="triangle"].winner {
+    fill: var(--tri); stroke: var(--tri);
+    filter: drop-shadow(0 0 14px rgba(232,120,98,0.65));
+  }
+  .output-node[data-cls="square"].winner {
+    fill: var(--sq); stroke: var(--sq);
+    filter: drop-shadow(0 0 14px rgba(91,158,181,0.65));
+  }
+  .output-node[data-cls="circle"].winner {
+    fill: var(--circ); stroke: var(--circ);
+    filter: drop-shadow(0 0 14px rgba(227,177,110,0.65));
+  }
+
+  .edge {
+    fill: none;
+    stroke-width: 0.6;
+    opacity: 0;
+    transition: opacity 600ms ease, stroke-width 200ms ease, stroke 200ms ease;
+  }
+  .edge.pos { stroke: var(--edge-pos); }
+  .edge.neg { stroke: var(--edge-neg); }
+  .edge.visible { opacity: 0.18; }
+  .edge.firing.pos { stroke: var(--pulse-pos); opacity: 0.9; stroke-width: 1.4; }
+  .edge.firing.neg { stroke: var(--pulse-neg); opacity: 0.9; stroke-width: 1.4; }
+
+  .pulse {
+    fill: var(--pulse-pos);
+    filter: drop-shadow(0 0 6px var(--pulse-pos));
+    pointer-events: none;
+  }
+  .pulse.neg {
+    fill: var(--pulse-neg);
+    filter: drop-shadow(0 0 6px var(--pulse-neg));
+  }
+
+  .label {
+    fill: var(--text-canvas-soft);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .label.title {
+    fill: var(--text-canvas);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+  }
+  .label.score {
+    fill: var(--text-canvas);
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-size: 18px;
+    letter-spacing: 0;
+    text-transform: none;
+    transition: fill 300ms ease;
+  }
+  .label.score[data-cls="triangle"].active { fill: var(--tri); }
+  .label.score[data-cls="square"].active { fill: var(--sq); }
+  .label.score[data-cls="circle"].active { fill: var(--circ); }
+  .label.cls-name {
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-size: 14px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .label.cls-name[data-cls="triangle"] { fill: var(--tri); }
+  .label.cls-name[data-cls="square"] { fill: var(--sq); }
+  .label.cls-name[data-cls="circle"] { fill: var(--circ); }
+
+  /* CONTROLS */
+  .controls {
+    margin-top: 22px;
+    padding: 18px 22px;
+    background: var(--paper-2);
+    border-radius: 6px;
+    border: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .controls-l, .controls-r, .controls-c { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .controls-r { gap: 14px; }
+
+  .btn {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--rule);
+    padding: 8px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 150ms ease;
+    text-transform: uppercase;
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .btn.primary {
+    background: var(--ink); color: var(--paper); border-color: var(--ink);
+  }
+  .btn.primary:hover { background: var(--tri); border-color: var(--tri); }
+
+  .preset {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--rule);
+    padding: 6px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 150ms ease;
+  }
+  .preset:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .preset-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-right: 4px;
+  }
+
+  /* speed selector */
+  .speed-group { display: flex; align-items: center; gap: 6px; }
+  .speed-btn {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--rule);
+    padding: 6px 9px;
+    border-radius: 3px;
+    cursor: pointer;
+    min-width: 36px;
+    transition: all 150ms ease;
+  }
+  .speed-btn:hover { background: var(--paper); color: var(--ink); border-color: var(--ink-soft); }
+  .speed-btn.active {
+    background: var(--ink); color: var(--paper); border-color: var(--ink); font-weight: 600;
+  }
+
+  /* step button when paused */
+  .btn.step {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px dashed var(--rule);
+  }
+  .btn.step:hover { background: var(--paper); color: var(--ink); }
+
+  /* legend */
+  .legend-bar {
+    margin-top: 18px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    padding: 14px 0 0;
+    border-top: 1px solid var(--rule);
+  }
+  .leg-item { display: flex; align-items: center; gap: 8px; }
+  .leg-sw {
+    width: 18px; height: 2px; border-radius: 1px; background: var(--edge-pos);
+  }
+  .leg-sw.neg { background: var(--edge-neg); }
+  .leg-sw.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--node-glow); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>The <em>projection</em>.</h1>
+      <div class="sub">Each pixel unfolds into a neuron, then fires through learned weights to a verdict — the 3Blue1Brown classic, in 16 dimensions.</div>
+    </div>
+    <div class="credit">
+      Inspired by 3Blue1Brown<br>
+      Original done with <a href="https://github.com/3b1b/manim" target="_blank" rel="noopener">Manim</a>
+    </div>
+  </header>
+
+  <!-- caption -->
+  <div class="caption-bar" id="captionBar">
+    <div class="caption-text visible" id="captionText">
+      Press <strong>play</strong> to watch a 4×4 image unfold into a column of input neurons, fire through 48 connections, and resolve into a single prediction.
+    </div>
+  </div>
+
+  <!-- the dark canvas -->
+  <div class="stage">
+    <div class="phase-tag" id="phaseTag">phase <b>—</b></div>
+    <svg class="network" id="network" viewBox="0 0 900 540" preserveAspectRatio="xMidYMid meet">
+      <!-- groups -->
+      <g id="layer-edges"></g>
+      <g id="layer-grid"></g>
+      <g id="layer-input"></g>
+      <g id="layer-output"></g>
+      <g id="layer-labels"></g>
+      <g id="layer-pulses"></g>
+    </svg>
+  </div>
+
+  <!-- controls -->
+  <div class="controls">
+    <div class="controls-l">
+      <button class="btn primary" id="btnPlay">▶ play</button>
+      <button class="btn" id="btnReset">↺ reset</button>
+    </div>
+
+    <div class="controls-c">
+      <span class="preset-label">speed</span>
+      <div class="speed-group" id="speedGroup">
+        <button class="speed-btn" data-speed="0.5">fast</button>
+        <button class="speed-btn" data-speed="1">1×</button>
+        <button class="speed-btn active" data-speed="2">slow</button>
+        <button class="speed-btn" data-speed="4">slower</button>
+        <button class="speed-btn" data-speed="8">glacial</button>
+      </div>
+    </div>
+
+    <div class="controls-r">
+      <span class="preset-label">input</span>
+      <button class="preset" data-load="triangle">▲ triangle</button>
+      <button class="preset" data-load="square">■ square</button>
+      <button class="preset" data-load="circle">● circle</button>
+    </div>
+  </div>
+
+  <div class="legend-bar">
+    <div class="leg-item"><div class="leg-sw dot"></div>pixel on (activation +1)</div>
+    <div class="leg-item"><div class="leg-sw"></div>positive weight</div>
+    <div class="leg-item"><div class="leg-sw neg"></div>negative weight</div>
+    <div class="leg-item" style="color: var(--ink-faint);">edges shown faintly until they fire</div>
+  </div>
+
+</div>
+
+<script>
+// =========================
+//  CONFIG
+// =========================
+const TEMPLATES = {
+  triangle: [
+    0,0,0,1,
+    0,0,1,1,
+    0,1,1,1,
+    1,1,1,1,
+  ],
+  square: [
+    1,1,1,1,
+    1,0,0,1,
+    1,0,0,1,
+    1,1,1,1,
+  ],
+  circle: [
+    0,1,1,0,
+    1,1,1,1,
+    1,1,1,1,
+    0,1,1,0,
+  ],
+};
+const CLASSES = [
+  { key: "triangle", name: "Triangle", color: "tri",  glyph: "▲" },
+  { key: "square",   name: "Square",   color: "sq",   glyph: "■" },
+  { key: "circle",   name: "Circle",   color: "circ", glyph: "●" },
+];
+
+// layout coordinates (in viewBox space 900x540)
+const GRID = {
+  x: 70, y: 175,
+  cell: 36, gap: 4,
+};
+const INPUT_COL = {
+  x: 400,
+  yTop: 30,
+  yBot: 510,
+  r: 7,
+};
+const OUTPUT_COL = {
+  x: 770,
+  ys: [120, 270, 420],
+  r: 28,
+};
+
+// ─────────────────────────────────────────────────────────────
+//  TIMING — every base duration here is in "slow mode"
+//  so each step is visibly observable. The `speed` multiplier
+//  (controlled by the UI) scales ALL of them: 1× = slow,
+//  2× = slower, 4× = slower still, 0.5× = closer to original.
+//  Effective ms = base × speed.
+// ─────────────────────────────────────────────────────────────
+const T = {
+  phase1_hold:        1800,  // image alone on canvas
+  phase2_pre:         1200,  // pause after caption swap, before unroll
+  unrollStagger:       180,  // gap between neighboring pixels starting to fly
+  unrollFly:          1200,  // travel time for one pixel → neuron
+  phase2_post:        1500,  // after all 16 have landed
+
+  edgeFadeStep:         30,  // delay between adjacent edges fading in
+  edgeFadeBetweenOut:  450,  // pause between the 3 output bundles
+  phase3_post:        1800,
+
+  phase4_pre:         1400,  // caption hold before pulses
+  pulseTravel:        1300,  // one pulse along an edge
+  pulseGapAfterRow:    600,  // pause after each input row's pulses (read the score)
+  pulseGapOffPixel:    250,  // small breath when an off-pixel "fires" silently
+
+  phase5_pre:         1500,  // before showing the verdict
+  captionFadeOut:      220,  // matches CSS .caption-text transition
+};
+
+let speed = 2;            // default → "slow"
+function dur(ms) { return Math.round(ms * speed); }
+
+let input = [...TEMPLATES.triangle];
+let isPlaying = false;
+let token = 0;
+
+// derived input neuron positions
+function inputNodePos(i) {
+  const span = INPUT_COL.yBot - INPUT_COL.yTop;
+  const y = INPUT_COL.yTop + (i / 15) * span;
+  return { x: INPUT_COL.x, y };
+}
+function gridCellPos(i) {
+  const row = Math.floor(i / 4), col = i % 4;
+  return {
+    x: GRID.x + col * (GRID.cell + GRID.gap),
+    y: GRID.y + row * (GRID.cell + GRID.gap),
+  };
+}
+function outputNodePos(k) {
+  return { x: OUTPUT_COL.x, y: OUTPUT_COL.ys[k] };
+}
+
+// =========================
+//  BUILD SVG
+// =========================
+const svgNS = "http://www.w3.org/2000/svg";
+
+function el(tag, attrs = {}) {
+  const e = document.createElementNS(svgNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+const layerEdges = document.getElementById("layer-edges");
+const layerGrid = document.getElementById("layer-grid");
+const layerInput = document.getElementById("layer-input");
+const layerOutput = document.getElementById("layer-output");
+const layerLabels = document.getElementById("layer-labels");
+const layerPulses = document.getElementById("layer-pulses");
+
+// title labels
+function addLabel(group, text, x, y, cls = "label") {
+  const t = el("text", { x, y, class: cls, "text-anchor": "middle" });
+  t.textContent = text;
+  group.appendChild(t);
+  return t;
+}
+addLabel(layerLabels, "INPUT IMAGE", GRID.x + 2*(GRID.cell + GRID.gap) - GRID.gap/2, GRID.y - 18, "label title");
+addLabel(layerLabels, "FLATTENED · 16 NEURONS", INPUT_COL.x, INPUT_COL.yTop - 18, "label title");
+addLabel(layerLabels, "OUTPUT · 3 CLASSES", OUTPUT_COL.x, 30, "label title");
+
+// 4×4 grid cells
+const gridCells = [];
+for (let i = 0; i < 16; i++) {
+  const p = gridCellPos(i);
+  const r = el("rect", {
+    x: p.x, y: p.y,
+    width: GRID.cell, height: GRID.cell,
+    rx: 3, ry: 3,
+    class: "grid-cell grid-cell-bg",
+    "data-idx": i,
+    style: "cursor: pointer;",
+  });
+  r.addEventListener("click", () => {
+    if (isPlaying) return;
+    input[i] = input[i] ? 0 : 1;
+    renderInputStatic();
+  });
+  layerGrid.appendChild(r);
+  gridCells.push(r);
+}
+
+// 16 input neurons (placeholders, initially invisible)
+const inputNodes = [];
+for (let i = 0; i < 16; i++) {
+  const p = inputNodePos(i);
+  const c = el("circle", {
+    cx: p.x, cy: p.y, r: INPUT_COL.r,
+    class: "input-node",
+    "data-idx": i,
+  });
+  layerInput.appendChild(c);
+  inputNodes.push(c);
+}
+
+// 3 output neurons (always visible, dim initially)
+const outputNodes = [];
+const outputLabels = [];
+const outputScoreLabels = [];
+CLASSES.forEach((c, k) => {
+  const p = outputNodePos(k);
+  const circ = el("circle", {
+    cx: p.x, cy: p.y, r: OUTPUT_COL.r,
+    class: "output-node",
+    "data-cls": c.key,
+  });
+  layerOutput.appendChild(circ);
+  outputNodes.push(circ);
+
+  // glyph inside the node
+  const g = el("text", {
+    x: p.x, y: p.y + 7,
+    "text-anchor": "middle",
+    fill: "var(--text-canvas-soft)",
+    "font-size": 18,
+    style: "pointer-events:none;",
+  });
+  g.textContent = c.glyph;
+  layerOutput.appendChild(g);
+
+  // class name label
+  const name = el("text", {
+    x: p.x, y: p.y - OUTPUT_COL.r - 10,
+    class: "label cls-name",
+    "data-cls": c.key,
+    "text-anchor": "middle",
+  });
+  name.textContent = c.name;
+  layerLabels.appendChild(name);
+  outputLabels.push(name);
+
+  // running score label
+  const score = el("text", {
+    x: p.x, y: p.y + OUTPUT_COL.r + 22,
+    class: "label score",
+    "data-cls": c.key,
+    "text-anchor": "middle",
+  });
+  score.textContent = "+0";
+  layerLabels.appendChild(score);
+  outputScoreLabels.push(score);
+});
+
+// 16 × 3 edges (built but invisible)
+const edges = []; // {el, x1,y1,x2,y2, sign, inputIdx, outputIdx}
+for (let i = 0; i < 16; i++) {
+  for (let k = 0; k < 3; k++) {
+    const cls = CLASSES[k];
+    const t = TEMPLATES[cls.key][i];
+    const sign = t === 1 ? "pos" : "neg";
+    const a = inputNodePos(i);
+    const b = outputNodePos(k);
+    const line = el("line", {
+      x1: a.x, y1: a.y, x2: b.x, y2: b.y,
+      class: "edge " + sign,
+      "data-input": i,
+      "data-output": k,
+    });
+    layerEdges.appendChild(line);
+    edges.push({ el: line, x1: a.x, y1: a.y, x2: b.x, y2: b.y, sign, inputIdx: i, outputIdx: k });
+  }
+}
+
+// =========================
+//  RENDER
+// =========================
+function renderInputStatic() {
+  for (let i = 0; i < 16; i++) {
+    gridCells[i].classList.toggle("grid-cell-on", input[i] === 1);
+    inputNodes[i].classList.remove("placed", "on", "focus");
+  }
+  edges.forEach(e => e.el.classList.remove("visible", "firing", "pos-on", "neg-on"));
+  outputNodes.forEach(n => { n.classList.remove("active", "winner"); });
+  outputScoreLabels.forEach(s => { s.textContent = "+0"; s.classList.remove("active"); });
+  setPhase("—");
+}
+
+function setPhase(label) {
+  document.getElementById("phaseTag").innerHTML = "phase <b>" + label + "</b>";
+}
+
+function setCaption(html) {
+  const txt = document.getElementById("captionText");
+  txt.classList.remove("visible");
+  setTimeout(() => {
+    txt.innerHTML = html;
+    requestAnimationFrame(() => txt.classList.add("visible"));
+  }, T.captionFadeOut);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function cancelable(t) { return t === token; }
+
+// =========================
+//  ANIMATIONS
+// =========================
+
+// Animate a flying "pixel" copy from grid cell i to input node i.
+// `durationMs` is the BASE duration — already-scaled callers should
+// NOT pass scaled values; this function scales internally.
+async function flyPixel(i, baseMs) {
+  const start = gridCellPos(i);
+  const end = inputNodePos(i);
+  const fromX = start.x + GRID.cell / 2;
+  const fromY = start.y + GRID.cell / 2;
+
+  const isOn = input[i] === 1;
+  const flyer = el("circle", {
+    cx: fromX, cy: fromY,
+    r: GRID.cell * 0.35,
+    fill: isOn ? "var(--node-glow)" : "var(--node-dim)",
+    stroke: isOn ? "var(--node-glow)" : "var(--node-stroke)",
+    "stroke-width": 1.2,
+    opacity: 0.95,
+    style: isOn ? "filter: drop-shadow(0 0 6px rgba(245,215,110,0.5));" : "",
+  });
+  layerPulses.appendChild(flyer);
+
+  const totalMs = dur(baseMs);
+  const startTime = performance.now();
+  return new Promise(resolve => {
+    function tick(now) {
+      const t = Math.min(1, (now - startTime) / totalMs);
+      // easeInOut
+      const e = t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t;
+      const x = fromX + (end.x - fromX) * e;
+      const y = fromY + (end.y - fromY) * e;
+      const r = GRID.cell * 0.35 + (INPUT_COL.r - GRID.cell * 0.35) * e;
+      flyer.setAttribute("cx", x);
+      flyer.setAttribute("cy", y);
+      flyer.setAttribute("r", r);
+      if (t < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        if (isOn) inputNodes[i].classList.add("on");
+        inputNodes[i].classList.add("placed");
+        flyer.remove();
+        resolve();
+      }
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+// Send a pulse along an edge from input i to output k.
+function firePulse(inputIdx, outputIdx, baseMs) {
+  const edge = edges.find(e => e.inputIdx === inputIdx && e.outputIdx === outputIdx);
+  if (!edge) return Promise.resolve();
+  edge.el.classList.add("firing");
+
+  const pulse = el("circle", {
+    cx: edge.x1, cy: edge.y1, r: 4,
+    class: "pulse" + (edge.sign === "neg" ? " neg" : ""),
+  });
+  layerPulses.appendChild(pulse);
+
+  const totalMs = dur(baseMs);
+  const startTime = performance.now();
+  return new Promise(resolve => {
+    function tick(now) {
+      const t = Math.min(1, (now - startTime) / totalMs);
+      const e = t; // linear travel
+      const x = edge.x1 + (edge.x2 - edge.x1) * e;
+      const y = edge.y1 + (edge.y2 - edge.y1) * e;
+      pulse.setAttribute("cx", x);
+      pulse.setAttribute("cy", y);
+      pulse.setAttribute("opacity", t > 0.9 ? (1 - (t - 0.9) / 0.1) : 1);
+      if (t < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        pulse.remove();
+        setTimeout(() => edge.el.classList.remove("firing"), 200);
+        resolve();
+      }
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+function updateOutputScore(k, score) {
+  outputScoreLabels[k].textContent = (score >= 0 ? "+" : "") + score;
+  outputScoreLabels[k].classList.add("active");
+  outputNodes[k].classList.add("active");
+}
+
+// =========================
+//  PLAY  (slow mode — every wait goes through dur())
+// =========================
+async function play() {
+  if (isPlaying) return;
+  if (input.every(v => v === 0)) {
+    setCaption("Pick a shape preset first, or click cells in the grid to draw one.");
+    return;
+  }
+
+  isPlaying = true;
+  document.getElementById("btnPlay").textContent = "■ stop";
+  const t = ++token;
+
+  // ---- Phase 0: reset
+  renderInputStatic();
+  await sleep(dur(300));
+  if (!cancelable(t)) return endPlay();
+
+  // ---- Phase 1: show input image
+  setPhase("1 / 4 — the image");
+  setCaption("This is the input — a 4×4 image. Each cell is either <strong>on</strong> (+1) or <strong>off</strong> (−1).");
+  for (let i = 0; i < 16; i++) {
+    gridCells[i].classList.toggle("grid-cell-on", input[i] === 1);
+  }
+  await sleep(dur(T.phase1_hold));
+  if (!cancelable(t)) return endPlay();
+
+  // ---- Phase 2: unroll
+  setPhase("2 / 4 — flatten");
+  setCaption("We <em>flatten</em> it. Each pixel projects out, becoming one of <strong>16 input neurons</strong> in a column.");
+  await sleep(dur(T.phase2_pre));
+  if (!cancelable(t)) return endPlay();
+
+  const unrollPromises = [];
+  for (let i = 0; i < 16; i++) {
+    unrollPromises.push(
+      (async () => {
+        await sleep(dur(i * T.unrollStagger));
+        if (!cancelable(t)) return;
+        await flyPixel(i, T.unrollFly);
+      })()
+    );
+  }
+  await Promise.all(unrollPromises);
+  if (!cancelable(t)) return endPlay();
+  await sleep(dur(T.phase2_post));
+  if (!cancelable(t)) return endPlay();
+
+  // ---- Phase 3: edges fade in
+  setPhase("3 / 4 — the weights");
+  setCaption("Every neuron connects to every output. <strong>48 weights</strong> in total — blue when the template wants the pixel on, red when it wants it off.");
+  for (let k = 0; k < 3; k++) {
+    for (let i = 0; i < 16; i++) {
+      const edge = edges.find(e => e.inputIdx === i && e.outputIdx === k);
+      edge.el.classList.add("visible");
+      await sleep(dur(T.edgeFadeStep));
+      if (!cancelable(t)) return endPlay();
+    }
+    await sleep(dur(T.edgeFadeBetweenOut));
+    if (!cancelable(t)) return endPlay();
+  }
+  await sleep(dur(T.phase3_post));
+  if (!cancelable(t)) return endPlay();
+
+  // ---- Phase 4: forward pass — pulses fire from active input neurons
+  setPhase("4 / 4 — the forward pass");
+  setCaption("The forward pass. Active pixels send a <strong>pulse</strong> through each connection — blue pulses add to a score, red pulses subtract.");
+  await sleep(dur(T.phase4_pre));
+  if (!cancelable(t)) return endPlay();
+
+  const scores = [0, 0, 0];
+
+  // Fire input by input (top to bottom). For each input neuron, briefly halo it,
+  // fire 3 simultaneous pulses (only animated for ON pixels), update scores,
+  // then pause so the viewer can read the new totals.
+  for (let i = 0; i < 16; i++) {
+    if (!cancelable(t)) return endPlay();
+
+    inputNodes[i].classList.add("focus");
+    const inputVal = input[i] ? 1 : -1;
+
+    if (input[i] === 1) {
+      const pulses = [];
+      for (let k = 0; k < 3; k++) {
+        pulses.push(firePulse(i, k, T.pulseTravel));
+      }
+      await Promise.all(pulses);
+    } else {
+      await sleep(dur(T.pulseGapOffPixel));
+    }
+
+    // accumulate {-1, +1} dot product
+    for (let k = 0; k < 3; k++) {
+      const tval = TEMPLATES[CLASSES[k].key][i] ? 1 : -1;
+      scores[k] += inputVal * tval;
+      updateOutputScore(k, scores[k]);
+    }
+
+    inputNodes[i].classList.remove("focus");
+
+    // breath between rows so the running totals are readable
+    await sleep(dur(T.pulseGapAfterRow));
+    if (!cancelable(t)) return endPlay();
+  }
+
+  await sleep(dur(T.phase5_pre));
+  if (!cancelable(t)) return endPlay();
+
+  // ---- Phase 5: verdict
+  let bestK = 0;
+  for (let k = 1; k < 3; k++) if (scores[k] > scores[bestK]) bestK = k;
+  const winner = CLASSES[bestK];
+
+  setPhase("verdict");
+  setCaption(`The model commits. <strong style="color: var(--${winner.color});">${winner.name}</strong> wins with a score of <strong>+${scores[bestK]}</strong> — the highest of the three.`);
+
+  outputNodes.forEach((n, k) => {
+    if (k === bestK) n.classList.add("winner");
+    else { n.classList.remove("active"); }
+  });
+
+  endPlay();
+}
+
+function endPlay() {
+  isPlaying = false;
+  document.getElementById("btnPlay").textContent = "▶ play";
+}
+
+// =========================
+//  EVENT WIRING
+// =========================
+document.getElementById("btnPlay").addEventListener("click", () => {
+  if (isPlaying) { token++; endPlay(); }
+  else play();
+});
+
+document.getElementById("btnReset").addEventListener("click", () => {
+  token++;
+  endPlay();
+  renderInputStatic();
+  setCaption("Press <strong>play</strong> to watch a 4×4 image unfold into a column of input neurons, fire through 48 connections, and resolve into a single prediction.");
+});
+
+document.querySelectorAll(".preset").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (isPlaying) return;
+    input = [...TEMPLATES[btn.dataset.load]];
+    renderInputStatic();
+  });
+});
+
+// speed selector
+document.querySelectorAll(".speed-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    speed = parseFloat(btn.dataset.speed);
+    document.querySelectorAll(".speed-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+  });
+});
+
+// initial
+renderInputStatic();
+</script>
+
+</body>
+</html>
